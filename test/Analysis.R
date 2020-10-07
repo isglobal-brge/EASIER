@@ -2,10 +2,17 @@ if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf')
 if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
 if (!require(VennDiagram, quietly = TRUE)) install.packages('VennDiagram')
 if (!require(RColorBrewer, quietly = TRUE)) install.packages('RColorBrewer')
+if (!require(tibble, quietly = TRUE)) install.packages('tibble')
+if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
+if (!require(stringr, quietly = TRUE)) install.packages('stringr')
+if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
+
 library(methyTools)
 
 #..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/methyTools")
-setwd("/Users/mailos/Library/Mobile Documents/com~apple~CloudDocs/ISGlobal/Projectes/EWAS/2_Llibreria/proves")
+#..# setwd("/Users/mailos/Library/Mobile Documents/com~apple~CloudDocs/ISGlobal/Projectes/EWAS/2_Llibreria/proves")
+setwd("/Users/mailos/tmp/proves")
+
 
 # Study name
 study <- 'TEST'
@@ -28,6 +35,9 @@ results_folder <- 'QC_Results'
 prefixes <- c('PACE_AQUA_A1', 'PACE_AQUA_A2',
               'PACE_IMMA_A1','PACE_IMMA_A2', 'PACE_IMMA_B1', 'PACE_IMMA_B2', 'PACE_IMMA_C1', 'PACE_IMMA_C2',
               'RICHS_A1', 'RICHS_A2')
+
+# Array type, used : EPIC or 450K
+artype <- '450K'
 
 # Parameters to exclude CpGs
 exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unreliable_450_EPIC', 'Sex')
@@ -136,12 +146,93 @@ if ( length(files) > 1)
 
 }
 
-#
 
 ## ############### ##
 ##  Meta-Analysis  ##
 ## ############### ##
 
+## -- Variable definition -- ##
+
+# Define data for each meta-analysis
+metafiles <- list(
+   'MetaA1' = c('PACE_AQUA_A1','PACE_IMMA_A1', 'RICHS_A1' ),
+   'MetaA2' = c('PACE_AQUA_A2','PACE_IMMA_A2', 'RICHS_A2' ),
+   'MetaB' = c('PACE_IMMA_B1','PACE_IMMA_B2'))
+
+# Define maximum percent missing for each CpG
+pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta-analysis will be deleted from the study.
+
+
+## Create directory for GWAMA configuration files and GWAMA_Results
+if(!dir.exists(file.path(getwd(), paste(folder, "GWAMA", sep="/") )))
+   suppressWarnings(dir.create(file.path(getwd(), paste(folder, "GWAMA", sep="/"))))
+
+## Create directory for GWAMA_Results
+outputfolder <- paste0(folder, "/GWAMA_Results")
+if(!dir.exists(file.path(getwd(), outputfolder )))
+   suppressWarnings(dir.create(file.path(getwd(), outputfolder)))
+
+
+# Create map file for GWAMA --> Used in Manhattan plots
+hapmapfile <- paste(folder,"GWAMA", "hapmap.map" ,sep = "/")
+generate_hapmap_file(artype, hapmapfile)
+
+# GWAMA binary path
+#.Original.# gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
+gwama.dir <- "/Users/mailos/tmp/GWAMA_v2/"
+
+for( metf in 1:length(metafiles))
+{
+
+   list.lowCpGs <- NULL
+
+   # Create folder for a meta-analysis in GWAMA folder, here we store the GWAMA input files for each meta-analysis,
+   # We create one for complete meta-analysis
+   if(!dir.exists(file.path(getwd(), paste(folder,"GWAMA", names(metafiles)[metf] ,sep="/") )))
+      suppressWarnings(dir.create(file.path(getwd(), paste(folder,"GWAMA", names(metafiles)[metf], sep="/"))))
+   # We create another for meta-analysis without filtered CpGs with low percentage (sufix _Filtr)
+   if(!dir.exists(file.path(getwd(), paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
+      suppressWarnings(dir.create(file.path(getwd(), paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
+
+   # GWAMA File name base
+   inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf])
+
+   modelfiles <- unlist(metafiles[metf])
+
+   runs <- c('Normal', 'lowcpgs') # Execution with all CpGs and without filtered CpGs
+   lowCpGs = FALSE;
+   outputfiles <- list()
+
+   outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
+
+   for(j in 1:length(runs))
+   {
+      if(runs[j]=='lowcpgs') {
+         lowCpGs = TRUE
+         # Get low presence CpGs in order to exclude this from the new meta-analysis
+         list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
+         inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
+         outputgwama <- paste0(outputgwama,"_Filtr")
+      }
+
+      # Create GWAMA files for each file in meta-analysis and execute GWAMA
+      for ( i in 1:length(modelfiles) )
+         create_GWAMA_files(folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
+
+      #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
+      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir)
+
+      # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
+      ##..## dataPost <- get_descriptives_postGWAMA(outputfolder, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
+      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
+
+      # Forest-Plot
+      plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf]  )
+
+   }
+
+
+}
 
 
 

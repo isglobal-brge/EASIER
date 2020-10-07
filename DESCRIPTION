@@ -12,7 +12,12 @@ LazyData: true
 Imports: Rcpp (>= 1.0.5),
    ggplot2,
    VennDiagram,
-   RColorBrewer
+   RColorBrewer,
+   tibble,
+   dplyr,
+   stringr,
+   rasterpdf,
+   meta
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 Depends: 
