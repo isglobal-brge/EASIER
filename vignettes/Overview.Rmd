@@ -131,7 +131,7 @@ In QC process, we exclude that CpGs that not accomplish with defined parameters 
   * **MASK_mapping** : "hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs . 
   * **MASK_extBase**  : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. 
   * **MASK_typeINextBaseSwitch**  : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference). These probes should be processed differently than designed (by summing up both color channels instead of just the annotated color channel).
-  * **MASK_snp5.common*  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). 
+  * **MASK_snp5.common**  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). 
   * **MASK_snp5.GMAF1p**  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1% . 
   * **MASK_general** :  Recommended general purpose masking merged from *"MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p"* . 
   * **cpg_probes** :  cpg probes classified as "cg" in the variable named "probeType". 
@@ -164,7 +164,7 @@ N <- c(100, 100, 166, 166, 240, 240 )
 n <- c(NA)
 ```
 
-## Execute code
+## Code
 
 
 This code is executed for each file defined in previous variable `files`
@@ -194,19 +194,24 @@ First, we need to read the content of a file
    print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
-we store the content of the file in a `cohort` variable, after that, we perform a simple descriptive analysis
+we store the content of the file in a `cohort` variable, after that, we perform a simple descriptive analysis, to do that, we use the function `descriptives_CpGs`, this function needs the data to analyze (`cohort`), the fields that we are interested to get descriptives, in that case BETA, SE and P_VAL (seq(2:4)), and the file to write results, for the first file will be : *QC_Results/PACE_AQUA_A1_descriptives_init.txt*
 
 ```{r QC_code_descriptives}
    # Descriptives - Before CpGs deletion
    descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,'/',prefixes[i],'_descriptives_init.txt') )
 ```
 
-```{r QC_code_descriptives2}
+now, we test if there are any duplicate CpGs and if exists, this duplicated CpGs are removed, to do that, we use the function `remove_duplicate_CpGs`, in this function we must indicate what data have to be reviewed and the field that contains the CpGid. Optionally, we can write the duplicates and descriptives related to this duplicates in a file.
+
+```{r QC_code_removedupli}
    # Remove duplicates
    cohort <- remove_duplicate_CpGs(cohort, "probeID", 
                                    paste0(results_folder,'/',prefixes[i],'_descriptives_duplic.txt'), 
                                    paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
+```
 
+
+```{r QC_code_exclCpGs}
    # Exclude CpGs not meet conditions
    cohort <- exclude_CpGs(cohort, "probeID", exclude, filename = paste0(results_folder,'/',prefixes[i],'_excluded.txt') )
 

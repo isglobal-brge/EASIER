@@ -662,7 +662,7 @@ summary {
 <li><a href="#illumina-array-type-and-filter-conditions"><span class="toc-section-number">4.1.4</span> Illumina Array type and filter conditions</a></li>
 <li><a href="#other-variables"><span class="toc-section-number">4.1.5</span> Other variables :</a></li>
 </ul></li>
-<li><a href="#execute-code"><span class="toc-section-number">4.2</span> Execute code</a></li>
+<li><a href="#code"><span class="toc-section-number">4.2</span> Code</a></li>
 </ul></li>
 <li><a href="#meta-analysis-with-gwama"><span class="toc-section-number">5</span> Meta-Analysis with GWAMA</a></li>
 <li><a href="#session-info">Session info</a></li>
@@ -773,7 +773,7 @@ artype &lt;- &#39;450K&#39;</code></pre>
 <li><strong>MASK_mapping</strong> : &quot;hether the probe is masked for mapping reason. Probes retained should have high quality (&gt;=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs .</li>
 <li><strong>MASK_extBase</strong> : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping.</li>
 <li><strong>MASK_typeINextBaseSwitch</strong> : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference). These probes should be processed differently than designed (by summing up both color channels instead of just the annotated color channel).</li>
-<li>**MASK_snp5.common* : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%).</li>
+<li><strong>MASK_snp5.common</strong> : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%).</li>
 <li><strong>MASK_snp5.GMAF1p</strong> : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF &gt;1% .</li>
 <li><strong>MASK_general</strong> : Recommended general purpose masking merged from <em>“MASK.sub30.copy”, “MASK.mapping”, “MASK.extBase”, “MASK.typeINextBaseSwitch” and “MASK.snp5.GMAF1p”</em> .</li>
 <li><strong>cpg_probes</strong> : cpg probes classified as “cg” in the variable named “probeType”.</li>
@@ -797,8 +797,8 @@ exclude &lt;- c( &#39;MASK_sub35_copy&#39;, &#39;MASK_typeINextBaseSwitch&#39;, 
 n &lt;- c(NA)</code></pre>
 </div>
 </div>
-<div id="execute-code" class="section level2">
-<h2><span class="header-section-number">4.2</span> Execute code</h2>
+<div id="code" class="section level2">
+<h2><span class="header-section-number">4.2</span> Code</h2>
 <p>This code is executed for each file defined in previous variable <code>files</code></p>
 <pre class="r"><code># Variable declaration to perform precision plot
 medianSE &lt;- numeric(length(files))
@@ -816,15 +816,15 @@ for ( i in 1:length(files) )
 <pre class="r"><code>   # Read data.
    cohort &lt;- read.table(files[i], header = TRUE, as.is = TRUE)
    print(paste0(&quot;Cohort file : &quot;,files[i],&quot; - readed OK&quot;, sep = &quot; &quot;))</code></pre>
-<p>we store the content of the file in a <code>cohort</code> variable, after that, we perform a simple descriptive analysis</p>
+<p>we store the content of the file in a <code>cohort</code> variable, after that, we perform a simple descriptive analysis, to do that, we use the function <code>descriptives_CpGs</code>, this function needs the data to analyze (<code>cohort</code>), the fields that we are interested to get descriptives, in that case BETA, SE and P_VAL (seq(2:4)), and the file to write results, for the first file will be : <em>QC_Results/PACE_AQUA_A1_descriptives_init.txt</em></p>
 <pre class="r"><code>   # Descriptives - Before CpGs deletion
    descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,&#39;/&#39;,prefixes[i],&#39;_descriptives_init.txt&#39;) )</code></pre>
+<p>now, we test if there are any duplicate CpGs and if exists, this duplicated CpGs are removed, to do that, we use the function <code>remove_duplicate_CpGs</code>, in this function we must indicate what data have to be reviewed and the field that contains the CpGid. Optionally, we can write the duplicates and descriptives related to this duplicates in a file.</p>
 <pre class="r"><code>   # Remove duplicates
    cohort &lt;- remove_duplicate_CpGs(cohort, &quot;probeID&quot;, 
                                    paste0(results_folder,&#39;/&#39;,prefixes[i],&#39;_descriptives_duplic.txt&#39;), 
-                                   paste0(results_folder,&#39;/&#39;,prefixes[i],&#39;_duplicates.txt&#39;) )
-
-   # Exclude CpGs not meet conditions
+                                   paste0(results_folder,&#39;/&#39;,prefixes[i],&#39;_duplicates.txt&#39;) )</code></pre>
+<pre class="r"><code>   # Exclude CpGs not meet conditions
    cohort &lt;- exclude_CpGs(cohort, &quot;probeID&quot;, exclude, filename = paste0(results_folder,&#39;/&#39;,prefixes[i],&#39;_excluded.txt&#39;) )
 
    # Descriptives - After CpGs deletion #
