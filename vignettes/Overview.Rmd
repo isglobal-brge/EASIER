@@ -30,7 +30,9 @@ library(knitr)
 
 # Prerequisites
 
-The package requires other packages to be installed. These include : `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf` and `meta` all disponible in CRAN. The package also requires other packages from Bioconductor to perform annotations : `IlluminaHumanMethylation450kanno.ilmn12.hg19` and `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`
+The package requires other packages to be installed. These include : `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf` and `meta` all disponible in CRAN. The package also requires other packages from Bioconductor to perform annotations : `IlluminaHumanMethylation450kanno.ilmn12.hg19` and `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`.
+
+To perform meta-analyses we use GWAMA, a Software tool for meta analysis developed by Intitute of Genomics from University of Tartu, this software is available at [https://genomics.ut.ee/en/tools/gwama-download] (https://genomics.ut.ee/en/tools/gwama-download), this software must be installed on the computer where we are running analysis
 
 # Overview
 
@@ -321,11 +323,109 @@ venn_diagrams <- list(
 
 # Meta-Analysis with GWAMA
 
-```{r meta_variables}
+
+Like in QC analysis, in Meta-analysis we have to define some variables, one of the variables that we must define is the one that refers to the data of each meta-analysis, for example, in `metafiles` variable we have defined three different meta-analysis, MetaA1, MetaA2 and MetaB, in the first one, MetaA1, we have the datasets 'PACE_AQUA_A1', 'PACE_IMMA_A1' and 'RICHS_A1', we can use the simplified form to make all the study more understandable.
+
+We can also exclude those CpGs with low representation in meta-analysis, we can set the minimum percentage with `pcentMissing` variable, in this example, we take in to account all CpGs not present at least 80% of the datasets of the meta-analysis. We execute the meta-analysis twice,  one with all CpGs and other with only CpGs with precence higer than pcentMissing.
+
+```{r meta_variables, eval=FALSE}
+# Define data for each meta-analysis
+metafiles <- list(
+   'MetaA1' = c('PACE_AQUA_A1','PACE_IMMA_A1', 'RICHS_A1' ),
+   'MetaA2' = c('PACE_AQUA_A2','PACE_IMMA_A2', 'RICHS_A2' ),
+   'MetaB' = c('PACE_IMMA_B1','PACE_IMMA_B2'))
+
+# Define maximum percent missing for each CpG
+pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta-analysis will be deleted from the study.
+
 ```
 
-```{r meta_code}
+In this example we only get the first meta-analysis with all CpGs and with CpGs with missing data lower thanpcentMissing but in a complete script all meta-analyzes are performed for both cases, complete and lowCpGs. 
+
+First, we must create the needed folders, in this example we create a GWAMA folder where we will put the input files for GWAMA and GWAMA_Results folder where we will store all the results. 
+
+```{r meta_folders, eval=FALSE}
+
+# Create folder for a meta-analysis in GWAMA folder, here we store the GWAMA input files for each meta-analysis,
+# We create one for complete meta-analysis
+if(!dir.exists(file.path(getwd(), 
+                         paste(folder,"GWAMA", names(metafiles)[metf] ,sep="/") )))
+   suppressWarnings(dir.create(file.path(getwd(), 
+                                         paste(folder,"GWAMA", 
+                                               names(metafiles)[metf], sep="/"))))
+# We create another for meta-analysis without filtered CpGs with low percentage (sufix _Filtr)
+if(!dir.exists(file.path(getwd(), paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
+   suppressWarnings(dir.create(file.path(getwd(), 
+                                         paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
+
+# GWAMA File name base
+inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf])
+
+modelfiles <- unlist(metafiles[metf])
+
+   runs <- c('Normal', 'lowcpgs') # Execution with all CpGs and without filtered CpGs (low representation)
+   list.lowCpGs <- NULL
+   lowCpGs = FALSE;
+   outputfiles <- list()
+
+   outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
+   
 ```
+
+To perform meta-analyses we use GWAMA, a Software tool for meta analysis developed by Intitute of Genomics from University of Tartu, this software is available at [https://genomics.ut.ee/en/tools/gwama-download] (https://genomics.ut.ee/en/tools/gwama-download), this software must be installed on the computer where we are running analysis and the installation path must be defined in `gwama.dir` variable
+
+```{r meta_vargwama, eval=FALSE}
+# GWAMA binary path
+#.Original.# gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
+gwama.dir <- "/Users/mailos/tmp/GWAMA_v2/"
+```
+
+
+Now we are ready to execute the analysis, first of all, we need to generate files with predefined format by GWAMA, to do that, we use the function `create_GWAMA_files`, in this function, we have to specify the gwama foder created before, a character vector with models present in meta-analysis (previously defined in metafiles variable), the folder with original data (these are the QC_Data output files from QC), the number of samples in the study and if this is the execution with all CpGs or not, if not, we pass the list with excluded CpGs, we can obtain this list with `get_low_presence_CpGs` function.
+
+`create_GWAMA_files` function takes the original files and converts them to the GWAMA format, it also creates the .ini file necessary to run GWAMA 
+
+When we have all the files ready to execute gwama, we proceed to its execution, with `run_GWAMA_MetaAnalysis` function, this function needs to know : 
+
+* the folder with data to be analyzed, this is the GWAMA folder 
+* where to store the results, by default this function creates a subfolder with meta-analysis name and stores all the results together, 
+* the meta-analysiss name
+* where is the GWAMA binary installed
+
+GWANA is executed by fixed and for random effects, `run_GWAMA_MetaAnalysis` function generates one .out file with meta-analysis results, the Manhattan-plot and the QQplot twice, one for Fixed effects and the other for Random effects. 
+
+```{r meta_analys, eval=FALSE}
+   for(j in 1:length(runs))
+   {
+      if(runs[j]=='lowcpgs') {
+         lowCpGs = TRUE
+         # Get low presence CpGs in order to exclude this from the new meta-analysis
+         list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
+         inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
+         outputgwama <- paste0(outputgwama,"_Filtr")
+      }
+
+      # Create GWAMA files for each file in meta-analysis and execute GWAMA
+      for ( i in 1:length(modelfiles) )
+         create_GWAMA_files(folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
+
+      #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
+      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir)
+
+      # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
+      ##..## dataPost <- get_descriptives_postGWAMA(outputfolder, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
+      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
+
+      # Forest-Plot
+      plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf]  )
+
+   }
+
+```
+
+When we have the GWAMA results we perform an analysis with `get_descriptives_postGWAMA` functions, like in QC but with meta-analysis results, we adjust p-values, we annotate CpGs, we generate a file with descriptive result and plot heterogeneity distribution, SE distribution, p-values distribution, QQ-plot with lambda and the volcano plot.
+
+To end with meta-analysis we generate the ForestPlot associated to the first 30 top significative CpGs.
 
 
 # Session info {.unnumbered}
