@@ -1,5 +1,5 @@
 ---
-title: "methyTools - EWAS meta-analysis"
+title: "methyTools - EWAS meta-analysis example"
 author:
 - name: First Author
   affiliation: First Author's Affiliation
@@ -63,9 +63,14 @@ library(methyTools)
 
 # Quality control
 
-## Variables definition
+## Initial Variables definition
 
-First, we need to define the variables to work with, we will start with files that contains the data to perform analysis. As we comment before, we will perform an EWAS with three different cohorts with two distinct models for each cohort, so we need to define where the data is stored for each model an each cohort, we do thant in a character vector, in that case the variable is called files
+
+First, we need to define the variables to work with, we will start with files that contains the data to perform analysis. 
+
+### Input data
+
+As we comment before, we will perform an EWAS with three different cohorts with two distinct models for each cohort, so we need to define where the data is stored for each model an each cohort (six files), we do that in a character vector, in that case the variable is called files
 
 ```{r QC_varfiles}
 
@@ -77,12 +82,26 @@ files <- c('data/PACE_AQUA_Model1_date_v2.txt',
            'data/RICHS_Model2_20170713.txt')
 ```
 
-we can also define the folder where we will save the results, for example in variable `result_folder`, in this case the results will be stored under QC_Results folder
+files must contain at least the fields : 
+
+
+probeID   | BETA | SE | P_VAL
+------- | ----- | ----- | -----
+cg13869341 | 0.00113640479983364 | 0.00963113128153573 | 0.906073309096263
+cg24669183 | -0.0295105946089182 | 0.0150948404044624 | 0.0505816501551891
+cg15560884 | 0.00232510627603938 | 0.00638784678105962 | 0.715866186815538
+
+
+### Where store results
+
+We can also define the folder where we will save the results, for example in variable `result_folder`, in this case the results will be stored under QC_Results folder
 
 ```{r QC_varres}
 # Result folder
 results_folder <- 'QC_Results'
 ```
+
+### Make results understable
 
 to make the analysis more understandable and do not have very complex file names we can define an abbreviated form for each of the files defined above, for example, in future PACE_AQUA_Model1_date_v2 will be treated as PACE_AQUA_A1 or PACE_INMA_Plate_ModelA2_20170309 as PACE_IMMA_A2. The length of the prefix vector must be equal to that of the files
 
@@ -93,7 +112,10 @@ prefixes <- c('PACE_AQUA_A1', 'PACE_AQUA_A2',
               'RICHS_A1', 'RICHS_A2')
 ```
 
-we also need to know the Illumina array type , possible values are `450K` and `EPIC`, this data is very important because we filter CpGs attending to Illumina array type
+
+### Illumina Array type and filter conditions
+
+We need to know the Illumina array type , possible values are `450K` and `EPIC`, this data is very important because we filter CpGs attending to Illumina array type
 
 ```{r QC_varartype}
 # Array type, used : EPIC or 450K
@@ -102,22 +124,22 @@ artype <- '450K'
 
 In QC process, we exclude that CpGs that not accomplish with defined parameters (Chen et al. (2013)), this parameters are defined in a character vector and are :
 
-  * MASK_sub25_copy : indicate whether the 25bp 3'-subsequence of the probe is non-unique
-  * MASK_sub30_copy : indicate whether the 30bp 3'-subsequence of the probe is non-unique
-  * MASK_sub35_copy : indicate whether the 35bp 3'-subsequence of the probe is non-unique
-  * MASK_sub40_copy : indicate whether the 40bp 3'-subsequence of the probe is non-unique
-  * MASK_mapping : "hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs . 
-  * MASK_extBase  : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. 
-  * MASK_typeINextBaseSwitch  : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference). These probes should be processed differently than designed (by summing up both color channels instead of just the annotated color channel).
-  * MASK_snp5.common  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). 
-  * MASK_snp5.GMAF1p  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1% . 
-  * MASK_general :  Recommended general purpose masking merged from "MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p" . 
-  * cpg_probes :  cpg probes classified as "cg" in the variable named "probeType". 
-  * noncpg_probes :  non-cpg probes classified as "ch" in the variable named "probeType". 
-  * control_probes :  control probes classified as "rs" in the variable named "probeType". 
-  * Unreliable_450_EPIC  : Unreliable probes discordant between 450K and EPIC 
-  * MASK_rmsk15 :  
-  * Sex :  Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )
+  * **MASK_sub25_copy** : indicate whether the 25bp 3'-subsequence of the probe is non-unique
+  * **MASK_sub30_copy** : indicate whether the 30bp 3'-subsequence of the probe is non-unique
+  * **MASK_sub35_copy** : indicate whether the 35bp 3'-subsequence of the probe is non-unique
+  * **MASK_sub40_copy** : indicate whether the 40bp 3'-subsequence of the probe is non-unique
+  * **MASK_mapping** : "hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs . 
+  * **MASK_extBase**  : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. 
+  * **MASK_typeINextBaseSwitch**  : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference). These probes should be processed differently than designed (by summing up both color channels instead of just the annotated color channel).
+  * **MASK_snp5.common*  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). 
+  * **MASK_snp5.GMAF1p**  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1% . 
+  * **MASK_general** :  Recommended general purpose masking merged from *"MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p"* . 
+  * **cpg_probes** :  cpg probes classified as "cg" in the variable named "probeType". 
+  * **noncpg_probes** :  non-cpg probes classified as "ch" in the variable named "probeType". 
+  * **control_probes** :  control probes classified as "rs" in the variable named "probeType". 
+  * **Unreliable_450_EPIC**  : Unreliable probes discordant between 450K and EPIC 
+  * **MASK_rmsk15** :  
+  * **Sex** :  Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )
 
 In this example we exclude CpGs that meet condition : MASK_sub35_copy, MASK_typeINextBaseSwitch, noncpg_probes, control_probes, Unreliable_450_EPIC and Sex.
 
@@ -126,11 +148,14 @@ In this example we exclude CpGs that meet condition : MASK_sub35_copy, MASK_type
 exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unreliable_450_EPIC', 'Sex')
 ```
 
-We define the ethnic, ethnic can be : EUR SAS AMR GWD YRI TSI  IBS CHS PUR JPT  GIH CH_B STU ITU LWK KHV FIN ESN CEU PJL AC_B CLM CDX GBR BE_B PEL MSL  MXL ASW or  GMAF1p if population is very diverse.
+We also need to define the ethnic, ethnic can be : EUR SAS AMR GWD YRI TSI  IBS CHS PUR JPT  GIH CH_B STU ITU LWK KHV FIN ESN CEU PJL AC_B CLM CDX GBR BE_B PEL MSL  MXL ASW or  GMAF1p if population is very diverse.
 
 ```{r QC_varethnic}
 ethnic <- 'EUR'
 ```
+
+
+### Other variables :
 
 To obtain the precission plot or perform the GWAMA meta-analysis we need to know the number of samples in data, so we store this information in array N, we define the sample size for each of the files. The n array is similar to N but in that case, we define the size of a dichotomous variable for example smoke
 
@@ -139,18 +164,13 @@ N <- c(100, 100, 166, 166, 240, 240 )
 n <- c(NA)
 ```
 
-Here we define which models and cohorts we want to be shown in the Venn diagram, a maximum of 5 models can be defined for each diagram.
-
-```{r QC_varvenn}
-# Venn diagrams
-venn_diagrams <- list(
-   c("PACE_AQUA_A1", "PACE_IMMA_A1", "RICHS_A1" ),
-   c("PACE_AQUA_A2", "PACE_IMMA_A2", "RICHS_A2" )
-)
-```
+## Execute code
 
 
-```{r QC_code}
+This code is executed for each file defined in previous variable `files`
+
+
+```{r QC_code_1}
 
 # Variable declaration to perform precision plot
 medianSE <- numeric(length(files))
@@ -164,16 +184,28 @@ if(!dir.exists(file.path(getwd(), results_folder )))
 ## Remove duplicates, Exclude CpGs and adjust data (BN and FDR)
 for ( i in 1:length(files) )
 {
+```
 
+First, we need to read the content of a file
+
+```{r QC_code_read}
    # Read data.
    cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
    print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
+```
 
-   # Descriptives - Before CpGs deletion #
+we store the content of the file in a `cohort` variable, after that, we perform a simple descriptive analysis
+
+```{r QC_code_descriptives}
+   # Descriptives - Before CpGs deletion
    descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,'/',prefixes[i],'_descriptives_init.txt') )
+```
 
+```{r QC_code_descriptives2}
    # Remove duplicates
-   cohort <- remove_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_descriptives_duplic.txt'), paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
+   cohort <- remove_duplicate_CpGs(cohort, "probeID", 
+                                   paste0(results_folder,'/',prefixes[i],'_descriptives_duplic.txt'), 
+                                   paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
 
    # Exclude CpGs not meet conditions
    cohort <- exclude_CpGs(cohort, "probeID", exclude, filename = paste0(results_folder,'/',prefixes[i],'_excluded.txt') )
@@ -213,6 +245,18 @@ for ( i in 1:length(files) )
 }
 
 ```
+
+
+Here we define which models and cohorts we want to be shown in the Venn diagram, a maximum of 5 models can be defined for each diagram.
+
+```{r QC_varvenn}
+# Venn diagrams
+venn_diagrams <- list(
+   c("PACE_AQUA_A1", "PACE_IMMA_A1", "RICHS_A1" ),
+   c("PACE_AQUA_A2", "PACE_IMMA_A2", "RICHS_A2" )
+)
+```
+
 
 
 
