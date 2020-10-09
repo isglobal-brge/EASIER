@@ -147,6 +147,6 @@ annotate_CpGs <- function(CpGs, arrray)
    # Merge cpgs with annotations
    CpGs.annot <-  merge( as.data.frame(CpGs), ann, by.x ="CpGs", by.y = "gene")
 
-   # Remove data that we are not interested in (duplicate data) before return
-   return(CpGs.annot[ ,-(1)])
+   # Remove data that we are not interested in (duplicate data column) before return
+   ##..## return(CpGs.annot[ ,-(1)])
 }

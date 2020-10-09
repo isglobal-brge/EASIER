@@ -50,3 +50,15 @@
 #' }
 "filter_EPIC"
 
+#' Molecular Signatures Database (MSigDB v 7.1) - C2 curated gene sets
+#'
+#' A dataset containing Molecular Signatures Database in his current version 7.1.
+#'
+#' @docType data
+#'
+#' @usage data(human_c2_v7p1)
+#'
+#' @format A data frame with 5529 variables
+#' @references \url{http://bioinf.wehi.edu.au/MSigDB/v7.1/}
+"Hs.c2"
+

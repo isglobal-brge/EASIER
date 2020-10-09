@@ -17,8 +17,14 @@ Imports: Rcpp (>= 1.0.5),
    dplyr,
    stringr,
    rasterpdf,
-   meta
+   meta,
+   missMethyl,
+   org.Hs.eg.db
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 3.5)
+Suggests: knitr, 
+          rmarkdown, 
+          BiocStyle
+VignetteBuilder: knitr

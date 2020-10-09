@@ -6,6 +6,18 @@ if (!require(tibble, quietly = TRUE)) install.packages('tibble')
 if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
 if (!require(stringr, quietly = TRUE)) install.packages('stringr')
 if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
+if (!require(missMethyl, quietly = TRUE)) BiocManager::install( "missMethyl" )
+if (!require(org.Hs.eg.db, quietly = TRUE)) BiocManager::install( "org.Hs.eg.db" )
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+   install.packages("BiocManager")
+
+#BiocManager::install( c("IlluminaHumanMethylation450kanno.ilmn12.hg19",
+#                        "IlluminaHumanMethylation450kanno.ilmn12.hg19",
+#                        "missMethyl",
+#                        "org.Hs.eg.db") )
+
+library(org.Hs.eg.db)
 
 library(methyTools)
 
@@ -237,3 +249,66 @@ for( metf in 1:length(metafiles))
 
 
 
+## ############ ##
+##  Enrichment  ##
+## ############ ##
+
+
+
+FilesToEnrich <- c('./QC_Results/toenrich/CpGstoEnrich.txt', # new line separation
+                   './QC_Results/GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out' # file with GWAMA adjusted results
+                   )
+BN <-  TRUE
+FDR <- 0.005
+pvalue <- 0.05
+
+
+## Check if we have any files to enrich and if these files exists
+if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='') {
+   for ( i in 1:length(FilesToEnrich))
+      if (!file.exists(FilesToEnrich[i])) stop(paste0('File ',FilesToEnrich[i],' does not exsits, please check file' ))
+}
+
+outputfolder <- file.path(getwd(), "Enrichment" )
+
+
+# Create dir to put results from enrichment
+if(!dir.exists(outputfolder ))
+   suppressWarnings(dir.create(outputfolder))
+
+# Get which data we have to enrich
+if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
+{
+
+   for (i in 1:length(FilesToEnrich)) {
+
+      # Enrich all CpGs
+      allCpGs <- FALSE
+
+      # Get data
+      data <- NULL
+      data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".")
+
+      # Is a CpG list only ? then read without headers and annotate data
+      if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
+         data <- read.table(FilesToEnrich[i], dec = ".") # Avoid header
+         data <- as.vector(t(data))
+         data <- get_annotattions(data, artype, FilesToEnrich[i], outputfolder )
+         allCpGs <- TRUE
+      }
+
+      # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
+      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
+
+      # Molecular Signatures Database enrichment
+      msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
+
+      # get unique genes from data
+      geneUniv <- getUniqueGenes(data[which(miss_enrich$signif == data$CpGs),]$UCSC_RefGene_Name)
+
+
+   }
+
+} else{
+   print ("Error no data to enrich.")
+}
