@@ -2,7 +2,7 @@
 % Please edit documentation in R/missMethyl_enrichment.R
 \name{missMethyl_enrichment}
 \alias{missMethyl_enrichment}
-\title{Get enrichment with missMethyl}
+\title{Get Pathways enrichment with missMethyl}
 \usage{
 missMethyl_enrichment(
   data,
@@ -42,5 +42,5 @@ missMethyl_enrichment(
 File with descriptive and plots from GWAMA results. Results are stored in the same file as GWAMA results
 }
 \description{
-Get enrichment with missMethyl Bioconductor package. This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively.
+Get Pathways enrichment with missMethyl Bioconductor package. This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively.
 }

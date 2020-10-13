@@ -62,3 +62,24 @@
 #' @references \url{http://bioinf.wehi.edu.au/MSigDB/v7.1/}
 "Hs.c2"
 
+#' Cromatine data
+#'
+#' Cromatine data
+#'
+#' @docType data
+#'
+#' @usage data(crom15)
+#'
+#' @format A data frame with 482421 CpGs and 21 variables
+"crom15"
+
+#' dhs data
+#'
+#' dhs data
+#'
+#' @docType data
+#'
+#' @usage data(dhs)
+#'
+#' @format A data frame with 482421 CpGs and 19 variables
+"dhs"

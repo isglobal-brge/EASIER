@@ -16,7 +16,7 @@ MSigDB_enrichment(
 )
 }
 \arguments{
-\item{data}{array or dataframe with CpGs to perform enrichment. Dataframe option is used to filter by Bonferroni FDR or p-value, in order to filter by this fields, function needs that Bonferroni with adjustments field  to be called "Bonferroni", the field with the FDR adjustments to be called FDR and the field with the p-value to be called p.value}
+\item{data}{array or dataframe with CpGs to perform enrichment. Dataframe option is used to filter by Bonferroni FDR or p-value, in order to filter by this fields, function needs that Bonferroni with adjustments field  to be called "Bonferroni", the field with the FDR adjustments to be called "FDR" and the field with the p-value to be called "p.value"}
 
 \item{out}{string, Path where the results should be saved}
 

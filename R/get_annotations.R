@@ -24,7 +24,10 @@ get_annotattions <- function(CpGs, artype, filename, outdir)
    outfilename <- paste(outdir, outfilename, sep="/")
 
    # Download data
-   ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+   if( artype == '450K')
+      ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+   else
+      ann <- getAnnotation(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
    ann$gene <- rownames(ann)
 
    # Merge cpgs with annotations

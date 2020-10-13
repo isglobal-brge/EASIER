@@ -2,7 +2,7 @@
 #'
 #' Get enrichment with Molecular Signatures Database (MSigDB c2 - v7p1). This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively. Data from :  Walter and Eliza Hall Institute website for local bioinformatic resources. (http://bioinf.wehi.edu.au/MSigDB/v7.1/)
 #'
-#' @param data array or dataframe with CpGs to perform enrichment. Dataframe option is used to filter by Bonferroni FDR or p-value, in order to filter by this fields, function needs that Bonferroni with adjustments field  to be called "Bonferroni", the field with the FDR adjustments to be called FDR and the field with the p-value to be called p.value
+#' @param data array or dataframe with CpGs to perform enrichment. Dataframe option is used to filter by Bonferroni FDR or p-value, in order to filter by this fields, function needs that Bonferroni with adjustments field  to be called "Bonferroni", the field with the FDR adjustments to be called "FDR" and the field with the p-value to be called "p.value"
 #' @param out string, Path where the results should be saved
 #' @param filename string, File name where the results should be saved, to this name the suffix is added depending on data to enrich
 #' \itemize{

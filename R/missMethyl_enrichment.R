@@ -1,6 +1,6 @@
-#' Get enrichment with missMethyl
+#' Get Pathways enrichment with missMethyl
 #'
-#' Get enrichment with missMethyl Bioconductor package. This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively.
+#' Get Pathways enrichment with missMethyl Bioconductor package. This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively.
 #'
 #' @param data array or dataframe with CpGs to perform enrichment. Dataframe option is used to filter by Bonferroni FDR or p-value, in order to filter by this fields, function needs that Bonferroni with adjustments field  to be called "Bonferroni", the field with the FDR adjustments to be called FDR and the field with the p-value to be called p.value
 #' @param out string, Path where the results should be saved
