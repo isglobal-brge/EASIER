@@ -3,14 +3,14 @@
 \docType{data}
 \name{crom15}
 \alias{crom15}
-\title{Cromatine data}
+\title{Chromatine states data}
 \format{
-A data frame with 482421 CpGs and 21 variables
+A data frame with 482421 CpGs and 21 variables related to Chromatine states
 }
 \usage{
 data(crom15)
 }
 \description{
-Cromatine data
+Chromatine states data
 }
 \keyword{datasets}

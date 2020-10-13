@@ -260,7 +260,7 @@ FilesToEnrich <- c('./QC_Results/toenrich/CpGstoEnrich.txt', # new line separati
                    )
 BN <-  TRUE
 FDR <- 0.005
-pvalue <- 0.05
+pvalue <- NA
 
 
 ## Check if we have any files to enrich and if these files exists
@@ -297,14 +297,34 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          allCpGs <- TRUE
       }
 
+      ## -- Functional Enrichmnet - ##
+
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
       miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
+      ## -- Molecular Enrichmnet - ##
       # Molecular Signatures Database enrichment
       msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
+
       # get unique genes from data
       geneUniv <- getUniqueGenes(data[which(miss_enrich$signif == data$CpGs),]$UCSC_RefGene_Name)
+
+      ## --  FE - with Online tools
+      ##### TO DO  : Fer-ho amb script automàtic???
+
+
+      ## --  Metilation in Cromatine States #
+      ###       Analysis of methylation changes in the different chromatin states
+      ###       (CpGs are diff meth in some states and others don't)
+      chrom_enrich <- Chromatin_enrichment(data, outputfolder, FilesToEnrich[i],"rs_number", BN, FDR, pvalue, allCpGs)
+
+
+      ### -- 3.2.1 Gene relative position - ##
+      ### -- 3.2.2 DpG Island relative position - ##
+
+
+
 
 
    }

@@ -46,12 +46,14 @@ First, let us start by installing and loading required packages
 ```{r install_dependences, eval=FALSE}
 if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf')
 if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
-if (!require(VennDiagram, quietly = TRUE)) install.packages('VennDiagram')
-if (!require(RColorBrewer, quietly = TRUE)) install.packages('RColorBrewer')
+if (!require(VennDiagram, quietly = TRUE)) 
+   install.packages('VennDiagram')
+if (!require(RColorBrewer, quietly = TRUE)) 
+   install.packages('RColorBrewer')
 if (!require(tibble, quietly = TRUE)) install.packages('tibble')
 if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
 if (!require(stringr, quietly = TRUE)) install.packages('stringr')
-if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
+if (!require(meta, quietly = TRUE)) install.packages('meta') #ForestPlot
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
    install.packages("BiocManager")
@@ -99,8 +101,8 @@ files must contain at least the fields :
 probeID   | BETA | SE | P_VAL
 ------- | ----- | ----- | -----
 cg13869341 | 0.00143514362777834 | 0.00963411132344512 | 0.678945643213567
-cg24669183 | -0.0215342789035512 | 0.0150948404044624 | 0.01345234123451234
-cg15560884 | 0.00156725345562218 | 0.00638784678105962 | 0.845523221223523
+cg24669183 | -0.0215342789035512 | 0.0150948404044624 | 0.013452341234512
+cg15560884 | 0.00156725345562218 | 0.0063878467810596 | 0.845523221223523
 
 
 ### Where store results
@@ -288,18 +290,24 @@ To perform a graphical analysis we have different functions, we can easily gener
    ## Visualization - Plots
 
    # Distribution plot
-   plot_distribution(cohort$SE, main = paste('Standard Errors of', prefixes[i]), xlab = 'SE')
-   plot_distribution(cohort$P_VAL, main = paste('p-values of', prefixes[i]), xlab = 'p-value')
+   plot_distribution(cohort$SE, 
+                     main = paste('Standard Errors of', prefixes[i]), 
+                     xlab = 'SE')
+   plot_distribution(cohort$P_VAL, 
+                     main = paste('p-values of', prefixes[i]), 
+                     xlab = 'p-value')
 ```
 
 Or a Volcano plot 
 
 ```{r QC_code_qqplot}
    # QQ plot.
-   qqman::qq(cohort$P_VAL, main = sprintf('QQ plot of %s (lambda = %f)', prefixes[i], lambda=get_lambda(cohort,"P_VAL")))
+   qqman::qq(cohort$P_VAL,
+             main = sprintf('QQ plot of %s (lambda = %f)', prefixes[i], 
+                            lambda = get_lambda(cohort,"P_VAL")))
 
    # Volcano plot.
-   plot_volcano(cohort, "BETA", "P_VAL", main =paste('Volcano plot of', prefixes[i]) )
+   plot_volcano(cohort, "BETA", "P_VAL", main=paste('Volcano plot of', prefixes[i]) )
 
 ```
 
@@ -346,24 +354,30 @@ First, we must create the needed folders, in this example we create a GWAMA fold
 
 ```{r meta_folders, eval=FALSE}
 
-# Create folder for a meta-analysis in GWAMA folder, here we store the GWAMA input files for each meta-analysis,
+# Create folder for a meta-analysis in GWAMA folder, here we store 
+# the GWAMA input files for each meta-analysis,
 # We create one for complete meta-analysis
 if(!dir.exists(file.path(getwd(), 
                          paste(folder,"GWAMA", names(metafiles)[metf] ,sep="/") )))
    suppressWarnings(dir.create(file.path(getwd(), 
                                          paste(folder,"GWAMA", 
-                                               names(metafiles)[metf], sep="/"))))
-# We create another for meta-analysis without filtered CpGs with low percentage (sufix _Filtr)
-if(!dir.exists(file.path(getwd(), paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
+                                               names(metafiles)[metf], 
+                                               sep="/"))))
+# We create another for meta-analysis without filtered CpGs 
+# with low percentage (sufix _Filtr)
+if(!dir.exists(file.path(getwd(), paste0(folder,"/GWAMA/", 
+                                         names(metafiles)[metf],"_Filtr") )))
    suppressWarnings(dir.create(file.path(getwd(), 
-                                         paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
+                                         paste0(folder,"/GWAMA/", 
+                                                names(metafiles)[metf],"_Filtr"))))
 
 # GWAMA File name base
 inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf])
 
 modelfiles <- unlist(metafiles[metf])
-
-   runs <- c('Normal', 'lowcpgs') # Execution with all CpGs and without filtered CpGs (low representation)
+  
+  # runs : Execution with all CpGs and without filtered CpGs (low representation)
+   runs <- c('Normal', 'lowcpgs') 
    list.lowCpGs <- NULL
    lowCpGs = FALSE;
    outputfiles <- list()
@@ -410,11 +424,16 @@ GWANA is executed by fixed and for random effects, `run_GWAMA_MetaAnalysis` func
          create_GWAMA_files(folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
 
       #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
-      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir)
+      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, 
+                                                       outputgwama, 
+                                                       names(metafiles)[metf], gwama.dir)
 
       # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
       ##..## dataPost <- get_descriptives_postGWAMA(outputfolder, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
-      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
+      dataPost <- get_descriptives_postGWAMA(outputgwama, 
+                                             outputfiles[[runs[j]]], 
+                                             modelfiles, 
+                                             names(metafiles)[metf], artype )
 
       # Forest-Plot
       plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf]  )
@@ -426,6 +445,26 @@ GWANA is executed by fixed and for random effects, `run_GWAMA_MetaAnalysis` func
 When we have the GWAMA results we perform an analysis with `get_descriptives_postGWAMA` functions, like in QC but with meta-analysis results, we adjust p-values, we annotate CpGs, we generate a file with descriptive result and plot heterogeneity distribution, SE distribution, p-values distribution, QQ-plot with lambda and the volcano plot.
 
 To end with meta-analysis we generate the ForestPlot associated to the first 30 top significative CpGs.
+
+
+# Enrichment
+
+
+## Functional enrichment - Based on CpGs
+
+### GO and KEGG
+
+
+### Functional enrichment - Based on Genes
+
+
+
+
+## Molecular enrichment - Based on CpGs
+
+### Pathways with Molecular Signatures Database (MSigDB)
+
+
 
 
 # Session info {.unnumbered}

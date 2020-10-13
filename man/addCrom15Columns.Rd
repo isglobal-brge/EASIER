@@ -2,16 +2,18 @@
 % Please edit documentation in R/addCrom15Columns.R
 \name{addCrom15Columns}
 \alias{addCrom15Columns}
-\title{Add cromatine information}
+\title{Add Chromatine states information}
 \usage{
-addCrom15Columns(data)
+addCrom15Columns(data, cpgcol)
 }
 \arguments{
 \item{data}{dataframe used to add columns}
+
+\item{column}{numeric index or column name column with CpG id.}
 }
 \value{
 Original dataframe with cromatime related data
 }
 \description{
-Add columns with crom15 information
+Add columns with Chromatine states information
 }
