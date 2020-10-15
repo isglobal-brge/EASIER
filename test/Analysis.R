@@ -259,8 +259,8 @@ FilesToEnrich <- c('./QC_Results/toenrich/CpGstoEnrich.txt', # new line separati
                    './QC_Results/GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out' # file with GWAMA adjusted results
                    )
 BN <-  TRUE
-FDR <- 0.005
-pvalue <- NA
+FDR <- 0.7
+pvalue <- 0.05
 
 
 ## Check if we have any files to enrich and if these files exists
@@ -287,7 +287,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
       # Get data
       data <- NULL
-      data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".")
+      data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".", stringsAsFactors = FALSE)
 
       # Is a CpG list only ? then read without headers and annotate data
       if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
@@ -308,16 +308,46 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
 
       # get unique genes from data
-      geneUniv <- getUniqueGenes(data[which(miss_enrich$signif == data$CpGs),]$UCSC_RefGene_Name)
+      geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}), getUniqueGenes)
 
-      ## --  FE - with Online tools
-      ##### TO DO  : Fer-ho amb script automàtic???
+
+      ## --  FE - with Online tools ==> A veure si es pot fer l'enriquiment automàtic amb les eines web.....
+      ##### TO DO  : Fer-ho amb script automàtic??? --> Descarregar la informació associada als gens des de les webs utilitzant
+      #####          els scripts que proporciona la web?? , mirar com s'han d'utilitzar i amb quin llenguatge.
 
 
       ## --  Metilation in Cromatine States #
-      ###       Analysis of methylation changes in the different chromatin states
+
+      ##       Analysis of methylation changes in the different chromatin states
       ###       (CpGs are diff meth in some states and others don't)
-      chrom_enrich <- Chromatin_enrichment(data, outputfolder, FilesToEnrich[i],"rs_number", BN, FDR, pvalue, allCpGs)
+      ##..En realitat aquesta funció no fa l'enriquiment i ara només volem..###
+      ##.. afegir els camps relacionats amb el chrom_state ..### chrom_enrich <- Chromatin_enrichment(data, outputfolder, FilesToEnrich[i],"rs_number", BN, FDR, pvalue, allCpGs)
+
+      # Adds chromatine state columns to data and classify methylation into Hyper and Hypo
+      crom_data <- addCrom15Columns(data, "rs_number") # Adds chromatine state columns
+      crom_data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
+      crom_data$bFDR <- getBinaryClassificationYesNo(crom_data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
+
+      # FDR significatives regression by chromatin state
+      # Columns with chromatin status information
+      # TssA, TssAFlnk, TxFlnk, TxWk, Tx, EnhG, Enh, ZNF.Rpts, Het, TssBiv, BivFlnk, EnhBiv, ReprPC, ReprPCWk, Quies
+      chrom_states_fdr <- getAllChromStateRegressions(crom_data$bFDR,
+                                    crom_data[,c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")],
+                                    outputdir = "RegressionFDR_States", outputfile = FilesToEnrich[i] )
+
+      plot_chromosomestate(chrom_states_fdr, outputfolder = "RegressionFDR_States", outputfile = FilesToEnrich[i], "RegressionFDR_States")
+
+
+      # FDR significative with Hypermetilation vs no significative hypomethylation
+      chrom_states_fdr_hyper <- getAllChromStateRegressions(ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hyper', "yes", "no"),
+                                    crom_data[,c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")],
+                                    outputdir = "RegressionFDRHyper_States", outputfile = FilesToEnrich[i] )
+
+      plot_chromosomestate(chrom_states_fdr_hyper, outputfolder = "RegressionFDRHyper_States" ,outputfile = FilesToEnrich[i])
+
+#  !!!! SIMPLIFICAR LA FUNCIÓ ANTERIOR PER A QUE HO FACI TOT I NO FER TANTES CRIDES !!!!!!????
+
+
 
 
       ### -- 3.2.1 Gene relative position - ##

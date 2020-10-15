@@ -58,8 +58,9 @@ Chromatin_enrichment <- function( data, out, filename, cpgcol, bn=FALSE, fdr=NA,
          # Add data with chromatin15 status
          chromatin.data <- addCrom15Columns(as.data.frame(sigCpGs), "sigCpGs" )
 
+         # Get methylation level
          if( "beta" %in% colnames(data))
-            chromatin.data$meth_level <- ifelse( chromatin.data$beta>=0, 'Hyper', 'Hypo')
+            getHyperHypo(chromatin.data$beta)
 
          write.table( chromatin.data, paste0(outputfile,"_chrom15.txt"), quote=F, sep="\t")
 
@@ -81,7 +82,7 @@ Chromatin_enrichment <- function( data, out, filename, cpgcol, bn=FALSE, fdr=NA,
                chromatin.data <- addCrom15Columns(sigCpGs_bn, cpgcol )
                # Get methylation level
                if( "beta" %in% colnames(data))
-                  chromatin.data$meth_level <- ifelse( chromatin.data$beta>=0, 'Hyper', 'Hypo')
+                  chromatin.data$meth_level <- getHyperHypo(chromatin.data$beta)
                write.table( chromatin.data, paste0(outputfile,"_chrom15_BN.txt"), quote=F, sep="\t")
 
                res <- list("Chrom.bn" = chromatin.data,
@@ -104,7 +105,7 @@ Chromatin_enrichment <- function( data, out, filename, cpgcol, bn=FALSE, fdr=NA,
                chromatin.data <- addCrom15Columns(sigCpGs_fdr, cpgcol )
                # Get methylation level
                if( "beta" %in% colnames(data))
-                  chromatin.data$meth_level <- ifelse( chromatin.data$beta>=0, 'Hyper', 'Hypo')
+                  chromatin.data$meth_level <- getHyperHypo(chromatin.data$beta)
                write.table( chromatin.data, paste0(outputfile,"_chrom15_FDR.txt"), quote=F, sep="\t")
 
                if(exists("res")){
@@ -132,7 +133,7 @@ Chromatin_enrichment <- function( data, out, filename, cpgcol, bn=FALSE, fdr=NA,
                chromatin.data <- addCrom15Columns(sigCpGs_pval, cpgcol )
                # Get methylation level
                if( "beta" %in% colnames(data))
-                  chromatin.data$meth_level <- ifelse( chromatin.data$beta>=0, 'Hyper', 'Hypo')
+                  chromatin.data$meth_level <- getHyperHypo(chromatin.data$beta)
                write.table( chromatin.data, paste0(outputfile,"_chrom15_PVAL.txt"), quote=F, sep="\t")
 
                if(exists("res")){

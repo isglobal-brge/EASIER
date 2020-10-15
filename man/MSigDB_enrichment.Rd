@@ -42,5 +42,5 @@ MSigDB_enrichment(
 A list with resulth enriched data.
 }
 \description{
-Get enrichment with Molecular Signatures Database (MSigDB c2 - v7p1). This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively. Data from :  Walter and Eliza Hall Institute website for local bioinformatic resources. (http://bioinf.wehi.edu.au/MSigDB/v7.1/)
+Get enrichment with Molecular Signatures Database (MSigDB c2 - v7p1). This function gets MSigDB enrichment and save the results in  _mysmeth sufix. Data from :  Walter and Eliza Hall Institute website for local bioinformatic resources. (http://bioinf.wehi.edu.au/MSigDB/v7.1/)
 }

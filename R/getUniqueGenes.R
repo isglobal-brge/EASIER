@@ -8,12 +8,19 @@
 #' @return Vector with unique genes
 #'
 #' @export
-getUniqueGenes <- function(x, entrez=TRUE) {
+getUniqueGenes <- function(x, entrez=TRUE)
+{
 
    if (!require(org.Hs.eg.db)) {
       stop("org.Hs.eg.db not installed")
    } else {
+
       library(org.Hs.eg.db)
+
+      if(is.factor(x)){
+         warning("x must be a character, conversion applied")
+         x <- as.character(x)
+      }
 
       temp <-  unlist(sapply(x, function(x) strsplit(x, ";")))
       ans <- unique(temp)
