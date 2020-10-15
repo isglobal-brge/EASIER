@@ -16,42 +16,37 @@ get_descriptives_RelativetoIsland <- function(position, criteria, namecriteria, 
 {
    # Relation to Island for CpGs attending to criteria
 
-   if( is.null(outputfile) )
+   if( is.null(outputfile) ){
       stop("output file is needed to write descriptives")
-   else {
+   }else {
       if(!is.null(outputdir) & !is.na(outputdir) & outputdir!='.')
          dir.create(outputdir, showWarnings = FALSE)
       # Output filename
       filename <- tools::file_path_sans_ext(basename(outputfile))
    }
 
-
    ctable <- as.data.frame.matrix(table(position, criteria))
-   ptable <- as.data.frame.matrix(prop.table(position, criteria))
+   ptable <- as.data.frame.matrix(prop.table(ctable))
 
-   desc.fname <- paste0(filename,"_",criteria,"_DescIslands.txt")
-   print(paste0("Output file : ",qc.fname))
+   desc.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_DescIslands.txt")
 
-   write(sprintf('\t\t\t\t============\n\t\t\t\t  Descriptive Resume for Relative position to Island with %s criteria \n\t\t\t\t============\n', criteria), file = desc.fname)
-   write(sprintf('-------------------\n Model : %s\n-------------------\n',metaname), file = desc.fname, append = TRUE)
+   write(sprintf('\t\t\t\t============\n\t\t\t\t  Descriptive Resume for Relative position to Island with %s criteria \n\t\t\t\t============\n', namecriteria), file = desc.fname)
+   write(sprintf('-------------------\n Model : %s\n-------------------\n',filename), file = desc.fname, append = TRUE)
    write(sprintf('\nCount table : \n '), file = desc.fname, append = TRUE)
-   write(ctable, file = desc.fname, append = TRUE)
-   print("1")
+   suppressWarnings(write.table(ctable, file = desc.fname, append = TRUE))
    write(sprintf('\nProportion table : \n'), file = desc.fname, append = TRUE)
-   write(ptable, file = desc.fname, append = TRUE)
-   print("2")
+   suppressWarnings(write.table(ptable, file = desc.fname, append = TRUE))
    write(sprintf('\nChi-Square Test : \n'), file = desc.fname, append = TRUE)
-   write(chisq.test(ctable), file = desc.fname, append = TRUE)
-   print("3")
-
+   write(sprintf('\tX-squared : %f',chisq.test(ctable)[1]), file = desc.fname, append = TRUE)
+   write(sprintf('\tdf : %f',chisq.test(ctable)[2]), file = desc.fname, append = TRUE)
+   write(sprintf('\tp-value : %f',chisq.test(ctable)[3]), file = desc.fname, append = TRUE)
 
    pt <- as.data.frame(cbind(position, criteria))
    colnames(pt) <- c('position',namecriteria)
-   ptc <- ggplot(pt, aes(position)) + geom_bar(aes(fill = criteria))
+   ptc <- ggplot(pt, aes(position)) +
+      geom_bar(aes(fill = criteria))
 
-   plot.fname <- paste0(filename,"_",criteria,"_PlotIslands.pdf")
-   ggplot2::ggsave(plot.fname, ptc)
-
-
+   plot.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_PlotIslands.pdf")
+   ggplot2::ggsave(plot.fname, ptc, device = pdf)
 
 }

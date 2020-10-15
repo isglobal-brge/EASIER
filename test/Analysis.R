@@ -349,8 +349,8 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
       ## --  DpG Island relative position -- #
 
-      get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
-      get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "FDR", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
+      get_descriptives_RelativetoIsland(crom_data$Relation_to_Island, crom_data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
+      get_descriptives_RelativetoIsland(crom_data$Relation_to_Island, crom_data$bFDR , "FDR", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
 
 #
 
