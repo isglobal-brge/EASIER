@@ -8,7 +8,8 @@ getAllChromStateRegressions(
   significative,
   chromstate,
   outputdir = ".",
-  outputfile = NULL
+  outputfile = NULL,
+  plots = TRUE
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ getAllChromStateRegressions(
 \item{outputdir}{string. Output path to store file with results, by default results are written in current dir}
 
 \item{outputfile}{string. File name to store results if no name is provided results are not written.The suffix "RegressionFDR_States" is added to file name provided.}
+
+\item{plots}{boolean. If plot is TRUE, plot results}
 
 \item{chromstates}{dataframe with all Cromatin state values to perform regression}
 }

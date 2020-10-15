@@ -5,7 +5,7 @@
 \title{Chromosome State Plot}
 \usage{
 plot_chromosomestate(
-  data,
+  x,
   outputdir = ".",
   outputfile = NULL,
   main = "",
@@ -14,11 +14,13 @@ plot_chromosomestate(
 )
 }
 \arguments{
+\item{x}{Dataframe with Chromosome State data}
+
+\item{outputdir}{string with relative path}
+
 \item{main}{optional, string with title}
 
 \item{xlab}{optional, string with xlab text}
-
-\item{x}{Dataframe with Chromosome State data}
 }
 \value{
 distribution plot

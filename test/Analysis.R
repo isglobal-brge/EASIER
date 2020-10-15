@@ -297,12 +297,12 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          allCpGs <- TRUE
       }
 
-      ## -- Functional Enrichmnet - ##
+      ## -- Functional Enrichmnet -- ##
 
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
       miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
-      ## -- Molecular Enrichmnet - ##
+      ## -- Molecular Enrichmnet -- ##
       # Molecular Signatures Database enrichment
       msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
@@ -316,7 +316,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       #####          els scripts que proporciona la web?? , mirar com s'han d'utilitzar i amb quin llenguatge.
 
 
-      ## --  Metilation in Cromatine States #
+      ## --  Metilation in Cromatine States -- #
 
       ##       Analysis of methylation changes in the different chromatin states
       ###       (CpGs are diff meth in some states and others don't)
@@ -328,31 +328,31 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       crom_data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
       crom_data$bFDR <- getBinaryClassificationYesNo(crom_data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
 
+
+      # Columns with chromatin status information :
+      #       TssA, TssAFlnk, TxFlnk, TxWk, Tx, EnhG, Enh, ZNF.Rpts, Het, TssBiv, BivFlnk, EnhBiv, ReprPC, ReprPCWk, Quies
+      ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
+
+
       # FDR significatives regression by chromatin state
-      # Columns with chromatin status information
-      # TssA, TssAFlnk, TxFlnk, TxWk, Tx, EnhG, Enh, ZNF.Rpts, Het, TssBiv, BivFlnk, EnhBiv, ReprPC, ReprPCWk, Quies
-      chrom_states_fdr <- getAllChromStateRegressions(crom_data$bFDR,
-                                    crom_data[,c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")],
-                                    outputdir = "RegressionFDR_States", outputfile = FilesToEnrich[i] )
-
-      plot_chromosomestate(chrom_states_fdr, outputfolder = "RegressionFDR_States", outputfile = FilesToEnrich[i], "RegressionFDR_States")
-
+      chrom_states_fdr <- getAllChromStateRegressions(crom_data$bFDR, crom_data[,ChrStatCols],
+                                    outputdir = "RegressionFDR_States", outputfile = FilesToEnrich[i], plots = TRUE )
 
       # FDR significative with Hypermetilation vs no significative hypomethylation
       chrom_states_fdr_hyper <- getAllChromStateRegressions(ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hyper', "yes", "no"),
-                                    crom_data[,c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")],
-                                    outputdir = "RegressionFDRHyper_States", outputfile = FilesToEnrich[i] )
+                                    crom_data[,ChrStatCols], outputdir = "RegressionFDRHyper_States", outputfile = FilesToEnrich[i], plots = TRUE )
 
-      plot_chromosomestate(chrom_states_fdr_hyper, outputfolder = "RegressionFDRHyper_States" ,outputfile = FilesToEnrich[i])
-
-#  !!!! SIMPLIFICAR LA FUNCIÓ ANTERIOR PER A QUE HO FACI TOT I NO FER TANTES CRIDES !!!!!!????
-
+      # FDR significative with Hypo-methylation vs no significative hyper-methylation
+      chrom_states_fdr_hypo <- getAllChromStateRegressions(ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hypo', "yes", "no"),
+                                    crom_data[,ChrStatCols], outputdir = "RegressionFDRHypo_States", outputfile = FilesToEnrich[i], plots = TRUE )
 
 
+      ## --  DpG Island relative position -- #
 
-      ### -- 3.2.1 Gene relative position - ##
-      ### -- 3.2.2 DpG Island relative position - ##
+      get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
+      get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "FDR", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
 
+#
 
 
 
