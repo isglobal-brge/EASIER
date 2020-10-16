@@ -1,8 +1,8 @@
-#' Chromosome State Plot
+#' Relative to Island Plot
 #'
-#' Chromosome State plot
+#' Relative to Island plot
 #'
-#' @param x Dataframe with Chromosome State data
+#' @param x Dataframe with Relative to Island data
 #' @param outputdir string with relative path
 #' @param main optional, string with title
 #' @param xlab optional, string with xlab text
@@ -10,17 +10,17 @@
 #' @return distribution plot
 #'
 #' @export
-plot_chromosomestate <- function(x, outputdir = '.', outputfile = NULL, main='', xlab='',...)
+plot_RelativetoIsland <- function(x, outputdir = '.', outputfile = NULL, main='', xlab='',...)
 {
 
-   x$ChromStates <- factor(x$ChromStates, levels = (as.character(x$ChromStates)))
-   p <- ggplot(x, aes(x = ChromStates, y = OR)) +
+   x$RelIsland <- factor(x$RelIsland, levels = (as.character(x$RelIsland)))
+   p <- ggplot(x, aes(x = RelIsland, y = OR)) +
       geom_bar(stat="identity", fill = "steelblue1", width = 0.5) +
       geom_errorbar(aes(ymin=OR.inf, ymax=OR.sup), width=0.2) +
       theme_classic(base_size = 20) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       geom_hline(yintercept = 1) +
-      xlab("Chromatin States")
+      xlab("Relation to Island position")
 
    if(!is.null(outputfile)) {
       if(!is.null(outputdir) & !is.na(outputdir) & outputdir!='.')
@@ -29,7 +29,7 @@ plot_chromosomestate <- function(x, outputdir = '.', outputfile = NULL, main='',
       # Output filename
       filename <- tools::file_path_sans_ext(basename(outputfile))
 
-      ggplot2::ggsave(paste0(file.path( outputdir),"/OR_",filename,"_FDR_ChromStates.pdf"), p)
+      ggplot2::ggsave(paste0(file.path( outputdir),"/OR_",filename,"_FDR_RelativetoIsland.pdf"), p)
    }
 
    return(p)

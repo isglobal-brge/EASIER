@@ -9,6 +9,8 @@ if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
 if (!require(missMethyl, quietly = TRUE)) BiocManager::install( "missMethyl" )
 if (!require(org.Hs.eg.db, quietly = TRUE)) BiocManager::install( "org.Hs.eg.db" )
 
+hyper
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
    install.packages("BiocManager")
 
@@ -297,12 +299,15 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          allCpGs <- TRUE
       }
 
-      ## -- Functional Enrichmnet -- ##
+      ## -- Functional Enrichmnet
+      ## ------------------------
 
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
       miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
-      ## -- Molecular Enrichmnet -- ##
+      ## -- Molecular Enrichmnet
+      ## -----------------------
+
       # Molecular Signatures Database enrichment
       msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
@@ -316,47 +321,72 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       #####          els scripts que proporciona la web?? , mirar com s'han d'utilitzar i amb quin llenguatge.
 
 
-      ## --  Metilation in Cromatine States -- #
+      ## --  Metilation in Cromatine States
+      ## ----------------------------------
 
-      ##       Analysis of methylation changes in the different chromatin states
-      ###       (CpGs are diff meth in some states and others don't)
-      ##..En realitat aquesta funció no fa l'enriquiment i ara només volem..###
-      ##.. afegir els camps relacionats amb el chrom_state ..### chrom_enrich <- Chromatin_enrichment(data, outputfolder, FilesToEnrich[i],"rs_number", BN, FDR, pvalue, allCpGs)
+      ##       Analysis of methylation changes in the different chromatin states (CpGs are diff meth in some states and others don't)
 
-      # Adds chromatine state columns to data and classify methylation into Hyper and Hypo
+      # Prepare data
       crom_data <- addCrom15Columns(data, "rs_number") # Adds chromatine state columns
       crom_data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
       crom_data$bFDR <- getBinaryClassificationYesNo(crom_data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
 
-
       # Columns with chromatin status information :
-      #       TssA, TssAFlnk, TxFlnk, TxWk, Tx, EnhG, Enh, ZNF.Rpts, Het, TssBiv, BivFlnk, EnhBiv, ReprPC, ReprPCWk, Quies
       ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
+
+      # CpGs FDR and Hyper and Hypo respectively
+      FDR_Hyper <- ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hyper', "yes", "no")
+      FDR_Hypo <- ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hypo', "yes", "no")
 
 
       # FDR significatives regression by chromatin state
-      chrom_states_fdr <- getAllChromStateRegressions(crom_data$bFDR, crom_data[,ChrStatCols],
-                                    outputdir = "RegressionFDR_States", outputfile = FilesToEnrich[i], plots = TRUE )
-
+      chrom_states_fdr <- getAllChromStateOR(crom_data$bFDR, crom_data[,ChrStatCols],
+                                    outputdir = "OR_FDR_States", outputfile = FilesToEnrich[i], plots = TRUE )
       # FDR significative with Hypermetilation vs no significative hypomethylation
-      chrom_states_fdr_hyper <- getAllChromStateRegressions(ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hyper', "yes", "no"),
-                                    crom_data[,ChrStatCols], outputdir = "RegressionFDRHyper_States", outputfile = FilesToEnrich[i], plots = TRUE )
-
+      chrom_states_fdr_hyper <- getAllChromStateOR(FDR_Hyper,
+                                    crom_data[,ChrStatCols], outputdir = "OR_FDRHyper_States", outputfile = FilesToEnrich[i], plots = TRUE )
       # FDR significative with Hypo-methylation vs no significative hyper-methylation
-      chrom_states_fdr_hypo <- getAllChromStateRegressions(ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hypo', "yes", "no"),
-                                    crom_data[,ChrStatCols], outputdir = "RegressionFDRHypo_States", outputfile = FilesToEnrich[i], plots = TRUE )
+      chrom_states_fdr_hypo <- getAllChromStateOR(FDR_Hypo,
+                                    crom_data[,ChrStatCols], outputdir = "OR_FDRHypo_States", outputfile = FilesToEnrich[i], plots = TRUE )
 
 
-      ## --  DpG Island relative position -- #
+      ## --  CpG Island relative position
+      ## --------------------------------
 
-      get_descriptives_RelativetoIsland(crom_data$Relation_to_Island, crom_data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
-      get_descriptives_RelativetoIsland(crom_data$Relation_to_Island, crom_data$bFDR , "FDR", outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i])
+      get_descriptives_RelativetoIsland(crom_data$Relation_to_Island, crom_data$Bonferroni, "Bonferroni", outputdir = "OR_BN_RelativeToIsland", outputfile = FilesToEnrich[i])
+      get_descriptives_RelativetoIsland(crom_data$Relation_to_Island, crom_data$bFDR , "FDR", outputdir = "OR_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
 
-#
+      # OR fir FDR significatives OR by position Relative to Island
+      relative_island_fdr <- getAllRelativeIslandOR(crom_data$bFDR, crom_data$Relation_to_Island,
+                                    outputdir = "OR_FDR_RelativeToIsland", outputfile = FilesToEnrich[i], plots = TRUE )
+      # OR fir FDR significatives OR by position Relative to Island
+      relative_island_fdr_hyper <- getAllRelativeIslandOR(FDR_Hyper, crom_data$Relation_to_Island,
+                                                    outputdir = "OR_FDR_RelativeToIsland", outputfile = FilesToEnrich[i], plots = TRUE )
+      # OR fir FDR significatives OR by position Relative to Island
+      relative_island_fdr_hypo <- getAllRelativeIslandOR(FDR_Hypo, crom_data$Relation_to_Island,
+                                                    outputdir = "OR_FDR_RelativeToIsland", outputfile = FilesToEnrich[i], plots = TRUE )
 
 
+      ## --  HyperGeometric Test
+      ## ------------------------
 
+      # http://mengnote.blogspot.com.es/2012/12/calculate-correct-hypergeometric-p.html
 
+      # Get hyper-geometric test for each Island relative position :
+      # Depletion and Enrichment , Depletion and Enrichment for Hyper and Depletion and Enrichment for Hypo
+
+      # Hypergeometric Test for FDR significatives by position Relative to Island
+      hypergeo_relisland_fdr <- getAllHypergeometricTest(crom_data$bFDR, crom_data$Relation_to_Island, outputdir = "HyperG_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
+      # Hypergeometric Test for FDR significatives by position Relative to Island
+      hypergeo_relisland_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, crom_data$Relation_to_Island, outputdir = "HyperG_FDRHyper_RelativeToIsland", outputfile = FilesToEnrich[i])
+      # Hypergeometric Test for FDR significatives by position Relative to Island
+      hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, crom_data$Relation_to_Island, outputdir = "HyperG_FDRHypo_RelativeToIsland", outputfile = FilesToEnrich[i])
+
+      depletion <- phyper(sum( crom_data$bFDR == 'yes' & ifelse(position == "Island", "yes", "no") == 'yes'), sum( ifelse(position == "Island", "yes", "no") == 'yes'),
+                          sum( ifelse(position == "Island", "yes", "no") != 'yes'), sum(crom_data$bFDR == 'yes'), lower.tail= TRUE)
+
+    phyper(156,642,897,1539)
+    642+897
    }
 
 } else{
