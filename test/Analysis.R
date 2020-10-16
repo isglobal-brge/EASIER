@@ -382,11 +382,9 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       # Hypergeometric Test for FDR significatives by position Relative to Island
       hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, crom_data$Relation_to_Island, outputdir = "HyperG_FDRHypo_RelativeToIsland", outputfile = FilesToEnrich[i])
 
-      depletion <- phyper(sum( crom_data$bFDR == 'yes' & ifelse(position == "Island", "yes", "no") == 'yes'), sum( ifelse(position == "Island", "yes", "no") == 'yes'),
-                          sum( ifelse(position == "Island", "yes", "no") != 'yes'), sum(crom_data$bFDR == 'yes'), lower.tail= TRUE)
 
-    phyper(156,642,897,1539)
-    642+897
+
+
    }
 
 } else{
