@@ -12,7 +12,8 @@ missMethyl_enrichment(
   bn = FALSE,
   fdr = NA,
   pval = NA,
-  all = FALSE
+  all = FALSE,
+  plots = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ missMethyl_enrichment(
 \item{pval}{numeric optional. If data is a dataframe with p-value and pval!=NA or NULL, makes enrichment with CpGs with pval lower than indicated value}
 
 \item{all}{boolean, optional. enrich all CpGs}
+
+\item{plots}{boolean, optional. generate plots with GO and KEGG data}
 }
 \value{
 File with descriptive and plots from GWAMA results. Results are stored in the same file as GWAMA results

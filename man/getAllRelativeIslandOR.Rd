@@ -17,9 +17,9 @@ getAllRelativeIslandOR(
 
 \item{position}{dataframe with all relative positions to island values to perform regression}
 
-\item{outputdir}{string. Output path to store file with results, by default results are written in current dir}
+\item{outputdir}{optional string. Output path to store file with results, by default results are written in current dir}
 
-\item{outputfile}{string. File name to store results if no name is provided results are not written.}
+\item{outputfile}{optional string. File name to store results if no name is provided results are not written.}
 
 \item{plots}{boolean. If plot is TRUE, plot results}
 }

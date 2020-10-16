@@ -4,10 +4,9 @@
 #'
 #' @param significative numerical. Variable to take in to account as significative variable, could be FDR, p-value,...
 #' @param position dataframe with all relative positions to island values to perform regression
-#' @param outputdir string. Output path to store file with results, by default results are written in current dir
-#' @param outputfile string. File name to store results if no name is provided results are not written.
+#' @param outputdir optional string. Output path to store file with results, by default results are written in current dir
+#' @param outputfile optional string. File name to store results if no name is provided results are not written.
 #' @param plots boolean. If plot is TRUE, plot results
-#' @filename
 #'
 #' @return
 #'

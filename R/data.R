@@ -83,3 +83,25 @@
 #'
 #' @format A data frame with 482421 CpGs and 19 variables
 "dhs"
+
+#' Fetal Placenta 15 Stats
+#'
+#' Fetal placentat 15 states (E091)
+#'
+#' @docType data
+#'
+#' @usage data(FP_E091)
+#'
+#' @format Genomic Ranges
+"FP_15_E091"
+
+#' Fetal Placenta 18 Stats
+#'
+#' Fetal placentat 18 states (E091)
+#'
+#' @docType data
+#'
+#' @usage data(FP_E091)
+#'
+#' @format Genomic Ranges
+"FP_18_E091"

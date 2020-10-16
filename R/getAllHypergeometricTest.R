@@ -6,7 +6,6 @@
 #' @param criteria dataframe with all relative positions to island values to perform regression
 #' @param outputdir string. Output path to store file with results, by default results are written in current dir
 #' @param outputfile string. File name to store results if no name is provided results are not written.
-#' @filename
 #'
 #' @return
 #'

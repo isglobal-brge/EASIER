@@ -4,7 +4,7 @@
 #'
 #' @param cohort Dataframe with data
 #' @param cpgid string with the column name that contains the CpGs identifiators.
-#' @param exclude character vector with exclude parameters. Possibles values to exclude are :
+#' @param exclude character vector with exclude parameters. Possibles values to exclude are
 #' \itemize{
 #'   \item{MASK_sub25_copy}{indicate whether the 25bp 3'-subsequence of the probe is non-unique}
 #'   \item{MASK_sub30_copy}{indicate whether the 30bp 3'-subsequence of the probe is non-unique}

@@ -5,7 +5,6 @@
 #' @param selected vector with elements that meet conditions
 #' @param complete vector with all possible cases that can meet conditions
 #' @param varname string. position Relative to Island name. For example : "Island", "OpenSea", "S_Shore", "N_Shore", "S_Shelf", "N_Shelf"
-#' @filename
 #'
 #' @return
 #'

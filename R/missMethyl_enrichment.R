@@ -16,12 +16,13 @@
 #' @param fdr numeric optiona. If data is a dataframe with FDR adjustmnet and fdr!=NA or NULL, makes enrichment with CpGs with fdr lower than indicated value
 #' @param pval numeric optional. If data is a dataframe with p-value and pval!=NA or NULL, makes enrichment with CpGs with pval lower than indicated value
 #' @param all boolean, optional. enrich all CpGs
+#' @param plots boolean, optional. generate plots with GO and KEGG data
 #'
 #' @return File with descriptive and plots from GWAMA results. Results are stored in the same file as GWAMA results
 #'
 #'
 #' @export
-missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, fdr=NA, pval=NA, all = FALSE )
+missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, fdr=NA, pval=NA, all = FALSE, plots = FALSE )
 {
 
    # Output filename
@@ -46,6 +47,12 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
       KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
       write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth"))
 
+      if(plots){
+         plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_GO.png"));
+         plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_KEGG.png"));
+      }
+
+
       res <- list("GO" = GO.data,
                   "KEGG" = KEGG.data,
                   "signif" = sigCpGs)
@@ -66,6 +73,10 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
          GO.data <- gometh(sig.cpg=sigCpGs, collection="GO", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
          KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
          write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth"))
+         if(plots){
+            plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_GO.png"));
+            plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_KEGG.png"));
+         }
 
          res <- list("GO" = GO.data,
                      "KEGG" = KEGG.data,
@@ -92,6 +103,11 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
 
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_BN"))
 
+               if(plots){
+                  plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_BN_GO.png"));
+                  plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_BN_KEGG.png"));
+               }
+
                res <- list("GO.bn" = GO.data,
                            "KEGG.bn" = KEGG.data,
                            "signif.bn" = sigCpGs_bn)
@@ -116,6 +132,11 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                KEGG.data <- gometh(sig.cpg = sigCpGs_fdr, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
 
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_FDR"))
+
+               if(plots){
+                  plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_FDR_GO.png"));
+                  plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_FDR_KEGG.png"));
+               }
 
                if(exists("res")){
                   res[["GO.fdr"]] = GO.data
@@ -147,6 +168,11 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                KEGG.data <- gometh(sig.cpg = sigCpGs_pval, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
 
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_PVAL"))
+
+               if(plots){
+                  plot_Summary(GO.data, "exposures", "GO", "", paste0(outfilename,"_mysmeth_pval_GO.png"));
+                  plot_Summary(KEGG.data, "exposures", "KEGG", "", paste0(outfilename,"_mysmeth_pval_KEGG.png"));
+               }
 
                if(exists("res")){
                   res[["GO.pval"]] = GO.data

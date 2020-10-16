@@ -5,7 +5,6 @@
 #' @param significative numerical. Variable to take in to account as significative variable, could be FDR, p-value,...
 #' @param chromstate vector. Cromatin state values
 #' @param varname string. Cromatin state name. For example : "TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk" or "Quies"
-#' @filename
 #'
 #' @return
 #'

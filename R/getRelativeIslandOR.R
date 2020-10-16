@@ -5,7 +5,6 @@
 #' @param significative numerical. Variable to take in to account as significative variable, could be FDR, p-value,...
 #' @param position vector with position Relative to Island
 #' @param varname string. position Relative to Island name. For example : "Island", "OpenSea", "S_Shore", "N_Shore", "S_Shelf", "N_Shelf"
-#' @filename
 #'
 #' @return
 #'

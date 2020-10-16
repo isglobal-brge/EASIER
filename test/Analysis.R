@@ -1,4 +1,5 @@
-if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf')
+if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
+if (!require(meta, quietly = TRUE)) install.packages('meta', repos = 'https://cran.rediris.es/' )
 if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
 if (!require(VennDiagram, quietly = TRUE)) install.packages('VennDiagram')
 if (!require(RColorBrewer, quietly = TRUE)) install.packages('RColorBrewer')
@@ -8,8 +9,9 @@ if (!require(stringr, quietly = TRUE)) install.packages('stringr')
 if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
 if (!require(missMethyl, quietly = TRUE)) BiocManager::install( "missMethyl" )
 if (!require(org.Hs.eg.db, quietly = TRUE)) BiocManager::install( "org.Hs.eg.db" )
+if (!require(GenomicRanges, quietly = TRUE)) BiocManager::install( "GenomicRanges" )
+if (!require(rtracklayer, quietly = TRUE)) BiocManager::install( "rtracklayer" )
 
-hyper
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
    install.packages("BiocManager")
@@ -17,9 +19,12 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 #BiocManager::install( c("IlluminaHumanMethylation450kanno.ilmn12.hg19",
 #                        "IlluminaHumanMethylation450kanno.ilmn12.hg19",
 #                        "missMethyl",
-#                        "org.Hs.eg.db") )
+#                        "org.Hs.eg.db",
+#                        "GenomicRanges") )
 
 library(org.Hs.eg.db)
+library(GenomicRanges)
+library(rtracklayer)
 
 library(methyTools)
 
@@ -303,7 +308,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       ## ------------------------
 
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
-      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
+      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs, plots = TRUE)
 
       ## -- Molecular Enrichmnet
       ## -----------------------
@@ -315,8 +320,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       # get unique genes from data
       geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}), getUniqueGenes)
 
-
-      ## --  FE - with Online tools ==> A veure si es pot fer l'enriquiment automàtic amb les eines web.....
+      ## --  FER - with Online tools ==> A veure si es pot fer l'enriquiment automàtic amb les eines web.....
       ##### TO DO  : Fer-ho amb script automàtic??? --> Descarregar la informació associada als gens des de les webs utilitzant
       #####          els scripts que proporciona la web?? , mirar com s'han d'utilitzar i amb quin llenguatge.
 
@@ -383,6 +387,36 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, crom_data$Relation_to_Island, outputdir = "HyperG_FDRHypo_RelativeToIsland", outputfile = FilesToEnrich[i])
 
 
+      ## -- ROADMAP  -  Regulatory feature enrichment analysis
+      ## -------------------------------------------------------
+
+
+      #### PENDENT DE REVISAR !!!
+
+      # Convert to Genomic Ranges
+      data.GRange <- GRanges(
+         seqnames = Rle(data$chr),
+         ranges=IRanges(data$pos, end=data$pos),
+         name=data$rs_number,
+         chr=data$chromosome,
+         pos=data$pos
+         )
+      names(data.GRange) <- data.GRange$name
+
+      # Find overlaps between CpGs and Fetal Placenta (States 15 ans 18)
+      over15 <- findOverlapValues(data.GRange, FP_15_E091 )
+      over18 <- findOverlapValues(data.GRange, FP_18_E091 )
+
+      # Add states 15 and 18 to data.GRange file and write to a file : CpGs, state15 and state18
+      mcols(over15$ranges) <- c(mcols(over15$ranges), over15$values, over18$values)
+
+      fname <- paste0("Regulatory_feature_enrichment/List_CpGs_",
+                      tools::file_path_sans_ext(basename(FilesToEnrich[i])),
+                      "_annot_plac_chr_states.txt")
+      dir.create("Regulatory_feature_enrichment", showWarnings = FALSE)
+      write.table( mcols(over15$ranges)[,], fname, quote=F, row.names=F, sep="\t")
+
+      #### FI PENDENT DE REVISAR !!!
 
 
    }
