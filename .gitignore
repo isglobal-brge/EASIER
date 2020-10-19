@@ -36,3 +36,7 @@
 
 # R Environment Variables
 .Renviron
+man/.DS_Store
+vignettes/data/.DS_Store
+vignettes/.DS_Store
+.DS_Store

@@ -9,8 +9,7 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: Rcpp (>= 1.0.5),
-   ggplot2,
+Imports: ggplot2,
    VennDiagram,
    RColorBrewer,
    tibble,

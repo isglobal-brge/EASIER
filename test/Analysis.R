@@ -408,13 +408,16 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       over18 <- findOverlapValues(data.GRange, FP_18_E091 )
 
       # Add states 15 and 18 to data.GRange file and write to a file : CpGs, state15 and state18
-      mcols(over15$ranges) <- c(mcols(over15$ranges), over15$values, over18$values)
+      data.chrstates <- c(mcols(over15$ranges), over15$values, over18$values)
+      colnames(data.chrstates)[grep("States",colnames(data.chrstates))] <-  c("States.15", "States.18")
+      # Merge annotated states with data
+      data.chrstates <- merge(data, data.chrstates, by.x = "rs_number", by.y = "name" )
 
       fname <- paste0("Regulatory_feature_enrichment/List_CpGs_",
                       tools::file_path_sans_ext(basename(FilesToEnrich[i])),
                       "_annot_plac_chr_states.txt")
       dir.create("Regulatory_feature_enrichment", showWarnings = FALSE)
-      write.table( mcols(over15$ranges)[,], fname, quote=F, row.names=F, sep="\t")
+      write.table( data.chrstates, fname, quote=F, row.names=F, sep="\t")
 
       #### FI PENDENT DE REVISAR !!!
 

@@ -44,6 +44,7 @@ In this vignette we will show how to perform an EWAS analysis. As an example we 
 First, let us start by installing and loading required packages
 
 ```{r install_dependences, eval=FALSE}
+
 if (!require(rasterpdf, quietly = TRUE)) 
    install.packages('rasterpdf', repos = 'https://cran.rediris.es/' ) 
 if (!require(meta, quietly = TRUE)) 
@@ -51,6 +52,8 @@ if (!require(meta, quietly = TRUE))
 if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
 if (!require(VennDiagram, quietly = TRUE)) 
    install.packages('VennDiagram')
+if (!require(ellipsis, quietly = TRUE)) 
+   install.packages('ellipsis')
 if (!require(RColorBrewer, quietly = TRUE)) 
    install.packages('RColorBrewer')
 if (!require(tibble, quietly = TRUE)) 
@@ -59,8 +62,12 @@ if (!require(dplyr, quietly = TRUE))
    install.packages('dplyr')
 if (!require(stringr, quietly = TRUE)) 
    install.packages('stringr')
+if (!require(readtext, quietly = TRUE)) 
+   install.packages('readtext')
 if (!require(meta, quietly = TRUE)) 
    install.packages('meta') # Forest Plot
+if (!requireNamespace("BiocManager", quietly = TRUE))
+   install.packages("BiocManager")
 if (!require(missMethyl, quietly = TRUE)) 
    BiocManager::install( "missMethyl" )
 if (!require(org.Hs.eg.db, quietly = TRUE)) 
@@ -70,20 +77,18 @@ if (!require(GenomicRanges, quietly = TRUE))
 if (!require(rtracklayer, quietly = TRUE)) 
    BiocManager::install( "rtracklayer" )
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-   install.packages("BiocManager")
-
-BiocManager::install( c("IlluminaHumanMethylation450kanno.ilmn12.hg19",
-                        "IlluminaHumanMethylation450kanno.ilmn12.hg19",
-                        "missMethyl",
-                        "org.Hs.eg.db",
-                        "GenomicRanges") )
+# BiocManager::install( c("IlluminaHumanMethylation450kanno.ilmn12.hg19",
+#                         "IlluminaHumanMethylation450kanno.ilmn12.hg19",
+#                         "missMethyl",
+#                         "org.Hs.eg.db",
+#                         "GenomicRanges",
+#                         "rtracklayer") )
 ```
 
 The development version of `methyTools` package can be installed from BRGE GitHub repository:
 
 ```{r install_methyTools, eval=FALSE}
-devtools::install_github("isglobal-brge/methyTools")
+devtools::install_github("isglobal-brge/methyTools@HEAD")
 ```
 
 ```{r load_methyTools, eval=TRUE}
