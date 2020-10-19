@@ -5,7 +5,7 @@
 \alias{filter_450K}
 \title{450K Illumina filters}
 \format{
-A data frame with 485577 rows and 48 variables
+A data frame with 485577 rows and 50 variables
 }
 \usage{
 data(filter_450K)

@@ -5,7 +5,7 @@
 \alias{filter_EPIC}
 \title{EPIC Illumina filters}
 \format{
-A data frame with 865918 rows and 48 variables
+A data frame with 865918 rows and 50 variables
 }
 \usage{
 data(filter_EPIC)

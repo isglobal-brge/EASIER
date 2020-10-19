@@ -14,14 +14,14 @@ getAllHypergeometricTest(
 \arguments{
 \item{significative}{numerical. Variable to take in to account as significative variable, could be FDR, p-value,...}
 
-\item{criteria}{dataframe with all relative positions to island values to perform regression}
+\item{criteria}{dataframe with all relative positions to island values or chromatin status 15 or 18 Fetal Placenta}
 
 \item{outputdir}{string. Output path to store file with results, by default results are written in current dir}
 
 \item{outputfile}{string. File name to store results if no name is provided results are not written.}
 }
 \value{
-
+Dataframe with hypergeometric test results for all criteria values
 }
 \description{
 HyperGeometric Test for positions relative to Island

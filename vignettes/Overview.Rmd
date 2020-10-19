@@ -173,7 +173,9 @@ In QC process, we exclude that CpGs that not accomplish with defined parameters 
   * **cpg_probes** :  cpg probes classified as "cg" in the variable named "probeType". 
   * **noncpg_probes** :  non-cpg probes classified as "ch" in the variable named "probeType". 
   * **control_probes** :  control probes classified as "rs" in the variable named "probeType". 
-  * **Unreliable_450_EPIC**  : Unreliable probes discordant between 450K and EPIC 
+  * **Unrel_450_EPIC_blood**  : Unreliable probes discordant between 450K and EPIC for blood
+  * **Unrel_450_EPIC_pla**  : Unreliable probes discordant between 450K and EPIC for placenta
+  * **Unrel_450_EPIC_pla_restrict**  : Unreliable probes discordant between 450K and EPIC for placenta (more restrictive)
   * **MASK_rmsk15** :  
   * **Sex** :  Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )
 
@@ -185,7 +187,7 @@ exclude <- c( 'MASK_sub35_copy',
               'MASK_typeINextBaseSwitch', 
               'noncpg_probes', 
               'control_probes', 
-              'Unreliable_450_EPIC', 
+              'Unrel_450_EPIC_blood', 
               'Sex')
 ```
 

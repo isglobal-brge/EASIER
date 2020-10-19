@@ -47,7 +47,7 @@ prefixes <- c('PACE_AQUA_A1', 'PACE_AQUA_A2',
 artype <- '450K'
 
 # Parameters to exclude CpGs
-exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unreliable_450_EPIC', 'Sex')
+exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
 ethnic <- 'EUR'
 
@@ -83,6 +83,9 @@ for ( i in 1:length(files) )
    # Read data.
    cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
    print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
+
+   # Remove rows with NA from data
+   cohort <- clean_NA_from_data(cohort)
 
    # Descriptives - Before CpGs deletion #
    descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,'/',prefixes[i],'_descriptives_init.txt') )

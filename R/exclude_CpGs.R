@@ -19,7 +19,9 @@
 #'   \item{cpg_probes}{ cpg probes classified as "cg" in the variable named "probeType". }
 #'   \item{noncpg_probes}{ non-cpg probes classified as "ch" in the variable named "probeType". }
 #'   \item{control_probes}{ control probes classified as "rs" in the variable named "probeType". }
-#'   \item{Unreliable_450_EPIC }{Unreliable probes discordant between 450K and EPIC }
+#'   \item{Unrel_450_EPIC }{Unreliable probes discordant between 450K and EPIC for blood }
+#'   \item{Unrel_450_EPIC }{Unreliable probes discordant between 450K and EPIC for placenta }
+#'   \item{Unrel_450_EPIC }{Unreliable probes discordant between 450K and EPIC for placenta (more restrictive) }
 #'   \item{MASK_rmsk15}{ }
 #'   \item{Sex}{ Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )}
 #' }
@@ -93,8 +95,8 @@ getCritera <- function(exclude)
 
    possible_crit <- c( 'MASK_sub25_copy', 'MASK_sub30_copy', 'MASK_sub35_copy', 'MASK_sub40_copy',
                        'MASK_mapping', 'MASK_extBase', 'MASK_typeINextBaseSwitch', 'MASK_snp5_common', 'MASK.snp5.GMAF1p',
-                       'MASK_general', 'cpg_probes', 'noncpg_probes', 'control_probes', 'Unreliable_450_EPIC', 'MASK_rmsk15',
-                       'Sex')
+                       'MASK_general', 'cpg_probes', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'MASK_rmsk15',
+                       'Sex', 'Unrel_450_EPIC_pla_restrict', 'Unrel_450_EPIC_pla')
 
    # Test if all parameters are allowed
    if(length(which(! exclude %in% possible_crit))>=1)

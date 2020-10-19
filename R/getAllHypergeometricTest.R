@@ -3,18 +3,18 @@
 #' HyperGeometric Test for positions relative to Island
 #'
 #' @param significative numerical. Variable to take in to account as significative variable, could be FDR, p-value,...
-#' @param criteria dataframe with all relative positions to island values to perform regression
+#' @param criteria dataframe with all relative positions to island values or chromatin status 15 or 18 Fetal Placenta
 #' @param outputdir string. Output path to store file with results, by default results are written in current dir
 #' @param outputfile string. File name to store results if no name is provided results are not written.
 #'
-#' @return
+#' @return Dataframe with hypergeometric test results for all criteria values
 #'
 #' @export
 getAllHypergeometricTest <- function(significative, criteria, outputdir = ".", outputfile = NULL)
 {
    positions <- unique(criteria)
 
-   lregs <-  lapply(positions, function(x) getHypergeometricTest(significative, ifelse(position == x, "yes", "no"), x) )
+   lregs <-  lapply(positions, function(x) getHypergeometricTest(significative, ifelse(criteria == x, "yes", "no"), x) )
    ans <- data.frame(matrix(unlist(lregs), nrow=length(positions), byrow=T))
    colnames(ans) <- names(lregs[[1]])
    rownames(ans) <- positions
