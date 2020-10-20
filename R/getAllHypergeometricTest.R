@@ -12,7 +12,8 @@
 #' @export
 getAllHypergeometricTest <- function(significative, criteria, outputdir = ".", outputfile = NULL)
 {
-   positions <- unique(criteria)
+   #..# positions <- unique(criteria)
+   positions <- getUniqueValues(position)
 
    lregs <-  lapply(positions, function(x) getHypergeometricTest(significative, ifelse(criteria == x, "yes", "no"), x) )
    ans <- data.frame(matrix(unlist(lregs), nrow=length(positions), byrow=T))

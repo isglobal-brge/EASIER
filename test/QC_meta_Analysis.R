@@ -174,17 +174,17 @@ pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta
 
 
 ## Create directory for GWAMA configuration files and GWAMA_Results
-if(!dir.exists(file.path(getwd(), paste(folder, "GWAMA", sep="/") )))
-   suppressWarnings(dir.create(file.path(getwd(), paste(folder, "GWAMA", sep="/"))))
+if(!dir.exists(file.path(getwd(), paste(results_folder, "GWAMA", sep="/") )))
+   suppressWarnings(dir.create(file.path(getwd(), paste(results_folder, "GWAMA", sep="/"))))
 
 ## Create directory for GWAMA_Results
-outputfolder <- paste0(folder, "/GWAMA_Results")
+outputfolder <- paste0(results_folder, "/GWAMA_Results")
 if(!dir.exists(file.path(getwd(), outputfolder )))
    suppressWarnings(dir.create(file.path(getwd(), outputfolder)))
 
 
 # Create map file for GWAMA --> Used in Manhattan plots
-hapmapfile <- paste(folder,"GWAMA", "hapmap.map" ,sep = "/")
+hapmapfile <- paste(results_folder,"GWAMA", "hapmap.map" ,sep = "/")
 generate_hapmap_file(artype, hapmapfile)
 
 # GWAMA binary path
@@ -198,14 +198,14 @@ for( metf in 1:length(metafiles))
 
    # Create folder for a meta-analysis in GWAMA folder, here we store the GWAMA input files for each meta-analysis,
    # We create one for complete meta-analysis
-   if(!dir.exists(file.path(getwd(), paste(folder,"GWAMA", names(metafiles)[metf] ,sep="/") )))
-      suppressWarnings(dir.create(file.path(getwd(), paste(folder,"GWAMA", names(metafiles)[metf], sep="/"))))
+   if(!dir.exists(file.path(getwd(), paste(results_folder,"GWAMA", names(metafiles)[metf] ,sep="/") )))
+      suppressWarnings(dir.create(file.path(getwd(), paste(results_folder,"GWAMA", names(metafiles)[metf], sep="/"))))
    # We create another for meta-analysis without filtered CpGs with low percentage (sufix _Filtr)
-   if(!dir.exists(file.path(getwd(), paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
-      suppressWarnings(dir.create(file.path(getwd(), paste0(folder,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
+   if(!dir.exists(file.path(getwd(), paste0(results_folder,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
+      suppressWarnings(dir.create(file.path(getwd(), paste0(results_folder,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
 
    # GWAMA File name base
-   inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf])
+   inputfolder <- paste0(results_folder,"/GWAMA/",  names(metafiles)[metf])
 
    modelfiles <- unlist(metafiles[metf])
 
@@ -221,13 +221,13 @@ for( metf in 1:length(metafiles))
          lowCpGs = TRUE
          # Get low presence CpGs in order to exclude this from the new meta-analysis
          list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
-         inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
+         inputfolder <- paste0(results_folder,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
          outputgwama <- paste0(outputgwama,"_Filtr")
       }
 
       # Create GWAMA files for each file in meta-analysis and execute GWAMA
       for ( i in 1:length(modelfiles) )
-         create_GWAMA_files(folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
+         create_GWAMA_files(results_folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
 
       #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
       outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir)
