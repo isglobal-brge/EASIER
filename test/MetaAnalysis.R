@@ -85,6 +85,7 @@ results_gwama <- '.'
 gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
 
 
+
 ## Create directory for GWAMA configuration files and GWAMA_Results
 if(!dir.exists(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/") )))
    suppressWarnings(dir.create(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/"))))

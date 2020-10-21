@@ -68,7 +68,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
       outputfolder <- ifelse( substr(outputgwama, 1, 2) == './', substr(outputgwama,3,nchar(outputgwama)), outputgwama)
 
       if(islowCpg == 'lowcpgs')
-         path <- paste0(file.path(getwd()),"/", outputfolder,"/","_Filtr/ForestPlots")
+         path <- paste0(file.path(getwd()),"/", outputfolder,"/ForestPlots")
       else
          path <- paste(file.path(getwd()), outputfolder, "ForestPlots", sep="/")
 
