@@ -12,7 +12,7 @@
 #'
 #'
 #' @export
-get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname, artype)
+get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname, artype, Ns)
 {
 
    # Descriptives
@@ -37,7 +37,7 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       write(sprintf('n models : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
       write(sprintf('Models analysed :'), file = qc.fname, append = TRUE)
       write(sprintf('\t\t %s', unname(modelfiles)) , file = qc.fname, append = TRUE)
-      write(sprintf('N Samples : %d ', sum(N[which( prefixes %in% modelfiles)]) ), file = qc.fname, append = TRUE)
+      write(sprintf('N Samples : %d ', sum(Ns) ), file = qc.fname, append = TRUE)
       write(sprintf('N CpGs : %d ',nCpG), file = qc.fname, append = TRUE)
 
       # Effects

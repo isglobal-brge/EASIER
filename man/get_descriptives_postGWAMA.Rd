@@ -4,7 +4,14 @@
 \alias{get_descriptives_postGWAMA}
 \title{Get descriptives after GWAMA}
 \usage{
-get_descriptives_postGWAMA(resdir, analyzedata, modelfiles, metaname, artype)
+get_descriptives_postGWAMA(
+  resdir,
+  analyzedata,
+  modelfiles,
+  metaname,
+  artype,
+  Ns
+)
 }
 \arguments{
 \item{resdir}{string. Path with results from GWAMA}

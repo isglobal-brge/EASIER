@@ -7,11 +7,13 @@
 #' @param islowCpg string  string indicating if the execution has been carried out with all the CpGs or with the filtered CpGs, possible values : 'Normal', 'lowcpgs'
 #' @param gwana_dir string with gwama input data path
 #' @param metaname string with meta-analysis name
+#' @param files string vector with files used in QC because we need data from this files to perform ForestPlots
+#' @param outputgwama string with gwama output path
 #'
 #' @return distribution plot
 #'
 #' @export
-plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname )
+plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, files, outputgwama )
 {
    # We need the data from meta-analysis model and individual data from cohorts in the model
 
@@ -63,10 +65,12 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname )
 
       names(bb) <- rownames(tt)
 
+      outputfolder <- ifelse( substr(outputgwama, 1, 2) == './', substr(outputgwama,3,nchar(outputgwama)), outputgwama)
+
       if(islowCpg == 'lowcpgs')
-         path <- paste0(file.path(getwd()),"/", outputfolder,"/",metaname,"_Filtr/ForestPlots")
+         path <- paste0(file.path(getwd()),"/", outputfolder,"/","_Filtr/ForestPlots")
       else
-         path <- paste(file.path(getwd()), outputfolder,metaname,"ForestPlots", sep="/")
+         path <- paste(file.path(getwd()), outputfolder, "ForestPlots", sep="/")
 
       # Before get plots test if dir exists and create it
       if(!dir.exists(path))
@@ -74,12 +78,13 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname )
 
       mt <- lapply(names(bb), function(cpg) {
          message(cpg)
-         df <- bb[[cpg]]
-         mtg <- meta::metagen(unlist(df[,"BETA"]), unlist(df[,"SE"]), sm="MD", studlab=rownames(df), comb.random=TRUE, comb.fixed = TRUE)
+         dataf <- bb[[cpg]]
+         mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), comb.random=TRUE, comb.fixed = TRUE)
 
-         #pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"))
-         #rasterpdf::
-         rasterpdf::raster_pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"), res = 600)
+         # print(paste0("Output file : ",paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf")))
+
+         # rasterpdf::raster_pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"), res = 600)
+         pdf( paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"))
          par(mar = c(0, 0, 0, 0))
          meta::forest(mtg, leftcols=c("studlab"), leftlabs=c("Cohort"), rightcols=c("effect", "ci","pval","w.fixed","w.random"), fontsize=7, digits=3, print.pval=TRUE, addrow.overall=T,
                 col.fixed="red", col.random="blue",print.tau2 = FALSE, smlab = "", col.diamond.fixed="red", col.diamond.random = "blue", overall= T, test.overall=T,

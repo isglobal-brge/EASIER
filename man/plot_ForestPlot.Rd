@@ -4,7 +4,15 @@
 \alias{plot_ForestPlot}
 \title{Forest plot}
 \usage{
-plot_ForestPlot(datas, files_meta, islowCpg, gwana_dir, metaname)
+plot_ForestPlot(
+  datas,
+  files_meta,
+  islowCpg,
+  gwana_dir,
+  metaname,
+  files,
+  outputgwama
+)
 }
 \arguments{
 \item{datas}{complete data obtained from meta-analysis after QC without annotations}
@@ -16,6 +24,10 @@ plot_ForestPlot(datas, files_meta, islowCpg, gwana_dir, metaname)
 \item{gwana_dir}{string with gwama input data path}
 
 \item{metaname}{string with meta-analysis name}
+
+\item{files}{string vector with files used in QC because we need data from this files to perform ForestPlots}
+
+\item{outputgwama}{string with gwama output path}
 }
 \value{
 distribution plot

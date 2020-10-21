@@ -22,16 +22,25 @@ run_GWAMA_MetaAnalysis <- function(inputfolder, outputfolder, outputfilename, gw
 
    # Fix effects
    gwm.fixedoufile <- paste0(str_replace(getwd(),' ','\\\\ '), "/", outputfolder, "/", outputfilename,"_Fixed" )
+   # gwamaexec.fix <- paste0( gwama.dir, "GWAMA -qt -m ", hapmapfile,
+   #                          " -i ", paste(str_replace(getwd(),' ','\\\\ '), prefixgwama, "gwama.in", sep="/"),
+   #                          " -o ", gwm.fixedoufile)
+
    gwamaexec.fix <- paste0( gwama.dir, "GWAMA -qt -m ", hapmapfile,
-                            " -i ", paste(str_replace(getwd(),' ','\\\\ '), prefixgwama, "gwama.in", sep="/"),
+                            " -i ", paste(getwd(), inputfolder, "gwama.in", sep="/"),
                             " -o ", gwm.fixedoufile)
+
    gwamaexec.fix
    system(gwamaexec.fix)
 
    # Random effects
    gwm.ramdomoufile <- paste0(getwd(), "/", outputfolder, "/", outputfilename,"_Random" )
+   # gwamaexec.random <- paste0( gwama.dir, "GWAMA -r -qt -m ", hapmapfile,
+   #                             " -i ", paste(getwd(),prefixgwama, "gwama.in", sep="/"),
+   #                             " -o ", gwm.ramdomoufile)
+
    gwamaexec.random <- paste0( gwama.dir, "GWAMA -r -qt -m ", hapmapfile,
-                               " -i ", paste(getwd(),prefixgwama, "gwama.in", sep="/"),
+                               " -i ", paste(getwd(), inputfolder, "gwama.in", sep="/"),
                                " -o ", gwm.ramdomoufile)
    system(gwamaexec.random)
 

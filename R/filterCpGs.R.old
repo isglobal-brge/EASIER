@@ -1,0 +1,18 @@
+#' Filter CpGs
+#'
+#' Filter all CpGs attending to a criteria values
+#'
+#' @param tofilter vector with data to filter
+#' @param filter filter condition
+#'
+#' @return string vector with CpGs not in filter criteria
+#'
+#' @export
+filterCpGs <- function(tofilter, filter)
+{
+
+   fdata <-  lapply(tofilter, function(tf) ifelse(tf == filter, TRUE, FALSE) )
+
+   return(fdata)
+
+}

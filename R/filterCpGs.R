@@ -3,43 +3,22 @@
 #' Filter all CpGs attending to multiple criteria values
 #'
 #' @param cpgs string vector with CpGs
-#' @param position vector with data to apply filter
+#' @param tofilter vector with data to apply filter
 #' @param filter vector with filter conditions
 #'
 #' @return string vector with CpGs not in filter criteria
 #'
 #' @export
-filterAllCpGs <- function(cpgs, criteria, filter)
+filterCpGs <- function(cpgs, tofilter, filter)
 {
 
-   if(length(cpgs)!= length(criteria))
+   if(length(cpgs)!= length(tofilter))
       stop("Length differ between CpGs and criteria")
 
-   # Create dataframe with cpgs and criteria data
-   data <- as.data.frame(cbind(cpgs, position))
+   fcrit <- grep(paste(filter,collapse = "|"), tofilter)
 
-   sapply(filter, filterCpGs, data = data )
+   filteredCpGs <- cpgs[-fcrit ]
 
-   return(PMD.GRange)
-
-}
-
-
-#' Filter CpGs
-#'
-#' Filter all CpGs attending to a criteria values
-#'
-#' @param tofilter vector with data to filter
-#' @param filter filter condition
-#'
-#' @return string vector with CpGs not in filter criteria
-#'
-#' @export
-filterCpGs <- function(tofilter, filter)
-{
-
-   fdata <-  lapply(tofilter, function(tf) ifelse(tf == filter, "yes", "no") )
-
-   return(fdata)
+   return(filteredCpGs)
 
 }
