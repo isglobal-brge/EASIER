@@ -18,7 +18,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 #                        "org.Hs.eg.db") )
 
 library(org.Hs.eg.db)
-
+library(dplyr)
 library(methyTools)
 
 setwd("")

@@ -25,7 +25,7 @@ create_GWAMA_files <- function(qcpath, file, gwmodelpath, N, llowCpGs=NULL)
    }
 
    # Prepare data for GWAMA
-   data <- cohort %>% select("MARKERNAME" = probeID, "CHR"= CpG_chrm, "POS"= CpG_beg, "BETA"= BETA, "SE"=SE)
+   data <- cohort %>% dplyr::select("MARKERNAME" = probeID, "CHR"= CpG_chrm, "POS"= CpG_beg, "BETA"= BETA, "SE"=SE)
    data <- data %>% tibble::add_column( STRAND = rep('+',dim(cohort)[1]), .after = "MARKERNAME")%>%
       tibble::add_column(EA = rep('C',dim(cohort)[1]), .after = "POS")%>%
       tibble::add_column(NEA = rep('G',dim(cohort)[1]), .after = "EA")%>%

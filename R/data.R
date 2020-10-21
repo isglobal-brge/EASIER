@@ -109,3 +109,16 @@
 #'
 #' @format Genomic Ranges
 "FP_18_E091"
+
+
+#' PMD placenta
+#'
+#' PMD placenta
+#'
+#' @docType data
+#'
+#' @usage data(PMD_placenta)
+#' @references Schroeder, D. I. et al. The human placenta methylome. Proc. Natl. Acad. Sci. 110, 6037–6042 (2013)
+#' @format A data frame with 3 variables
+"PMD_placenta"
+

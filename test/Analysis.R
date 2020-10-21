@@ -2,12 +2,14 @@ if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf', repos = '
 if (!require(meta, quietly = TRUE)) install.packages('meta', repos = 'https://cran.rediris.es/' )
 if (!require(tibble, quietly = TRUE)) install.packages('tibble')
 if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
+if (!require(tidyverse, quietly = TRUE)) install.packages::install( "tidyverse" )
 if (!require(stringr, quietly = TRUE)) install.packages('stringr')
 if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
 if (!require(missMethyl, quietly = TRUE)) BiocManager::install( "missMethyl" )
 if (!require(org.Hs.eg.db, quietly = TRUE)) BiocManager::install( "org.Hs.eg.db" )
 if (!require(GenomicRanges, quietly = TRUE)) BiocManager::install( "GenomicRanges" )
 if (!require(rtracklayer, quietly = TRUE)) BiocManager::install( "rtracklayer" )
+
 
 # Plots
 if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
@@ -26,9 +28,29 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 #                        "org.Hs.eg.db",
 #                        "GenomicRanges") )
 
+
+library(rasterpdf)
+library(meta)
+library(tibble)
+library(dplyr)
+library(stringr)
+library(meta)
+library(missMethyl)
 library(org.Hs.eg.db)
 library(GenomicRanges)
 library(rtracklayer)
+
+# Plots
+library(ggplot2)
+library(VennDiagram)
+library(RColorBrewer)
+library(reshape)
+library(ggsignif)
+
+
+
+
+
 
 library(methyTools)
 
@@ -318,6 +340,16 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
       miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs, plots = TRUE)
 
+
+
+      ## -- Online Tools
+
+      #     - Consensus path http://cpdb.molgen.mpg.de/ (gene-set analysis – over-representation analysis)
+      #     - enrichr https://amp.pharm.mssm.edu/Enrichr/ (it alows gene-set analysis, but also disease
+      #       enrichment and enrichemnt for transcription factors)
+
+
+
       ## -- Molecular Enrichmnet
       ## -----------------------
 
@@ -429,14 +461,11 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
 
       # FDR significatives regression by chromatin state
-      chrom_states_fdr <- getAllChromStateOR(crom_data$bFDR, crom_data[,ChrStatCols],
-                                             outputdir = "OR_FDR_States", outputfile = FilesToEnrich[i], plots = TRUE )
+      chrom_states_fdr <- getAllChromStateOR(crom_data$bFDR, crom_data[,ChrStatCols],outputdir = "OR_FDR_States", outputfile = FilesToEnrich[i], plots = TRUE )
       # FDR significative with Hypermetilation vs no significative hypomethylation
-      chrom_states_fdr_hyper <- getAllChromStateOR(FDR_Hyper,
-                                                   crom_data[,ChrStatCols], outputdir = "OR_FDRHyper_States", outputfile = FilesToEnrich[i], plots = TRUE )
+      chrom_states_fdr_hyper <- getAllChromStateOR(FDR_Hyper, crom_data[,ChrStatCols], outputdir = "OR_FDRHyper_States", outputfile = FilesToEnrich[i], plots = TRUE )
       # FDR significative with Hypo-methylation vs no significative hyper-methylation
-      chrom_states_fdr_hypo <- getAllChromStateOR(FDR_Hypo,
-                                                  crom_data[,ChrStatCols], outputdir = "OR_FDRHypo_States", outputfile = FilesToEnrich[i], plots = TRUE )
+      chrom_states_fdr_hypo <- getAllChromStateOR(FDR_Hypo, crom_data[,ChrStatCols], outputdir = "OR_FDRHypo_States", outputfile = FilesToEnrich[i], plots = TRUE )
 
 
 
@@ -472,11 +501,11 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       ## --  HyperGeometric Test - States15_FP - BN
 
       # Hypergeometric Test for BN significatives by States15_FP
-      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States15_FP, outputdir = "HyperG_FDR_States15_FP", outputfile = FilesToEnrich[i])
+      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States15_FP, outputdir = "HyperG_BN_States15_FP", outputfile = FilesToEnrich[i])
       # Hypergeometric Test for FDR significatives by States15_FP
-      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States15_FP, outputdir = "HyperG_FDRHyper_States15_FP", outputfile = FilesToEnrich[i])
+      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States15_FP, outputdir = "HyperG_BNHyper_States15_FP", outputfile = FilesToEnrich[i])
       # Hypergeometric Test for FDR significatives by States15_FP
-      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States15_FP, outputdir = "HyperG_FDRHypo_States15_FP", outputfile = FilesToEnrich[i])
+      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States15_FP, outputdir = "HyperG_BNHypo_States15_FP", outputfile = FilesToEnrich[i])
 
       ## --  Resume in a table - HyperGeometric Test - States15_FP - BN
       resdata <- summary_States_FP_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, crom_data$States15_FP, outputdir = "Sum_States15_FP", outputfile = FilesToEnrich[i], plot = TRUE )
@@ -485,16 +514,60 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       ## --  HyperGeometric Test - States18_FP - BN
 
       # Hypergeometric Test for BN significatives by States15_FP
-      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States18_FP, outputdir = "HyperG_FDR_States18_FP", outputfile = FilesToEnrich[i])
+      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States18_FP, outputdir = "HyperG_BN_States18_FP", outputfile = FilesToEnrich[i])
       # Hypergeometric Test for FDR significatives by States15_FP
-      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States18_FP, outputdir = "HyperG_FDRHyper_States18_FP", outputfile = FilesToEnrich[i])
+      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States18_FP, outputdir = "HyperG_BNHyper_States18_FP", outputfile = FilesToEnrich[i])
       # Hypergeometric Test for FDR significatives by States15_FP
-      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States18_FP, outputdir = "HyperG_FDRHypo_States18_FP", outputfile = FilesToEnrich[i])
+      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States18_FP, outputdir = "HyperG_BNHypo_States18_FP", outputfile = FilesToEnrich[i])
 
       ## --  Resume in a table - HyperGeometric Test - States15_FP - BN
       resdata <- summary_States_FP_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, crom_data$States18_FP, outputdir = "Sum_States18_FP", outputfile = FilesToEnrich[i], plot = TRUE )
 
 
+
+      ## -- Partially Methylated Domains (PMDs) PLACENTA
+      ## ------------------------------------------------
+
+      # Create genomic ranges from PMD data
+      PMD.GRange <- getPMDGenomicRanges(PMD_placenta$Chr_PMD, PMD_placenta$Start_PMD, PMD_placenta$End_PMD)
+
+      # Find overlaps between CpGs and PMD (find subject hits, query hits )
+      overPMD <- findOverlapValues(data.GRange, PMD.GRange )
+
+      #Create a data.frame with CpGs and PMDs information
+      mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overPMD$qhits]), DataFrame(PMD = PMD.GRange$name[overPMD$shits])))
+
+      # Merge with results from meta-analysis (A2)
+      crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
+      crom_data <- crom_data[order(crom_data$p.value),]
+
+
+      ## --  HyperGeometric Test - PMD - BN
+
+      # Hypergeometric Test for BN significatives by PMD
+      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$PMD, outputdir = "HyperG_BN_PMD", outputfile = FilesToEnrich[i])
+      # Hypergeometric Test for FDR significatives by PMD
+      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$PMD, outputdir = "HyperG_BNHyper_PMD", outputfile = FilesToEnrich[i])
+      # Hypergeometric Test for FDR significatives by PMD
+      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$PMD, outputdir = "HyperG_BNHypo_PMD", outputfile = FilesToEnrich[i])
+
+      ## --  HyperGeometric Test - PMD - FDR
+
+      # Hypergeometric Test for FDR significatives by PMD
+      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$bFDR, crom_data$PMD, outputdir = "HyperG_FDR_PMD", outputfile = FilesToEnrich[i])
+      # Hypergeometric Test for FDR significatives by PMD
+      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(FDR_Hyper, crom_data$PMD, outputdir = "HyperG_FDRHyper_PMD", outputfile = FilesToEnrich[i])
+      # Hypergeometric Test for FDR significatives by PMD
+      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(FDR_Hypo, crom_data$PMD, outputdir = "HyperG_FDRHypo_PMD", outputfile = FilesToEnrich[i])
+
+
+      ## --  Filter CpGs in Islands, Shores and Promoters
+
+
+
+
+
+      #
    }
 
 } else{

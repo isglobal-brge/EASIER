@@ -14,7 +14,10 @@ getHypergeometricTest <- function( significative, criteria, varname)
    depletion <- phyper(sum( significative == 'yes' & criteria == 'yes'), sum( criteria=='yes'),
                       sum( criteria != 'yes'), sum(significative == 'yes'), lower.tail= TRUE)
 
+   enrichment <- phyper(sum( significative == 'yes' & criteria == 'yes') - 1, sum( criteria=='yes'),
+                       sum( criteria != 'yes'), sum(significative == 'yes'), lower.tail= FALSE)
+
    ans <- list("depletion" = depletion,
-               "enrichment" = 1 - depletion)
+               "enrichment" = enrichment)
    return(ans)
 }

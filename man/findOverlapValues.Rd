@@ -4,19 +4,21 @@
 \alias{findOverlapValues}
 \title{Find Overlaps between two genomics ranges}
 \usage{
-findOverlapValues(selected, complete)
+findOverlapValues(selected, complete, outputdir = ".", outputfile = NULL)
 }
 \arguments{
-\item{selected}{numerical. Variable to take in to account as significative variable, could be FDR, p-value,...}
+\item{selected}{Genomic Ranges Variable that we are interested to enrich with data obtained from 'comlete' genomic ranges}
 
-\item{complete}{dataframe with all relative positions to island values to perform regression}
+\item{complete}{Genomic Ranges with Fetal Placenta data 15 or 18 or other genomic ranges that overlaps with selected genomic ranges}
 }
 \value{
 A list with the Overlap results
 \itemize{
  \item{"ranges"}{A subset by overlaps}
- \item{"hits"}{Log-likelihood of linkage model}
- \item{"values"}{Coincident names}
+ \item{"hits"}{Coincident data between selected and complete}
+ \item{"shits"}{Subject hits}
+ \item{"qhits"}{Query hits}
+ \item{"values"}{Coincident names associated to each position}
 }
 }
 \description{
