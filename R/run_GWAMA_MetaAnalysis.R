@@ -17,11 +17,14 @@ run_GWAMA_MetaAnalysis <- function(inputfolder, outputfolder, outputfilename, gw
 
    # -- GWAMA meta-analysis --
 
+   outputfolder <- ifelse( substr(outputfolder, 1, 2) == './', substr(outputfolder,3,nchar(outputfolder)), outputfolder)
+
    # Check if gwama results folder exists and create it.
    if(!dir.exists(file.path(getwd(), outputfolder ))) suppressWarnings(dir.create(file.path(getwd(), outputfolder)))
 
    # Fix effects
-   gwm.fixedoufile <- paste0(str_replace(getwd(),' ','\\\\ '), "/", outputfolder, "/", outputfilename,"_Fixed" )
+   # gwm.fixedoufile <- paste0(str_replace(getwd(),' ','\\\\ '), "/", outputfolder, "/", outputfilename,"_Fixed" )
+   gwm.fixedoufile <- paste0(getwd(), "/", outputfolder, "/", outputfilename,"_Fixed" )
    # gwamaexec.fix <- paste0( gwama.dir, "GWAMA -qt -m ", hapmapfile,
    #                          " -i ", paste(str_replace(getwd(),' ','\\\\ '), prefixgwama, "gwama.in", sep="/"),
    #                          " -o ", gwm.fixedoufile)

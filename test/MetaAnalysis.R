@@ -83,7 +83,7 @@ results_gwama <- '.'
 
 # GWAMA binary path  (GWAMA IsGlobal Server installation)
 gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
-
+#.#  gwama.dir <- "/Users/mailos/tmp/GWAMA_v2/"
 
 
 ## Create directory for GWAMA configuration files and GWAMA_Results
