@@ -13,6 +13,7 @@ missMethyl_enrichment(
   fdr = NA,
   pval = NA,
   all = FALSE,
+  outputdir = NULL,
   plots = FALSE
 )
 }
@@ -42,7 +43,7 @@ missMethyl_enrichment(
 \item{plots}{boolean, optional. generate plots with GO and KEGG data}
 }
 \value{
-File with descriptive and plots from GWAMA results. Results are stored in the same file as GWAMA results
+File with descriptive and plots from MyssMethyl results. Results are stored in a folder MyssMethyl inside Enrichment default path
 }
 \description{
 Get Pathways enrichment with missMethyl Bioconductor package. This function gets GO enrichment and KEGG enrichment from input data and save the results in a two separated files, one with GO enrichment and the other with KEGG enrichment with _GO and _KEGG sufix respectively.

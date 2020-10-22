@@ -22,10 +22,10 @@ MSigDB_enrichment(
 
 \item{filename}{string, File name where the results should be saved, to this name the suffix is added depending on data to enrich
 \itemize{
-   \item {_mysmeth}{if we are enriching a CpG vector}
-   \item {_mysmeth_BN}{if we are enriching CpGs that meet the bonferroni condition}
-   \item {_mysmeth_FDR}{if we are enriching CpGs that meet the FDR condition}
-   \item {_mysmeth_PVAL}{if we are enriching CpGs that meet the p-value condition}
+   \item {_MSigDB}{if we are enriching a CpG vector}
+   \item {_MSigDB_BN}{if we are enriching CpGs that meet the bonferroni condition}
+   \item {_MSigDB_FDR}{if we are enriching CpGs that meet the FDR condition}
+   \item {_MSigDB_PVAL}{if we are enriching CpGs that meet the p-value condition}
 }}
 
 \item{artype}{string, Illumina array type, 450K or EPIC, by default array type is 450K}
@@ -39,7 +39,7 @@ MSigDB_enrichment(
 \item{all}{boolean, optional. enrich all CpGs}
 }
 \value{
-A list with resulth enriched data.
+A list with resulth enriched data. Results also are stored in a folder MSigDB inside Enrichment default path
 }
 \description{
 Get enrichment with Molecular Signatures Database (MSigDB c2 - v7p1). This function gets MSigDB enrichment and save the results in  _mysmeth sufix. Data from :  Walter and Eliza Hall Institute website for local bioinformatic resources. (http://bioinf.wehi.edu.au/MSigDB/v7.1/)

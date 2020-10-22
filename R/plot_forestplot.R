@@ -9,11 +9,12 @@
 #' @param metaname string with meta-analysis name
 #' @param files string vector with files used in QC because we need data from this files to perform ForestPlots
 #' @param outputgwama string with gwama output path
+#' @param lowestp number, lowest p-values to show in forestplot, by default, lowestp=30
 #'
 #' @return distribution plot
 #'
 #' @export
-plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, files, outputgwama )
+plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, files, outputgwama, lowestp = 30 )
 {
    # We need the data from meta-analysis model and individual data from cohorts in the model
 
@@ -43,8 +44,8 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       data <- data[order(data$p.value),]
 
-      # We only get the 30 first CpGs with lowest p-value
-      cpgs <- as.character(data[which(data$p.value<0.05),'rs_number'][1:30])
+      # We only get the lowestp first CpGs with lowest p-value
+      cpgs <- as.character(data[which(data$p.value<0.05),'rs_number'][1:lowestp])
 
       tt <- data.frame(do.call(rbind, lapply(cpgs, function(cp) {
          tt <- sapply(cohorts, function(ch) {

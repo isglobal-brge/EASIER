@@ -18,16 +18,23 @@
 #' @param all boolean, optional. enrich all CpGs
 #' @param plots boolean, optional. generate plots with GO and KEGG data
 #'
-#' @return File with descriptive and plots from GWAMA results. Results are stored in the same file as GWAMA results
+#' @return File with descriptive and plots from MyssMethyl results. Results are stored in a folder MyssMethyl inside Enrichment default path
 #'
 #'
 #' @export
-missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, fdr=NA, pval=NA, all = FALSE, plots = FALSE )
+missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, fdr=NA, pval=NA, all = FALSE, outputdir = NULL, plots = FALSE )
 {
 
    # Output filename
    outfilename <- tools::file_path_sans_ext(basename(filename))
-   outfilename <- paste(out,outfilename,sep="/")
+   outdir <- paste(out,"missMethyl",sep="/")
+   outfilename <- paste(outdir,outfilename,sep="/")
+
+   print(outfilename)
+
+   # Create dir for missMethyl files if not exists
+   if(!dir.exists(outdir))
+      suppressWarnings(dir.create(outdir))
 
    # Data is only a CpGs vector?
    #..# if(dim(data)[1] <= 1 | dim(data)[2] <= 1)
@@ -48,8 +55,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
       write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth"))
 
       if(plots){
-         plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_GO.png"));
-         plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_KEGG.png"));
+         plot_missMethyl_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_GO.png"));
+#..#          plot_missMethyl_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_KEGG.png"));
       }
 
 
@@ -74,8 +81,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
          KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
          write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth"))
          if(plots){
-            plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_GO.png"));
-            plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_KEGG.png"));
+            plot_missMethyl_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_GO.png"));
+#..#            plot_missMethyl_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_KEGG.png"));
          }
 
          res <- list("GO" = GO.data,
@@ -104,8 +111,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_BN"))
 
                if(plots){
-                  plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_BN_GO.png"));
-                  plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_BN_KEGG.png"));
+                  plot_missMethyl_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_BN_GO.png"));
+                  #..#                  plot_missMethyl_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_BN_KEGG.png"));
                }
 
                res <- list("GO.bn" = GO.data,
@@ -134,8 +141,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_FDR"))
 
                if(plots){
-                  plot_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_FDR_GO.png"));
-                  plot_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_FDR_KEGG.png"));
+                  plot_missMethyl_Summary(GO.data, "ontology", "GO", "", paste0(outfilename,"_mysmeth_FDR_GO.png"));
+                  #..#                  plot_missMethyl_Summary(KEGG.data, "ontology", "KEGG", "", paste0(outfilename,"_mysmeth_FDR_KEGG.png"));
                }
 
                if(exists("res")){
@@ -170,8 +177,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_PVAL"))
 
                if(plots){
-                  plot_Summary(GO.data, "exposures", "GO", "", paste0(outfilename,"_mysmeth_pval_GO.png"));
-                  plot_Summary(KEGG.data, "exposures", "KEGG", "", paste0(outfilename,"_mysmeth_pval_KEGG.png"));
+                  plot_missMethyl_Summary(GO.data, "exposures", "GO", "", paste0(outfilename,"_mysmeth_pval_GO.png"));
+                  #..#                  plot_missMethyl_Summary(KEGG.data, "exposures", "KEGG", "", paste0(outfilename,"_mysmeth_pval_KEGG.png"));
                }
 
                if(exists("res")){

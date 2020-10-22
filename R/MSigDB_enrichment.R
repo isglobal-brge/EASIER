@@ -6,10 +6,10 @@
 #' @param out string, Path where the results should be saved
 #' @param filename string, File name where the results should be saved, to this name the suffix is added depending on data to enrich
 #' \itemize{
-#'    \item {_mysmeth}{if we are enriching a CpG vector}
-#'    \item {_mysmeth_BN}{if we are enriching CpGs that meet the bonferroni condition}
-#'    \item {_mysmeth_FDR}{if we are enriching CpGs that meet the FDR condition}
-#'    \item {_mysmeth_PVAL}{if we are enriching CpGs that meet the p-value condition}
+#'    \item {_MSigDB}{if we are enriching a CpG vector}
+#'    \item {_MSigDB_BN}{if we are enriching CpGs that meet the bonferroni condition}
+#'    \item {_MSigDB_FDR}{if we are enriching CpGs that meet the FDR condition}
+#'    \item {_MSigDB_PVAL}{if we are enriching CpGs that meet the p-value condition}
 #' }
 #' @param artype string, Illumina array type, 450K or EPIC, by default array type is 450K
 #' @param bn boolean. optional. If data is a dataframe with bonferroni adjustmnet, makes enrichment with CpGs that pass Bonferroni
@@ -17,7 +17,7 @@
 #' @param pval numeric optional. If data is a dataframe with p-value and pval!=NA or NULL, makes enrichment with CpGs with pval lower than indicated value
 #' @param all boolean, optional. enrich all CpGs
 #'
-#' @return A list with resulth enriched data.
+#' @return A list with resulth enriched data. Results also are stored in a folder MSigDB inside Enrichment default path
 #'
 #'
 #' @export
@@ -25,8 +25,16 @@ MSigDB_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, f
 {
 
    # Output filename
-   outputfile <- tools::file_path_sans_ext(basename(filename))
-   outputfile <- paste(out,outputfile,sep="/")
+   outfilename <- tools::file_path_sans_ext(basename(filename))
+   outdir <- paste(out,"MSigDB",sep="/")
+   outputfile <- paste(outdir,outfilename,sep="/")
+
+   print(outputfile)
+
+   # Create dir for MSigDB files if not exists
+   if(!dir.exists(outdir))
+      suppressWarnings(dir.create(outdir))
+
 
    if(class(data) == "character")
    {

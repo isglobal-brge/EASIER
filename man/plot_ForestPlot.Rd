@@ -11,7 +11,8 @@ plot_ForestPlot(
   gwana_dir,
   metaname,
   files,
-  outputgwama
+  outputgwama,
+  lowestp = 30
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ plot_ForestPlot(
 \item{files}{string vector with files used in QC because we need data from this files to perform ForestPlots}
 
 \item{outputgwama}{string with gwama output path}
+
+\item{lowestp}{number, lowest p-values to show in forestplot, by default, lowestp=30}
 }
 \value{
 distribution plot

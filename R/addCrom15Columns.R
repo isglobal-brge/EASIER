@@ -10,8 +10,9 @@
 #' @export
 addCrom15Columns <- function(data, cpgcol)
 {
+   data("crom15")
    # Adding phantom summary
-   sub_crom15 <- crom15[,c(1,7:21)]
+   sub_crom15 <- crom15[,c(2,8:22)]
 
    data <- merge(data, sub_crom15, by.x = cpgcol, by.y = "HT12v4.ArrayAddress", sort = F)
 
