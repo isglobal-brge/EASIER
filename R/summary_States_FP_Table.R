@@ -31,7 +31,7 @@ summary_States_FP_Table <- function( significative, significativehyper, signific
 
    if(!is.null(outputfile)) {
       if(!is.null(outputdir) & !is.na(outputdir) & outputdir!='.')
-         dir.create(outputdir, showWarnings = FALSE)
+         dir.create(outputdir, showWarnings = FALSE, recursive = TRUE)
 
       # Output filename
       filename <- tools::file_path_sans_ext(basename(outputfile))

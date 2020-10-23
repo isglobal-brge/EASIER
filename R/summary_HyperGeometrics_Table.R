@@ -31,7 +31,7 @@ summary_HyperGeometrics_Table <- function( significative, significativehyper, si
 
    if(!is.null(outputfile)) {
       if(!is.null(outputdir) & !is.na(outputdir) & outputdir!='.')
-         dir.create(outputdir, showWarnings = FALSE)
+         dir.create(outputdir, showWarnings = FALSE, recursive = TRUE)
 
       # Output filename
       filename <- tools::file_path_sans_ext(basename(outputfile))

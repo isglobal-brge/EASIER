@@ -22,7 +22,7 @@ plot_ProportionStatesFP <- function(x, outputdir = '.', outputfile = NULL, main=
    print(p)
    if(!is.null(outputfile)) {
       if(!is.null(outputdir) & !is.na(outputdir) & outputdir!='.')
-         dir.create(outputdir, showWarnings = FALSE)
+         dir.create(outputdir, showWarnings = FALSE, recursive = TRUE)
 
       # Output filename
       filename <- paste0(file.path( outputdir),"/Prop_",tools::file_path_sans_ext(basename(outputfile)),"_States_FP.pdf")

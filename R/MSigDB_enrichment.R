@@ -33,7 +33,7 @@ MSigDB_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, f
 
    # Create dir for MSigDB files if not exists
    if(!dir.exists(outdir))
-      suppressWarnings(dir.create(outdir))
+      suppressWarnings(dir.create(outdir, recursive = TRUE))
 
 
    if(class(data) == "character")

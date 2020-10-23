@@ -34,7 +34,7 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
 
    # Create dir for missMethyl files if not exists
    if(!dir.exists(outdir))
-      suppressWarnings(dir.create(outdir))
+      suppressWarnings(dir.create(outdir, recursive = TRUE))
 
    # Data is only a CpGs vector?
    #..# if(dim(data)[1] <= 1 | dim(data)[2] <= 1)

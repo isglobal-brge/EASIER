@@ -20,7 +20,7 @@ get_descriptives_RelativetoIsland <- function(position, criteria, namecriteria, 
       stop("output file is needed to write descriptives")
    }else {
       if(!is.null(outputdir) & !is.na(outputdir) & outputdir!='.')
-         dir.create(outputdir, showWarnings = FALSE)
+         dir.create(outputdir, showWarnings = FALSE, recursive = TRUE)
       # Output filename
       filename <- tools::file_path_sans_ext(basename(outputfile))
    }
