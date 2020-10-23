@@ -54,7 +54,8 @@ library(methyTools)
 setwd("/Users/mailos/tmp/proves")
 
 FilesToEnrich <- c('./GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out',
-                   'GWAMA_Results/MetaA2/MetaA2_Fixed_Modif.out'
+                   'GWAMA_Results/MetaA2/MetaA2_Fixed_Modif.out',
+                   'toenrich/CpGstoEnrich.txt'
                    )
 
 # Values for adjustment
@@ -117,6 +118,8 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          data <- as.vector(t(data))
          data <- get_annotattions(data, artype, FilesToEnrich[i], outputfolder )
          allCpGs <- TRUE
+         data$chromosome <- substr(data$chr,4,length(data$chr))
+         data$rs_number <- data$CpGs
       }
 
       ## -- Functional Enrichmnet
@@ -151,77 +154,81 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
 
 
-      ## --  CpG Gene position - Fisher Test
-      ## -----------------------------------
+      if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+      {
+         ## --  CpG Gene position - Fisher Test
+         ## -----------------------------------
 
-      # Add column bFDR to data for that CpGs that accomplish with FDR
-      data$bFDR <- getBinaryClassificationYesNo(data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
+         # Add column bFDR to data for that CpGs that accomplish with FDR
+         data$bFDR <- getBinaryClassificationYesNo(data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
 
-      # Classify by Hyper and Hypo methylated
-      data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
+         # Classify by Hyper and Hypo methylated
+         data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
 
-      # CpGs FDR and Hyper and Hypo respectively
-      FDR_Hyper <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hyper', "yes", "no")
-      FDR_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "yes", "no")
+         # CpGs FDR and Hyper and Hypo respectively
+         FDR_Hyper <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hyper', "yes", "no")
+         FDR_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "yes", "no")
 
-      # CpGs Bonferroni and Hyper and Hypo respectively
-      BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
-      BN_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "yes", "no")
+         # CpGs Bonferroni and Hyper and Hypo respectively
+         BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
+         BN_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "yes", "no")
 
-      # Get descriptives
-      get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$Bonferroni, "Bonferroni", outputdir = "GenePosition/Fisher_BN_GenePosition_Desc", outputfile = FilesToEnrich[i])
-      get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$bFDR , "FDR", outputdir = "GenePosition/Fisher_FDR_GenePosition_Desc", outputfile = FilesToEnrich[i])
+         # Get descriptives
+         get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$Bonferroni, "Bonferroni", outputdir = "GenePosition/Fisher_BN_Desc", outputfile = FilesToEnrich[i])
+         get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$bFDR , "FDR", outputdir = "GenePosition/Fisher_FDR_Desc", outputfile = FilesToEnrich[i])
 
-      ## --  Fisher Test - Gene position - FDR, FDR_hyper and FDR_hypo
-      relative_island_fdr <- getAllFisherTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDR_GenePosition", outputfile = FilesToEnrich[i], plots = TRUE )
-      relative_island_fdr_hyper <- getAllFisherTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHyper_GenePosition", outputfile = FilesToEnrich[i], plots = TRUE )
-      relative_island_fdr_hypo <- getAllFisherTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHypo_GenePosition", outputfile = FilesToEnrich[i], plots = TRUE )
-
-
-      ## --  CpG Gene position - HyperGeometric Test (Depletion and Enrichment)
-      ## -------------------------------------------
-
-      # http://mengnote.blogspot.com.es/2012/12/calculate-correct-hypergeometric-p.html
-
-      # Get hyper-geometric test for each Island relative position :
-      # Depletion and Enrichment , Depletion and Enrichment for Hyper and Depletion and Enrichment for Hypo
-
-      ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo
-
-      hypergeo_relisland_fdr <- getAllHypergeometricTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDR_GenePosition", outputfile = FilesToEnrich[i])
-      hypergeo_relisland_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHyper_GenePosition", outputfile = FilesToEnrich[i])
-      hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHypo_GenePosition", outputfile = FilesToEnrich[i])
+         ## --  Fisher Test - Gene position - FDR, FDR_hyper and FDR_hypo
+         GenePosition_fdr <- getAllFisherTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
+         GenePosition_fdr_hyper <- getAllFisherTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+         GenePosition_fdr_hypo <- getAllFisherTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
 
 
+         ## --  CpG Gene position - HyperGeometric Test (Depletion and Enrichment)
+         ## -------------------------------------------
+
+         # http://mengnote.blogspot.com.es/2012/12/calculate-correct-hypergeometric-p.html
+
+         # Get hyper-geometric test for each Island relative position :
+         # Depletion and Enrichment , Depletion and Enrichment for Hyper and Depletion and Enrichment for Hypo
+
+         ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo
+
+         hypergeo_relisland_fdr <- getAllHypergeometricTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDR", outputfile = FilesToEnrich[i])
+         hypergeo_relisland_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
+         hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
 
 
 
-      ## --  CpG Island relative position - Fisher Test (Depletion and Enrichment)
-      ## ----------------------------------------------
-
-      get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland/Fisher_BN_RelativeToIsland", outputfile = FilesToEnrich[i])
-      get_descriptives_RelativetoIsland(data$Relation_to_Island, data$bFDR , "FDR", outputdir = "RelativeToIsland/Fisher_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
 
 
-      ## --  Fisher Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
+         ## --  CpG Island relative position - Fisher Test (Depletion and Enrichment)
+         ## ----------------------------------------------
 
-      relative_island_fdr <- getAllFisherTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDR_RelativeToIsland", outputfile = FilesToEnrich[i], plots = TRUE )
-      relative_island_fdr_hyper <- getAllFisherTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHyper_RelativeToIsland", outputfile = FilesToEnrich[i], plots = TRUE )
-      relative_island_fdr_hypo <- getAllFisherTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHypo_RelativeToIsland", outputfile = FilesToEnrich[i], plots = TRUE )
+         get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland/Fisher_BN_RelativeToIsland", outputfile = FilesToEnrich[i])
+         get_descriptives_RelativetoIsland(data$Relation_to_Island, data$bFDR , "FDR", outputdir = "RelativeToIsland/Fisher_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
 
 
-      ## --  CpG Island relative position - HyperGeometric Test (Depletion and Enrichment)
-      ## ------------------------------------------------------
-      # http://mengnote.blogspot.com.es/2012/12/calculate-correct-hypergeometric-p.html
+         ## --  Fisher Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
 
-      # Get hyper-geometric test for each Island relative position :
-      # Depletion and Enrichment , Depletion and Enrichment for Hyper and Depletion and Enrichment for Hypo
+         relative_island_fdr <- getAllFisherTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
+         relative_island_fdr_hyper <- getAllFisherTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+         relative_island_fdr_hypo <- getAllFisherTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
 
-      ## --  HyperGeometric Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
 
-      hypergeo_relisland_fdr <- getAllHypergeometricTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
-      hypergeo_relisland_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHyper_RelativeToIsland", outputfile = FilesToEnrich[i])
-      hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHypo_RelativeToIsland", outputfile = FilesToEnrich[i])
+         ## --  CpG Island relative position - HyperGeometric Test (Depletion and Enrichment)
+         ## ------------------------------------------------------
+         # http://mengnote.blogspot.com.es/2012/12/calculate-correct-hypergeometric-p.html
+
+         # Get hyper-geometric test for each Island relative position :
+         # Depletion and Enrichment , Depletion and Enrichment for Hyper and Depletion and Enrichment for Hypo
+
+         ## --  HyperGeometric Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
+
+         hypergeo_relisland_fdr <- getAllHypergeometricTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDR", outputfile = FilesToEnrich[i])
+         hypergeo_relisland_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
+         hypergeo_relisland_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+
+      }
 
 
 
@@ -234,29 +241,28 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       crom_data <- addCrom15Columns(data, "rs_number") # Adds chromatine state columns
       # crom_data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
 
-      # Columns with chromatin status information :
-      ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
+      if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+      {
 
-      ## -- Define FDR and BN filter with Hyper and Hypo data (Depletion and Enrichment)
+         # Columns with chromatin status information :
+         ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
 
-      # CpGs FDR and Hyper and Hypo respectively
-      FDR_Hyper <- ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hyper', "yes", "no")
-      FDR_Hypo <- ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hypo', "yes", "no")
+         ## -- Define FDR and BN filter with Hyper and Hypo data (Depletion and Enrichment)
 
-      # CpGs Bonferroni and Hyper and Hypo respectively
-      BN_Hyper <- ifelse(crom_data$Bonferroni == 'yes' & crom_data$meth_state=='Hyper', "yes", "no")
-      BN_Hypo <- ifelse(crom_data$Bonferroni == 'yes' & crom_data$meth_state=='Hypo', "yes", "no")
+         # CpGs FDR and Hyper and Hypo respectively
+         FDR_Hyper <- ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hyper', "yes", "no")
+         FDR_Hypo <- ifelse(crom_data$bFDR == 'yes' & crom_data$meth_state=='Hypo', "yes", "no")
 
-      ## --  HyperGeometric Test - Chromatin State - FDR, FDR_hyper and FDR_hypo (Depletion and Enrichment)
+         # CpGs Bonferroni and Hyper and Hypo respectively
+         BN_Hyper <- ifelse(crom_data$Bonferroni == 'yes' & crom_data$meth_state=='Hyper', "yes", "no")
+         BN_Hypo <- ifelse(crom_data$Bonferroni == 'yes' & crom_data$meth_state=='Hypo', "yes", "no")
 
-      ### AQUI !!!!
-      ### AQUI !!!!
-      ### AQUI !!!!
+         ## --  HyperGeometric Test - Chromatin State - FDR, FDR_hyper and FDR_hypo (Depletion and Enrichment)
 
-      chrom_states_fdr <- getAllChromStateOR(crom_data$bFDR, crom_data[,ChrStatCols],outputdir = "CromStates/OR_FDR_States", outputfile = FilesToEnrich[i], plots = TRUE )
-      chrom_states_fdr_hyper <- getAllChromStateOR(FDR_Hyper, crom_data[,ChrStatCols], outputdir = "CromStates/OR_FDRHyper_States", outputfile = FilesToEnrich[i], plots = TRUE )
-      chrom_states_fdr_hypo <- getAllChromStateOR(FDR_Hypo, crom_data[,ChrStatCols], outputdir = "CromStates/OR_FDRHypo_States", outputfile = FilesToEnrich[i], plots = TRUE )
-
+         chrom_states_fdr <- getAllChromStateOR(crom_data$bFDR, crom_data[,ChrStatCols],outputdir = "CromStates/OR_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
+         chrom_states_fdr_hyper <- getAllChromStateOR(FDR_Hyper, crom_data[,ChrStatCols], outputdir = "CromStates/OR_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+         chrom_states_fdr_hypo <- getAllChromStateOR(FDR_Hypo, crom_data[,ChrStatCols], outputdir = "CromStates/OR_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+      }
 
 
       ## -- ROADMAP  -  Regulatory feature enrichment analysis - PLACENTA
@@ -288,25 +294,28 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       dir.create("Regulatory_feature_enrichment", showWarnings = FALSE)
       write.table( crom_data, fname, quote=F, row.names=F, sep="\t")
 
-      ## --  HyperGeometric Test - States18_FP - BN,  BN_hyper and BN_hypo (Depletion and Enrichment)
+      if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+      {
 
-      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States15_FP, outputdir = "States15_FP/HyperG_BN_States15_FP", outputfile = FilesToEnrich[i])
-      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States15_FP, outputdir = "States15_FP/HyperG_BNHyper_States15_FP", outputfile = FilesToEnrich[i])
-      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States15_FP, outputdir = "States15_FP/HyperG_BNHypo_States15_FP", outputfile = FilesToEnrich[i])
+         ## --  HyperGeometric Test - States18_FP - BN,  BN_hyper and BN_hypo (Depletion and Enrichment)
 
-      ## --  Resume in a table - HyperGeometric Test - States15_FP - BN
-      resdata <- summary_States_FP_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, crom_data$States15_FP, outputdir = "States15_FP/Sum_States15_FP", outputfile = FilesToEnrich[i], plot = TRUE )
+         hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States15_FP, outputdir = "States15_FP/HyperG_BN", outputfile = FilesToEnrich[i])
+         hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States15_FP, outputdir = "States15_FP/HyperG_BNHyper", outputfile = FilesToEnrich[i])
+         hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States15_FP, outputdir = "States15_FP/HyperG_BNHypo", outputfile = FilesToEnrich[i])
+
+         ## --  Resume in a table - HyperGeometric Test - States15_FP - BN
+         resdata <- summary_States_FP_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, crom_data$States15_FP, outputdir = "States15_FP/Summary_HyperG_BN", outputfile = FilesToEnrich[i], plot = TRUE )
 
 
-      ## --  HyperGeometric Test - States18_FP - BN,  BN_hyper and BN_hypo (Depletion and Enrichment)
+         ## --  HyperGeometric Test - States18_FP - BN,  BN_hyper and BN_hypo (Depletion and Enrichment)
 
-      hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States18_FP, outputdir = "States18_FP/HyperG_BN_States18_FP", outputfile = FilesToEnrich[i])
-      hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States18_FP, outputdir = "States18_FP/HyperG_BNHyper_States18_FP", outputfile = FilesToEnrich[i])
-      hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States18_FP, outputdir = "States18_FP/HyperG_BNHypo_States18_FP", outputfile = FilesToEnrich[i])
+         hypergeo_States15FP_bn <- getAllHypergeometricTest(crom_data$Bonferroni, crom_data$States18_FP, outputdir = "States18_FP/HyperG_BNP", outputfile = FilesToEnrich[i])
+         hypergeo_States15FP_bnhyper <- getAllHypergeometricTest(BN_Hyper, crom_data$States18_FP, outputdir = "States18_FP/HyperG_BNHyper", outputfile = FilesToEnrich[i])
+         hypergeo_States15FP_bnhypo <- getAllHypergeometricTest(BN_Hypo, crom_data$States18_FP, outputdir = "States18_FP/HyperG_BNHypo", outputfile = FilesToEnrich[i])
 
-      ## --  Resume in a table - HyperGeometric Test - States15_FP - BN
-      resdata <- summary_States_FP_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, crom_data$States18_FP, outputdir = "States18_FP/Sum_States18_FP", outputfile = FilesToEnrich[i], plot = TRUE )
-
+         ## --  Resume in a table - HyperGeometric Test - States15_FP - BN
+         resdata <- summary_States_FP_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, crom_data$States18_FP, outputdir = "States18_FP/Summary_HyperG_BN", outputfile = FilesToEnrich[i], plot = TRUE )
+      }
 
 
       ## -- Partially Methylated Domains (PMDs) PLACENTA
@@ -323,64 +332,69 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
       # Merge with results from meta-analysis (A2)
       crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
-      crom_data <- crom_data[order(crom_data$p.value),]
+      # crom_data <- crom_data[order(crom_data$p.value),]
 
       # CpGs with PMD as NA
       PMD_NaN <- ifelse(is.na(crom_data$PMD),'IsNA','NotNA' )
 
+      if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+      {
 
-      ## --  HyperGeometric Test - PMD - BN,  BN_hyper and BN_hypo  (Full data ) (Depletion and Enrichment)
+         ## --  HyperGeometric Test - PMD - BN,  BN_hyper and BN_hypo  (Full data ) (Depletion and Enrichment)
 
-      hypergeo_PMD_bn <- getAllHypergeometricTest(crom_data$Bonferroni, PMD_NaN, outputdir = "PMD/HyperG_BN_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_bnhyper <- getAllHypergeometricTest(BN_Hyper, PMD_NaN, outputdir = "PMD/HyperG_BNHyper_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_bnhypo <- getAllHypergeometricTest(BN_Hypo, PMD_NaN, outputdir = "PMD/HyperG_BNHypo_PMD", outputfile = FilesToEnrich[i])
-      # Summary
-      resdata <- summary_HyperGeometrics_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, PMD_NaN, outputdir = "PMD/Sum_HyperG_BN", outputfile = FilesToEnrich[i], plot = TRUE )
+         hypergeo_PMD_bn <- getAllHypergeometricTest(crom_data$Bonferroni, PMD_NaN, outputdir = "PMD/HyperG_BN", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_bnhyper <- getAllHypergeometricTest(BN_Hyper, PMD_NaN, outputdir = "PMD/HyperG_BNHyper", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_bnhypo <- getAllHypergeometricTest(BN_Hypo, PMD_NaN, outputdir = "PMD/HyperG_BNHypo", outputfile = FilesToEnrich[i])
+         # Summary
+         resdata <- summary_HyperGeometrics_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, PMD_NaN, outputdir = "PMD/Summary_HyperG_BN", outputfile = FilesToEnrich[i], plot = TRUE )
 
-      ## --  HyperGeometric Test - PMD - FDR,  FDR_hyper and FDR_hypo  (Full data ) (Depletion and Enrichment)
+         ## --  HyperGeometric Test - PMD - FDR,  FDR_hyper and FDR_hypo  (Full data ) (Depletion and Enrichment)
 
-      hypergeo_PMD_bn <- getAllHypergeometricTest(crom_data$bFDR, PMD_NaN, outputdir = "PMD/HyperG_FDR_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_bnhyper <- getAllHypergeometricTest(FDR_Hyper, PMD_NaN, outputdir = "PMD/HyperG_FDRHyper_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_bnhypo <- getAllHypergeometricTest(FDR_Hypo, PMD_NaN, outputdir = "PMD/HyperG_FDRHypo_PMD", outputfile = FilesToEnrich[i])
-      # Summary
-      resdata <- summary_HyperGeometrics_Table( crom_data$bFDR, FDR_Hyper, FDR_Hypo, PMD_NaN, outputdir = "PMD/Sum_HyperG_FDR", outputfile = FilesToEnrich[i], plot = TRUE )
+         hypergeo_PMD_fdr <- getAllHypergeometricTest(crom_data$bFDR, PMD_NaN, outputdir = "PMD/HyperG_FDR", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, PMD_NaN, outputdir = "PMD/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, PMD_NaN, outputdir = "PMD/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+         # Summary
+         resdata <- summary_HyperGeometrics_Table( crom_data$bFDR, FDR_Hyper, FDR_Hypo, PMD_NaN, outputdir = "PMD/Summary_HyperG_FDR", outputfile = FilesToEnrich[i], plot = TRUE )
 
 
-      ## --  Filter CpGs in Islands, Shores and Promoters
+         ## --  Filter CpGs in Islands, Shores and Promoters
 
-      fcrom_data <- crom_data[crom_data$rs_number %in% filterCpGs(crom_data$rs_number, crom_data$Relation_to_Island, c("Island", "N_Shore", "N_Shore")),]
-      fcrom_data <- fcrom_data[fcrom_data$rs_number %in% filterCpGs(fcrom_data$rs_number, fcrom_data$UCSC_RefGene_Group, c("TSS200", "TSS1500")),]
+         fcrom_data <- crom_data[crom_data$rs_number %in% filterCpGs(crom_data$rs_number, crom_data$Relation_to_Island, c("Island", "N_Shore", "N_Shore")),]
+         fcrom_data <- fcrom_data[fcrom_data$rs_number %in% filterCpGs(fcrom_data$rs_number, fcrom_data$UCSC_RefGene_Group, c("TSS200", "TSS1500")),]
 
-      ## -- Define FDR and BN filter with Hyper and Hypo data for filtered CpGs
+         ## -- Define FDR and BN filter with Hyper and Hypo data for filtered CpGs
 
-      # CpGs FDR, Hyper and Hypo respectively
-      FDR_Hyper_f <- ifelse(fcrom_data$bFDR == 'yes' & fcrom_data$meth_state=='Hyper', "yes", "no")
-      FDR_Hypo_f <- ifelse(fcrom_data$bFDR == 'yes' & fcrom_data$meth_state=='Hypo', "yes", "no")
+         # CpGs FDR, Hyper and Hypo respectively
+         FDR_Hyper_f <- ifelse(fcrom_data$bFDR == 'yes' & fcrom_data$meth_state=='Hyper', "yes", "no")
+         FDR_Hypo_f <- ifelse(fcrom_data$bFDR == 'yes' & fcrom_data$meth_state=='Hypo', "yes", "no")
 
-      # CpGs Bonferroni, Hyper and Hypo respectively
-      BN_Hyper_f <- ifelse(fcrom_data$Bonferroni == 'yes' & fcrom_data$meth_state=='Hyper', "yes", "no")
-      BN_Hypo_f <- ifelse(fcrom_data$Bonferroni == 'yes' & fcrom_data$meth_state=='Hypo', "yes", "no")
+         # CpGs Bonferroni, Hyper and Hypo respectively
+         BN_Hyper_f <- ifelse(fcrom_data$Bonferroni == 'yes' & fcrom_data$meth_state=='Hyper', "yes", "no")
+         BN_Hypo_f <- ifelse(fcrom_data$Bonferroni == 'yes' & fcrom_data$meth_state=='Hypo', "yes", "no")
 
-      # CpGs with PMD as NA
-      PMD_NaN_f <- ifelse(is.na(fcrom_data$PMD),'IsNA','NotNA' )
+         # CpGs with PMD as NA
+         PMD_NaN_f <- ifelse(is.na(fcrom_data$PMD),'IsNA','NotNA' )
 
-      ## --  HyperGeometric Test - PMD - BN,  BN_hyper and BN_hypo  (Filtered data ) (Depletion and Enrichment)
+         ## --  HyperGeometric Test - PMD - BN,  BN_hyper and BN_hypo  (Filtered data ) (Depletion and Enrichment)
 
-      hypergeo_PMD_bn_filt <- getAllHypergeometricTest(fcrom_data$Bonferroni, PMD_NaN_f, outputdir = "PMD/HyperG_BN_filtered_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_bnhyper_filt <- getAllHypergeometricTest(BN_Hyper_f, PMD_NaN_f, outputdir = "PMD/HyperG_BNHyper_filtered_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_bnhypo_filt <- getAllHypergeometricTest(BN_Hypo_f, PMD_NaN_f, outputdir = "PMD/HyperG_BNHypo_filtered_PMD", outputfile = FilesToEnrich[i])
-      # Summary
-      resdata <- summary_HyperGeometrics_Table( fcrom_data$Bonferroni, BN_Hyper_f, BN_Hypo_f, PMD_NaN_f, outputdir = "PMD/Sum_HyperG_BNf", outputfile = FilesToEnrich[i], plot = TRUE )
+         hypergeo_PMD_bn_filt <- getAllHypergeometricTest(fcrom_data$Bonferroni, PMD_NaN_f, outputdir = "PMD/HyperG_BN_filtered", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_bnhyper_filt <- getAllHypergeometricTest(BN_Hyper_f, PMD_NaN_f, outputdir = "PMD/HyperG_BNHyper_filtered", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_bnhypo_filt <- getAllHypergeometricTest(BN_Hypo_f, PMD_NaN_f, outputdir = "PMD/HyperG_BNHypo_filtered", outputfile = FilesToEnrich[i])
+         # Summary
+         resdata <- summary_HyperGeometrics_Table( fcrom_data$Bonferroni, BN_Hyper_f, BN_Hypo_f, PMD_NaN_f, outputdir = "PMD/Summary_HyperG_BN_filtered", outputfile = FilesToEnrich[i], plot = TRUE )
 
-      ## --  HyperGeometric Test - PMD - FDR,  FDR_hyper and FDR_hypo  (Filtered data ) (Depletion and Enrichment)
+         ## --  HyperGeometric Test - PMD - FDR,  FDR_hyper and FDR_hypo  (Filtered data ) (Depletion and Enrichment)
 
-      hypergeo_PMD_fdr_filt <- getAllHypergeometricTest(fcrom_data$bFDR, PMD_NaN_f, outputdir = "PMD/HyperG_FDR_filtered_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_fdrhyper_filt <- getAllHypergeometricTest(FDR_Hyper_f, PMD_NaN_f, outputdir = "PMD/HyperG_FDRHyper_filtered_PMD", outputfile = FilesToEnrich[i])
-      hypergeo_PMD_fdrhypo_filt <- getAllHypergeometricTest(FDR_Hypo_f, PMD_NaN_f, outputdir = "PMD/HyperG_FDRHypo_filtered_PMD", outputfile = FilesToEnrich[i])
-      # Summary
-      resdata <- summary_HyperGeometrics_Table( fcrom_data$bFDR, FDR_Hyper_f, FDR_Hypo_f, PMD_NaN_f, outputdir = "PMD/Sum_HyperG_FDRf", outputfile = FilesToEnrich[i], plot = TRUE )
+         hypergeo_PMD_fdr_filt <- getAllHypergeometricTest(fcrom_data$bFDR, PMD_NaN_f, outputdir = "PMD/HyperG_FDR_filtered", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_fdrhyper_filt <- getAllHypergeometricTest(FDR_Hyper_f, PMD_NaN_f, outputdir = "PMD/HyperG_FDRHyper_filtered", outputfile = FilesToEnrich[i])
+         hypergeo_PMD_fdrhypo_filt <- getAllHypergeometricTest(FDR_Hypo_f, PMD_NaN_f, outputdir = "PMD/HyperG_FDRHypo_filtered", outputfile = FilesToEnrich[i])
+         # Summary
+         resdata <- summary_HyperGeometrics_Table( fcrom_data$bFDR, FDR_Hyper_f, FDR_Hypo_f, PMD_NaN_f, outputdir = "PMD/Summary_HyperG_FDR_filtered", outputfile = FilesToEnrich[i], plot = TRUE )
 
-      #
+      }
+
+      # WRITE FINAL ENRICHMENT DATA
+      write.table( crom_data, paste0( getwd(), "/",tools::file_path_sans_ext(basename(FilesToEnrich[i])),"_Enriched.csv" ) , quote=F, row.names=F, sep="\t")
    }
 
 } else{
