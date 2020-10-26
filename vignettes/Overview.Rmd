@@ -30,18 +30,18 @@ library(knitr)
 
 # Prerequisites
 
-The package requires other packages to be installed. These include : `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf` and `meta` all disponible in CRAN. The package also requires other packages from Bioconductor to perform annotations : `IlluminaHumanMethylation450kanno.ilmn12.hg19` and `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`.
+The package requires other packages to be installed. These include: `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf` and `meta` all available in CRAN. The package also requires other packages from Bioconductor to perform annotations : `IlluminaHumanMethylation450kanno.ilmn12.hg19` and `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`.
 
-To perform meta-analyses we use GWAMA, a Software tool for meta analysis developed by Intitute of Genomics from University of Tartu, this software is available at [https://genomics.ut.ee/en/tools/gwama-download] (https://genomics.ut.ee/en/tools/gwama-download), this software must be installed on the computer where we are running analysis
+To perform meta-analyses we use GWAMA, a Software tool for meta analysis developed by Intitute of Genomics from University of Tartu, this software is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download), this software must be installed on the computer where we are running analysis (already installed in machines 05 and 06 from ISGlobal Campus Mar). 
 
 # Overview
 
-In this vignette we will show how to perform an EWAS analysis. As an example we will perform an EWAS analysis with three different cohorts with two distinct models for each cohort
+In this vignette we will show how to perform an epigenetic wide-association study (EWAS) analysis. As an example we will perform an EWAS analysis with three different cohorts and two distinct models for each cohort
 
 
 # Getting started
 
-First, let us start by installing and loading required packages
+First, we need to install and load the required packages
 
 ```{r install_dependences, eval=FALSE}
 
@@ -102,11 +102,11 @@ library(readtext)
 ## Initial Variables definition
 
 
-First, we need to define the variables to work with, we will start with files that contains the data to perform analysis. 
+We need to define the variables to work with, and the files containing the data to perform the analysis.
 
 ### Input data
 
-As we comment before, we will perform an EWAS with three different cohorts with two distinct models for each cohort, so we need to define where the data is stored for each model an each cohort (six files), we do that in a character vector, in that case the variable is called files
+As we commented before, we will perform an EWAS with three different cohorts and two distinct models for each cohort, so we need to define where the data is stored for each model and each cohort (six files). We do that in a character vector, and the variable is called files:
 
 ```{r QC_varfiles}
 
@@ -128,18 +128,18 @@ cg24669183 | -0.0215342789035512 | 0.0150948404044624 | 0.013452341234512
 cg15560884 | 0.00156725345562218 | 0.0063878467810596 | 0.845523221223523
 
 
-### Where store results
+### Where to store output
 
-We can also define the folder where we will save the results, for example in variable `result_folder`, in this case the results will be stored under QC_Results folder
+We can also define the folder where we will save the results, for example in a variable called `result_folder`, in this case the results will be stored under QC_Results folder.
 
 ```{r QC_varres}
 # Result folder
 results_folder <- 'QC_Results'
 ```
 
-### Make results understable
+### Make results understandable
 
-to make the analysis more understandable and do not have very complex file names we can define an abbreviated form for each of the files defined above, for example, in future PACE_AQUA_Model1_date_v2 will be treated as PACE_AQUA_A1 or PACE_INMA_Plate_ModelA2_20170309 as PACE_IMMA_A2. The length of the prefix vector must be equal to that of the files
+To make the analysis more understandable and do not have very complex file names we can define an abbreviated form for each of the files defined above. For example, PACE_AQUA_Model1_date_v2 will be treated as PACE_AQUA_A1 or PACE_INMA_Plate_ModelA2_20170309 as PACE_IMMA_A2. The length of the prefix vector must be equal to that of the files:
 
 ```{r QC_varprefix}
 # Prefixes for each file
@@ -151,32 +151,30 @@ prefixes <- c('PACE_AQUA_A1', 'PACE_AQUA_A2',
 
 ### Illumina Array type and filter conditions
 
-We need to know the Illumina array type , possible values are `450K` and `EPIC`, this data is very important because we filter CpGs attending to Illumina array type
+We need to know the Illumina array type, possible values are 450K and EPIC. This information is very important because we filter CpGs according to Illumina array type:
 
 ```{r QC_varartype}
 # Array type, used : EPIC or 450K
 artype <- '450K'
 ```
 
-In QC process, we exclude that CpGs that not accomplish with defined parameters (Chen et al. (2013)), this parameters are defined in a character vector and are :
+In quality control (QC) process, we exclude those CpGs that do not accomplish the defined parameters (based on *Zhou et al. 2017, Solomon et al. 2018, Fernandez-Jimenez et al. 2019*). These parameters are defined in a character vector and are the following:
 
-  * **MASK_sub25_copy** : indicate whether the 25bp 3'-subsequence of the probe is non-unique
-  * **MASK_sub30_copy** : indicate whether the 30bp 3'-subsequence of the probe is non-unique
-  * **MASK_sub35_copy** : indicate whether the 35bp 3'-subsequence of the probe is non-unique
-  * **MASK_sub40_copy** : indicate whether the 40bp 3'-subsequence of the probe is non-unique
-  * **MASK_mapping** : "hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs . 
-  * **MASK_extBase**  : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. 
-  * **MASK_typeINextBaseSwitch**  : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference). These probes should be processed differently than designed (by summing up both color channels instead of just the annotated color channel).
-  * **MASK_snp5.common**  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). 
-  * **MASK_snp5.GMAF1p**  : Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1% . 
-  * **MASK_general** :  Recommended general purpose masking merged from *"MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p"* . 
+  * **MASK_sub25_copy** : indicate whether the 25bp 3’-subsequence of the probe is non-unique. The sequence of the last 25bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on Zhou et al. (2017).
+  * **MASK_sub30_copy** : : indicate whether the 30bp 3’-subsequence of the probe is non-unique. The sequence of the last 30bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on *Zhou et al. (2017)*. In the paper they recommend 30bp, but in the code we prepared we have the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequence. 
+  * **MASK_sub35_copy** : indicate whether the 35bp 3’-subsequence of the probe is non-unique. The sequence of the last 35bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on *Zhou et al. (2017)*. In the paper they recommend 30bp, but in the code we prepared we have the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequence. 
+  * **MASK_sub40_copy** : indicate whether the 40bp 3’-subsequence of the probe is non-unique. The sequence of the last 40bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on *Zhou et al. (2017)*. In the paper they recommend 30bp, but in the code we prepared we have the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequence. 
+  * **MASK_mapping** : "hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs. Probes that have poor quality mapping to the target genomic location as indicated in the array’s manifest file based on genome build GRCh37 and GRCh38 (for example due to the presence of INDELs - INDELs  are Insertion–deletion mutations present in the genome, and like SNPs are of great interest because they can alter human traits and can cause human diseases-), based on *Zhou et al. (2017)*.
+  * **MASK_extBase**  : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. Probes with a SNP altering the CpG dinucleotide sequence context and hence the ability of target cytosines to be methylated. This also includes the special case where an actual C/T polymorphism is present instead of C/T difference introduced by bisulfite conversion (the extension base is inconsistent with the specified color channel (type-I) or CpG (type-II) according to mapping, based on *Zhou et al. (2017)*.
+  * **MASK_typeINextBaseSwitch**  : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference), based on *Zhou et al. 2017*. 
+  * **MASK_snp5.common**  : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%), based on Zhou et al. 2017.
+  * **MASK_snp5.GMAF1p**  : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1%, based on Zhou et al. 2017.
+  * **MASK_general** :  Recommended general purpose masking merged from *"MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p"*, based on *Zhou et al. 2017*.
   * **cpg_probes** :  cpg probes classified as "cg" in the variable named "probeType". 
   * **noncpg_probes** :  non-cpg probes classified as "ch" in the variable named "probeType". 
   * **control_probes** :  control probes classified as "rs" in the variable named "probeType". 
-  * **Unrel_450_EPIC_blood**  : Unreliable probes discordant between 450K and EPIC for blood
-  * **Unrel_450_EPIC_pla**  : Unreliable probes discordant between 450K and EPIC for placenta
-  * **Unrel_450_EPIC_pla_restrict**  : Unreliable probes discordant between 450K and EPIC for placenta (more restrictive)
-  * **MASK_rmsk15** :  
+  * **Unreliable_450_EPIC** : Unreliable probes discordant between 450K and EPIC in blood, based on *Solomon et al. 2018*. 
+  * **Unreliable_450_EPIC_Pla**: Unreliable probes discordant between 450K and EPIC in plaenta, based on *Fernandez-Jimenez et al. 2019*. 
   * **Sex** :  Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )
 
 In this example we exclude CpGs that meet condition : MASK_sub35_copy, MASK_typeINextBaseSwitch, noncpg_probes, control_probes, Unreliable_450_EPIC and Sex.
@@ -200,7 +198,7 @@ ethnic <- 'EUR'
 
 ### Other variables :
 
-To obtain the precission plot or perform the GWAMA meta-analysis we need to know the number of samples in data, so we store this information in array N, we define the sample size for each of the files. The n array is similar to N but in that case, we define the size of a dichotomous variable for example smoke
+To obtain the precision plot or perform the GWAMA meta-analysis we need to know the number of samples in our data, so we store this information in ”N”, defining the sample size for each of the files. The n array is similar to N but in that case we define the size of a dichotomous variable for example smoke.
 
 ```{r QC_varN}
 N <- c(100, 100, 166, 166, 240, 240 )
@@ -210,7 +208,7 @@ n <- c(NA)
 ## QC - Numerical analysis code
 
 
-This code can be executed for each file defined in previous variable `files` but in this example we only show how this analysis work in a simple file.
+This code can be executed for each file defined in previous variable `files` but in this example we only show how this analysis workflow in a simple file.
 
 
 ```{r QC_code_1}
@@ -227,7 +225,12 @@ if(!dir.exists(file.path(getwd(), results_folder )))
 
 # IMPORTANT FOR A REAL ANALYSIS :
 
-# Bucle to analyze all files in the variable files
+# To show the execution flow we perform the analysis with only one data
+# file. Normally, we have more than one data file to analyze, for that
+# reason, we execute the code inside a loop and we follow the execution
+# flow for each file defined in `files` 
+# So we need to uncomment the for instruction and remove i <- 1 assignment.
+
 # for ( i in 1:length(files) )
 # {
 
@@ -246,7 +249,7 @@ cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
 print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
-we store the content of the file in a `cohort` variable, after that, we perform a simple descriptive analysis, to do that, we use the function `descriptives_CpGs`, this function needs the data to analyze (`cohort`), the fields that we are interested to get descriptives, in that case BETA, SE and P_VAL (seq(2:4)), and a file name to write results, for the first file will be : *QC_Results/PACE_AQUA_A1_descriptives_init.txt*
+and store the content of the file in a `cohort` variable.  After that, we perform a simple descriptive analysis, using the function descriptives_CpGs. This function needs the data to analyze (`cohort`), the fields for which we are interested to get descriptives, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. For the first file it would be: *QC_Results/PACE_AQUA_A1_descriptives_init.txt*
 
 ```{r QC_code_descriptives}
 # Descriptives - Before CpGs deletion
@@ -254,7 +257,7 @@ descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,'/',prefixes[i],
                                            '_descriptives_init.txt') )
 ```
 
-now, we test if there are any duplicate CpGs and if exists, this duplicated CpGs are removed, to do that, we use the function `remove_duplicate_CpGs`, in this function we must indicate what data have to be reviewed and the field that contains the CpGid. Optionally, we can write the duplicates and descriptives related to this duplicates in a file.
+Then, we test if there are any duplicate CpGs. If there are duplicated CpGs, these are removed using the function `remove_duplicate_CpGs`. In this function we must indicate what data have to be reviewed and the field that contains the CpG IDs. Optionally, we can write the duplicates and descriptives related to this duplicates in a file.
 
 ```{r QC_code_removedupli}
 # Remove duplicates
@@ -265,7 +268,7 @@ cohort <- remove_duplicate_CpGs(cohort, "probeID",
                                        '_duplicates.txt') )
 ```
 
-to exclude CpGs that we are not interested in, we use the function `exclude_CpGs`, here we use the parameters defined before in `exclude` variable, the parameters for this function are the data, `cohort`, the CpG id field (can be the column number or the field name) "probeId", the filters to apply, defined in `exclude` variable and optionally, a file name if we want to save excluded CpGs and the exclussion reason, in that the file name will be *QC_Results/PACE_AQUA_A1_excluded.txt*
+To exclude CpGs that we are not interested in, we use the function `exclude_CpGs`. Here we use the parameters defined before in exclude variable, which are the data, cohort, the CpG id field (can be the column number or the field name “probeId”), the filters to apply defined in `exclude` variable, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name will be  *QC_Results/PACE_AQUA_A1_excluded.txt*).
 
 ```{r QC_code_exclCpGs}
 # Exclude CpGs not meet conditions
@@ -283,8 +286,8 @@ descriptives_CpGs(cohort, seq(2,4),
                          '_descriptives_last.txt') )
 ```
 
-Now, we can get adjusted p-values by Bonferroni and FDR, the function to adjust data is `adjust_data`, we have to indicate in which column the p-value is and what adjustment we want, by default the function adjust data by Bonferroni (`bn`) and FDR (`fdr`).
-This function, returns the input data with two new columns corresponding to this adjustments. As in other functions seen before, optionally, we can get a data summary with the number of significative values with bn, fdr, ....  in a text file, in that case we generate a file *QC_Results/PACE_AQUA_A1_ResumeSignificatives.txt* 
+Now, we can get adjusted p-values by Bonferroni and FDR. The function to adjust data is `adjust_data`, and we have to indicate in which column the p-value is and what adjustment we want. By default the function adjust data by Bonferroni (`bn`) and FDR (`fdr`).
+This function, returns the input data with two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of significative values with bn, fdr, ....  in a text file, (the generated file in the example is called *QC_Results/PACE_AQUA_A1_ResumeSignificatives.txt* ).
 
 ```{r QC_code_adjust}
 
@@ -300,7 +303,7 @@ cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE,
 head(cohort)
 ```
 
-We are ready to write this data to a file with the `write_QCData` function, the file generated by this function is very important for the next steps, this file is used to get data to generate GWAMA files, this data is stored with *_QC_Data.txt* sufix. In this function data is annotated before being written to the file, 
+We are ready to write the data into a file with the `write_QCData` function. The file generated by this function is very important for the next steps, to generate GWAMA files. This data is stored with *_QC_Data.txt* sufix. In this function data is annotated before being written to the file,
 
 ```{r QC_code_writeQData}
    # Write QC complete data to external file
@@ -309,40 +312,45 @@ We are ready to write this data to a file with the `write_QCData` function, the 
 
 ## QC - Graphical analysis code 
 
-To perform a graphical analysis we have different functions, we can easily generate a se or p-value distribution plots with `plot_distribution` function
+To perform a graphical analysis we have different functions. We can easily generate a SE or p-value distribution plots with  `plot_distribution` function
 
-```{r QC_code_distrplot}
+```{r QCcodedistrplotse, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:QCcodedistrplotse}SE distribution plot", fig.pos='ht'}
    ## Visualization - Plots
 
    # Distribution plot
    plot_distribution(cohort$SE, 
                      main = paste('Standard Errors of', prefixes[i]), 
                      xlab = 'SE')
+```
+
+```{r QCcodedistrplotpval, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:QCcodedistrplotpval}p-value distribution plot", fig.pos='ht'}
+   ## Visualization - Plots
+
    plot_distribution(cohort$P_VAL, 
                      main = paste('p-values of', prefixes[i]), 
                      xlab = 'p-value')
 ```
 
-Or a Volcano plot 
-
-```{r QC_code_qqplot}
+```{r QCcodeqqplot, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:QCcodeqqplot}QQplot", fig.pos='ht'}
    # QQ plot.
    qqman::qq(cohort$P_VAL,
              main = sprintf('QQ plot of %s (lambda = %f)', prefixes[i], 
                             lambda = get_lambda(cohort,"P_VAL")))
+```
 
+```{r QC_code_volcanoplot, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:QC_code_volcanoplot}Volcano Plot", fig.pos='ht'}
    # Volcano plot.
    plot_volcano(cohort, "BETA", "P_VAL", main=paste('Volcano plot of', prefixes[i]) )
 
 ```
 
-When we have the results for all models and cohorts, we can perform a Precission plot with `plot_precissionp` function 
+When we have the results for all models and cohorts, we can perform a Precision plot with `plot_precisionp` function 
 
-```{r invchr17, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:invchr17}Precission plot for 10 different datasets ", fig.pos='ht'}
+```{r invchr17, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:invchr17}Precision plot for 10 different datasets ", fig.pos='ht'}
 include_graphics("imgs/precision_SE_N.png") 
 ```
 
-or get the venn diagram with `plot_venndiagram`, to generate a venn diagram we have to define the venn diagram for a maximum of 5 datasets. Here we define which models and cohorts we want to be shown in the Venn diagram. In this example we define two different venn diagrams, one with "PACE_AQUA_A1", "PACE_IMMA_A1" and "RICHS_A1" datasets and the otehr with three more datasets "PACE_AQUA_A2", "PACE_IMMA_A2" and "RICHS_A2"
+Venn diagrams are obtained with function `plot_venndiagram`,. We need to define the venn diagram for a maximum of 5 datasets. Here we define which models and cohorts we want to be shown in the Venn diagram. In this example we define two different Venn diagrams, one with  "PACE_AQUA_A1", "PACE_IMMA_A1" and "RICHS_A1" datasets and the other with three more datasets "PACE_AQUA_A2", "PACE_IMMA_A2" and "RICHS_A2"
 
 ```{r QC_varvenn, eval=FALSE}
 # Venn diagrams
@@ -357,11 +365,17 @@ venn_diagrams <- list(
 # Meta-Analysis with GWAMA
 
 
-Like in QC analysis, in Meta-analysis we have to define some variables, one of the variables that we must define is the one that refers to the data of each meta-analysis, for example, in `metafiles` variable we have defined three different meta-analysis, MetaA1, MetaA2 and MetaB, in the first one, MetaA1, we have the datasets 'PACE_AQUA_A1', 'PACE_IMMA_A1' and 'RICHS_A1', we can use the simplified form to make all the study more understandable.
+Like in QC analysis, in Meta-analysis we need to define some variables. One of this variables is the one that refers to the data of each meta-analysis.  For example, in `metafiles` variable we have defined three different meta-analysis, MetaA1, MetaA2 and MetaB. In the first one, MetaA1, we have the datasets ‘PACE_AQUA_A1’, ‘PACE_IMMA_A1’ and ‘RICHS_A1’, and we can use the simplified form to make all the study more understandable
 
-We can also exclude those CpGs with low representation in meta-analysis, we can set the minimum percentage with `pcentMissing` variable, in this example, we take in to account all CpGs not present at least 80% of the datasets of the meta-analysis. We execute the meta-analysis twice,  one with all CpGs and other with only CpGs with precence higer than pcentMissing.
+We can also exclude those CpGs with low representation in meta-analysis, we can set the minimum percentage with `pcentMissing` variable. In this example, we take into account all CpGs present in at least 80% of the datasets of the meta-analysis. We execute the meta-analysis twice, one with all CpGs and other with only CpGs with presence higher than the indicated in `pcentMissing`.
 
 ```{r meta_variables, eval=FALSE}
+
+## -- Variable definition for Meta-Analysis -- ##
+
+# Array type, used : EPIC or 450K
+artype <- '450K'
+
 # Define data for each meta-analysis
 metafiles <- list(
    'MetaA1' = c('PACE_AQUA_A1','PACE_IMMA_A1', 'RICHS_A1' ),
@@ -371,39 +385,70 @@ metafiles <- list(
 # Define maximum percent missing for each CpG
 pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta-analysis will be deleted from the study.
 
+# Paths with QCResults and path to store GWAMA results
+results_folder <- 'QC_Results'
+results_gwama <- '.'
+
 ```
 
-In this example we only get the first meta-analysis with all CpGs and with CpGs with missing data lower thanpcentMissing but in a complete script all meta-analyzes are performed for both cases, complete and lowCpGs. 
-
-First, we must create the needed folders, in this example we create a GWAMA folder where we will put the input files for GWAMA and GWAMA_Results folder where we will store all the results. 
+Now, we define the GWAMA execution path for ISGlobal Servers 05 and 06.  
 
 ```{r meta_folders, eval=FALSE}
 
-# Create folder for a meta-analysis in GWAMA folder, here we store 
-# the GWAMA input files for each meta-analysis,
-# We create one for complete meta-analysis
-if(!dir.exists(file.path(getwd(), 
-                         paste(folder,"GWAMA", names(metafiles)[metf] ,sep="/") )))
-   suppressWarnings(dir.create(file.path(getwd(), 
-                                         paste(folder,"GWAMA", 
-                                               names(metafiles)[metf], 
-                                               sep="/"))))
-# We create another for meta-analysis without filtered CpGs 
-# with low percentage (sufix _Filtr)
-if(!dir.exists(file.path(getwd(), paste0(folder,"/GWAMA/", 
-                                         names(metafiles)[metf],"_Filtr") )))
-   suppressWarnings(dir.create(file.path(getwd(), 
-                                         paste0(folder,"/GWAMA/", 
-                                                names(metafiles)[metf],"_Filtr"))))
+## Create directory for GWAMA configuration files and GWAMA_Results inside the defined
+## results_gwama variable defined before.
+if(!dir.exists(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/") )))
+   suppressWarnings(dir.create(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/"))))
 
-# GWAMA File name base
-inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf])
+## Create directory for GWAMA_Results
+outputfolder <- paste0(results_gwama, "/GWAMA_Results")
+if(!dir.exists(file.path(getwd(), outputfolder )))
+   suppressWarnings(dir.create(file.path(getwd(), outputfolder)))
 
-modelfiles <- unlist(metafiles[metf])
-  
-  # runs : Execution with all CpGs and without filtered CpGs (low representation)
-   runs <- c('Normal', 'lowcpgs') 
+# We create a map file for GWAMA --> Used in Manhattan plots.
+# We only need to indicate the array type
+hapmapfile <- paste(results_gwama,"GWAMA", "hapmap.map" ,sep = "/")
+generate_hapmap_file(artype, hapmapfile)
+
+
+```
+
+In this example we only get the first meta-analysis with all CpGs and with CpGs with missing data lower than pcentMissing but in a complete script all meta-analyses are performed for both cases: complete and lowCpGs.
+
+First, we must create the needed folders. In this example we create a GWAMA folder where we will put the input files for GWAMA, and GWAMA_Results folder where we will store all the results.
+
+
+```{r meta_folders2, eval=FALSE}
+   
    list.lowCpGs <- NULL
+
+   # Create folder for a meta-analysis in GWAMA folder, here we 
+   # store the GWAMA input files for each meta-analysis,
+   # We create one for complete meta-analysis
+   if(!dir.exists(file.path(getwd(), 
+                            paste(results_gwama,"GWAMA", names(metafiles)[metf],
+                                  sep="/") )))
+      suppressWarnings(dir.create(file.path(getwd(), 
+                                            paste(results_gwama,"GWAMA", 
+                                                  names(metafiles)[metf], 
+                                                  sep="/"))))
+   # We create another for meta-analysis without filtered CpGs with low 
+   # percentage (sufix _Filtr)
+   if(!dir.exists(file.path(getwd(), 
+                            paste0(results_gwama,"/GWAMA/", 
+                                   names(metafiles)[metf],
+                                   "_Filtr") )))
+      suppressWarnings(dir.create(file.path(getwd(), 
+                                            paste0(results_gwama, "/GWAMA/",
+                                                   names(metafiles)[metf],
+                                                   "_Filtr"))))
+
+   # GWAMA File name base
+   inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf])
+
+   modelfiles <- unlist(metafiles[metf])
+
+   runs <- c('Normal', 'lowcpgs') # Execution with all CpGs and without filtered CpGs
    lowCpGs = FALSE;
    outputfiles <- list()
 
@@ -411,65 +456,86 @@ modelfiles <- unlist(metafiles[metf])
    
 ```
 
-To perform meta-analyses we use GWAMA, a Software tool for meta analysis developed by Intitute of Genomics from University of Tartu, this software is available at [https://genomics.ut.ee/en/tools/gwama-download] (https://genomics.ut.ee/en/tools/gwama-download), this software must be installed on the computer where we are running analysis and the installation path must be defined in `gwama.dir` variable
+To perform meta-analyses we use GWAMA, a Software tool for meta-analysis developed by Intitute of Genomics from University of Tartu. This software is available at  [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). As mentioned before it must be installed on the computer where we are running analysis and the installation path must be defined in `gwama.dir` variable:
 
 ```{r meta_vargwama, eval=FALSE}
-# GWAMA binary path
-#.Original.# gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
-gwama.dir <- "/Users/mailos/tmp/GWAMA_v2/"
+
+# GWAMA binary path  (GWAMA IsGlobal Server 05 and 06 installation)
+gwama.dir <- paste0(Sys.getenv("HOME"), 
+                    "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
+
 ```
 
 
-Now we are ready to execute the analysis, first of all, we need to generate files with predefined format by GWAMA, to do that, we use the function `create_GWAMA_files`, in this function, we have to specify the gwama foder created before, a character vector with models present in meta-analysis (previously defined in metafiles variable), the folder with original data (these are the QC_Data output files from QC), the number of samples in the study and if this is the execution with all CpGs or not, if not, we pass the list with excluded CpGs, we can obtain this list with `get_low_presence_CpGs` function.
+Now we are ready to execute the analysis. First of all, we need to generate files with predefined format by GWAMA. To do that, we use the function `create_GWAMA_files`. In this function we have to specify the gwama folder created before, a character vector with models present in meta-analysis (previously defined in metafiles variable), the folder with original data (these are the QC_Data output files from QC), the number of samples in the study, and we need to indicate if this is the execution with all CpGs or not (if not, we indicate the list with excluded CpGs, which can be obtained with `get_low_presence_CpGs` function.
 
 `create_GWAMA_files` function takes the original files and converts them to the GWAMA format, it also creates the .ini file necessary to run GWAMA 
 
-When we have all the files ready to execute gwama, we proceed to its execution, with `run_GWAMA_MetaAnalysis` function, this function needs to know : 
+When we have all the files ready to execute GWAMA, we proceed to its execution with `run_GWAMA_MetaAnalysis` function. This function needs to know:
 
-* the folder with data to be analyzed, this is the GWAMA folder 
-* where to store the results, by default this function creates a subfolder with meta-analysis name and stores all the results together, 
-* the meta-analysiss name
-* where is the GWAMA binary installed
+* the folder with data to be analysed, (this is the GWAMA folder),
+* where to store the results (by default this function creates a subfolder with meta-analysis name and stores all the results together),
+* the meta-analysiss name,
+* where is the GWAMA binary installed,
 
-GWANA is executed by fixed and for random effects, `run_GWAMA_MetaAnalysis` function generates one .out file with meta-analysis results, the Manhattan-plot and the QQplot twice, one for Fixed effects and the other for Random effects. 
+GWANA is executed by fixed and random effects. The function `run_GWAMA_MetaAnalysis` function generates one .out file with meta-analysis results, and the associated Manhattan plots and  QQ plots, one for fixed effects and another for random effects.
 
 ```{r meta_analys, eval=FALSE}
-   for(j in 1:length(runs))
-   {
-      if(runs[j]=='lowcpgs') {
-         lowCpGs = TRUE
-         # Get low presence CpGs in order to exclude this from the new meta-analysis
-         list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
-         inputfolder <- paste0(folder,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
-         outputgwama <- paste0(outputgwama,"_Filtr")
-      }
-
-      # Create GWAMA files for each file in meta-analysis and execute GWAMA
-      for ( i in 1:length(modelfiles) )
-         create_GWAMA_files(folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
-
-      #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
-      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, 
-                                                       outputgwama, 
-                                                       names(metafiles)[metf], gwama.dir)
-
-      # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
-      ##..## dataPost <- get_descriptives_postGWAMA(outputfolder, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
-      dataPost <- get_descriptives_postGWAMA(outputgwama, 
-                                             outputfiles[[runs[j]]], 
-                                             modelfiles, 
-                                             names(metafiles)[metf], artype )
-
-      # Forest-Plot
-      plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf]  )
-
+for(j in 1:length(runs))
+{
+   if(runs[j]=='lowcpgs') {
+      lowCpGs = TRUE
+      # Get low presence CpGs in order to exclude this from the new meta-analysis
+      list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
+      inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
+      outputgwama <- paste0(outputgwama,"_Filtr")
    }
+
+   # Create a GWAMA files for each file in meta-analysis and one file with gwama meta-analysis
+   # configuration
+   for ( i in 1:length(modelfiles) )
+      create_GWAMA_files(results_folder,  modelfiles[i], 
+                         inputfolder, N[i], list.lowCpGs )
+
+   # Execute GWAMA meta-analysis and manhattan-plot, QQ-plot and a file with gwama results.
+   outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, 
+                                                    outputgwama, 
+                                                    names(metafiles)[metf], gwama.dir)
+```
+
+```{r manhat, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:manhat}Manhattan plot obtained with GWAMA ", fig.pos='ht'}
+include_graphics("imgs/Manhat.png") 
+```
+
+After getting the GWAMA results, we perform an analysis with `get_descriptives_postGWAMA` function (similar to what was done in the QC procedure but with meta-analysis results). This function adjusts p-values, annotates CpGs, and generates a file with descriptive results and plot heterogeneity distribution, SE distribution, p-values distribution, QQ-plot with lambda, and the volcano plot.
+
+To finish we generate the ForestPlot associated to the first 30 top significative CpGs.
+
+```{r meta_analys2, eval=FALSE}
+   # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
+   dataPost <- get_descriptives_postGWAMA(outputgwama, 
+                                          outputfiles[[runs[j]]], 
+                                          modelfiles, 
+                                          names(metafiles)[metf], 
+                                          artype, 
+                                          N[which(prefixes %in% modelfiles)] )
+
+   # Forest-Plot
+   plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], 
+                    inputfolder, names(metafiles)[metf], files, outputgwama  )
+
+}
 
 ```
 
-When we have the GWAMA results we perform an analysis with `get_descriptives_postGWAMA` functions, like in QC but with meta-analysis results, we adjust p-values, we annotate CpGs, we generate a file with descriptive result and plot heterogeneity distribution, SE distribution, p-values distribution, QQ-plot with lambda and the volcano plot.
+```{r heteroi2, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:heteroi2}Heterogeneity distribution plot (i2) ", fig.pos='ht'}
+include_graphics("imgs/Heteroi2.png") 
+```
 
-To end with meta-analysis we generate the ForestPlot associated to the first 30 top significative CpGs.
+```{r Forestplot, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:Forestplot}Forest plot for cpg22718050 ", fig.pos='ht'}
+include_graphics("imgs/FP_cg22718050.png") 
+```
+
 
 
 # Enrichment
