@@ -51,7 +51,7 @@ library(rtracklayer)
 library(methyTools)
 
 
-setwd("/Users/mailos/tmp/proves")
+# setwd("/Users/mailos/tmp/proves")
 
 FilesToEnrich <- c('./GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out',
                    'GWAMA_Results/MetaA2/MetaA2_Fixed_Modif.out',
