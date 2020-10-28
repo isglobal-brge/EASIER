@@ -4,12 +4,21 @@
 \alias{plot_venndiagram}
 \title{Venn diagrams plots}
 \usage{
-plot_venndiagram(venndata, qcpath = ".", plotpath = ".", bn = TRUE, fdr = TRUE)
+plot_venndiagram(
+  venndata,
+  qcpath = ".",
+  plotpath = ".",
+  pattern = "*_QCData.txt",
+  bn = TRUE,
+  fdr = TRUE
+)
 }
 \arguments{
 \item{venndata}{prefixes used as a file name to store QC data}
 
 \item{qcpath}{optional, path to store Venn Diagrams, by default current path}
+
+\item{pattern}{optional, pattern with data to be used in Venn diagrams, by default '*_QCData.txt'}
 
 \item{bn, }{optional, if true gets venn diagram with bonferroni adjusted values}
 
