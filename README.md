@@ -1,2 +1,2 @@
 # EASIER
-**E**w**AS**: qual**I**ty control, meta-analysis and **E**n**R**ichment
+**E**w**AS**: quality control, meta-analys**I**s and **E**n**R**ichment
