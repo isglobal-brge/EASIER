@@ -32,7 +32,7 @@ library(reshape)
 library(ggsignif)
 
 # Install methyTools (if needed)
-# devtools::install_github("isglobal-brge/methyTools@HEAD")
+# devtools::install_github("isglobal-brge/EASIER@HEAD")
 library(methyTools)
 
 
@@ -41,21 +41,21 @@ library(methyTools)
 ## -- Variable definition for Meta-Analysis -- ##
 
 # Files used in QC, needed in meta-analysis to plot ForestPlot
-files <- c('data/PACE_AQUA_Model1_date_v2.txt',
-           'data/PACE_AQUA_Model2_date_v2.txt',
-           'data/PACE_INMA_Plate_ModelA1_20170309.txt',
-           'data/PACE_INMA_Plate_ModelA2_20170309.txt',
-           'data/PACE_INMA_Plate_ModelB1_20170320.txt',
-           'data/PACE_INMA_Plate_ModelB2_20170320.txt',
-           'data/PACE_INMA_Plate_ModelC1_20170818.txt',
-           'data/PACE_INMA_Plate_ModelC2_20170818.txt',
-           'data/RICHS_Model1_20170713.txt',
-           'data/RICHS_Model2_20170713.txt')
+files <- c('data/Cohort1_Model1_20170713.txt',
+           'data/Cohort1_Model2_20170713.txt',
+           'data/PROJ1_Cohort3_Model1_date_v2.txt',
+           'data/PROJ1_Cohort3_Model2_date_v2.txt',
+           'data/PROJ1_Cohort2_Plate_ModelA1_20170309.txt',
+           'data/PROJ1_Cohort2_Plate_ModelA2_20170309.txt',
+           'data/PROJ1_Cohort2_Plate_ModelB1_20170320.txt',
+           'data/PROJ1_Cohort2_Plate_ModelB2_20170320.txt',
+           'data/PROJ1_Cohort2_Plate_ModelC1_20170818.txt',
+           'data/PROJ1_Cohort2_Plate_ModelC2_20170818.txt')
 
 # Prefixes for each file
-prefixes <- c('PACE_AQUA_A1', 'PACE_AQUA_A2',
-              'PACE_IMMA_A1','PACE_IMMA_A2', 'PACE_IMMA_B1', 'PACE_IMMA_B2', 'PACE_IMMA_C1', 'PACE_IMMA_C2',
-              'RICHS_A1', 'RICHS_A2')
+prefixes <- c('Cohort1_A1', 'Cohort1_A2',
+              'PROJ1_Cohort2_A1','PROJ1_Cohort2_A2', 'PROJ1_Cohort2_B1', 'PROJ1_Cohort2_B2', 'PROJ1_Cohort2_C1', 'PROJ1_Cohort2_C2',
+              'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
 # Samples in original files used in QC
 N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
@@ -65,9 +65,9 @@ artype <- '450K'
 
 # Define data for each meta-analysis
 metafiles <- list(
-   'MetaA1' = c('PACE_AQUA_A1','PACE_IMMA_A1', 'RICHS_A1' ),
-   'MetaA2' = c('PACE_AQUA_A2','PACE_IMMA_A2', 'RICHS_A2' ),
-   'MetaB' = c('PACE_IMMA_B1','PACE_IMMA_B2'))
+   'MetaA1' = c('Cohort1_A1','PROJ1_Cohort2_A1', 'PROJ1_Cohort3_A1' ),
+   'MetaA2' = c('Cohort1_A2','PROJ1_Cohort2_A2', 'P1_Cohort3_A2' ),
+   'MetaB' = c('PROJ1_Cohort2_B1','PROJ1_Cohort2_B2'))
 
 # Define maximum percent missing for each CpG
 pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta-analysis will be deleted from the study.

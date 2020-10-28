@@ -6,25 +6,17 @@ if (!require(tibble, quietly = TRUE)) install.packages('tibble')
 if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
 if (!require(stringr, quietly = TRUE)) install.packages('stringr')
 if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
-if (!require(missMethyl, quietly = TRUE)) BiocManager::install( "missMethyl" )
-if (!require(org.Hs.eg.db, quietly = TRUE)) BiocManager::install( "org.Hs.eg.db" )
+if (!require(reshape2, quietly = TRUE)) install.packages('reshape2') # Forest Plot
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-   install.packages("BiocManager")
+# devtools::install_github("isglobal-brge/EASIER@HEAD")
 
-#BiocManager::install( c("IlluminaHumanMethylation450kanno.ilmn12.hg19",
-#                        "IlluminaHumanMethylation450kanno.ilmn12.hg19",
-#                        "missMethyl",
-#                        "org.Hs.eg.db") )
-
-library(org.Hs.eg.db)
-library(dplyr)
 library(EASIER)
 
 #..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER")
 
 setwd("/Users/mailos/tmp/proves")
 
+########## ----------  VARIABLES DEFINED BY USER  ----------  ##########
 
 files <- c('data/Cohort1_Model1_20170713.txt',
            'data/Cohort1_Model2_20170713.txt',
@@ -51,6 +43,7 @@ artype <- '450K'
 # Parameters to exclude CpGs
 exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
+# Ethnic group
 ethnic <- 'EUR'
 
 N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
@@ -62,6 +55,8 @@ venn_diagrams <- list(
    c("Cohort1_A1", "PROJ1_Cohort2_A1", "PROJ1_Cohort2_B1", "PROJ1_Cohort2_C1", "PROJ1_Cohort3_A1" ),
    c("Cohort1_A2", "PROJ1_Cohort2_A2", "PROJ1_Cohort2_B2", "PROJ1_Cohort2_C2", "P1_Cohort3_A2" )
 )
+
+########## ----------  END VARIABLES DEFINED BY USER  ----------  ##########
 
 
 
@@ -94,7 +89,7 @@ for ( i in 1:length(files) )
    cohort <- clean_NA_from_data(cohort)
 
    # Descriptives - Before CpGs deletion #
-   descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,'/',prefixes[i],'/',prefixes[i],'_descriptives_init.txt') )
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), paste0(results_folder,'/',prefixes[i],'/',prefixes[i],'_descriptives_init.txt') )
 
    # Remove duplicates
    # cohort <- remove_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i], '/',prefixes[i],'_descriptives_duplic.txt'), paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
@@ -105,7 +100,7 @@ for ( i in 1:length(files) )
    cohort <- exclude_CpGs(cohort, "probeID", exclude, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt') )
 
    # Descriptives - After CpGs deletion #
-   descriptives_CpGs(cohort, seq(2,4), paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_descriptives_last.txt') )
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_descriptives_last.txt') )
 
    # Adjust data by Bonferroni and FDR
    cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, filename =  paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_ResumeSignificatives.txt')  )
@@ -136,8 +131,13 @@ for ( i in 1:length(files) )
 
    # if n is defined for dichotomic condition :
    if(length(n) == length(N))  value_n[i] <- n[i]
-}
 
+   # Store data for Beta Box-Plot
+   if( i == 1)
+      betas.data <- list()
+   betas.data[[prefixes[i]]] <- cohort[,"BETA"]
+
+}
 
 # Data for Precision Plot
 precplot.data <- as.data.frame(cbind( SE = medianSE, invSE = (1/medianSE), N = value_N, sqrt_N = sqrt(N), cohort = cohort_label ))
@@ -145,7 +145,8 @@ precplot.data <- as.data.frame(cbind( SE = medianSE, invSE = (1/medianSE), N = v
 if(length(n) == length(N))
    precplot.data.n <- as.data.frame(cbind( SE = medianSE, invSE = (1/medianSE), N = value_n, sqrt_N = sqrt(n), cohort = cohort_label ))
 
-
+# BoxPlot with Betas in all Models and cohorts
+plot_betas_boxplot(betas.data, paste(results_folder, 'BETAS_BoxPlot.pdf', sep="/"))
 
 ##  Post model analysis  ##
 

@@ -75,7 +75,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       # Before get plots test if dir exists and create it
       if(!dir.exists(path))
-         suppressWarnings(dir.create(path), recursive = TRUE)
+         suppressWarnings(dir.create(path, recursive = TRUE))
 
       mt <- lapply(names(bb), function(cpg) {
          message(cpg)
