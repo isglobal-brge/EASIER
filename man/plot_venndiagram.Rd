@@ -9,8 +9,8 @@ plot_venndiagram(
   qcpath = ".",
   plotpath = ".",
   pattern = "*_QCData.txt",
-  bn = TRUE,
-  fdr = TRUE
+  bn = NULL,
+  fdr = NULL
 )
 }
 \arguments{
@@ -20,9 +20,9 @@ plot_venndiagram(
 
 \item{pattern}{optional, pattern with data to be used in Venn diagrams, by default '*_QCData.txt'}
 
-\item{bn, }{optional, if true gets venn diagram with bonferroni adjusted values}
+\item{bn, }{optional, column name with bonferroni adjusted values, if NULL, no venndiagram plot for Bonferroni}
 
-\item{fdr, }{optional, if true gets venn diagram with fdr adjusted values}
+\item{fdr, }{column name with bonferroni adjusted values, if NULL, no venndiagram plot for FDR}
 
 \item{path}{optional, path where QC data is stored, by default current path}
 }

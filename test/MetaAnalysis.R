@@ -77,6 +77,13 @@ pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta
 results_folder <- 'QC_Results'
 results_gwama <- '.'
 
+
+# Venn diagrams
+venn_diagrams <- list(
+   c("MetaA1", "MetaA2", "MetaB" ),
+   c("MetaA1_Filtr", "MetaA2_Filtr", "MetaB_Filtr" )
+)
+
 ########## ----------  END VARIABLES DEFINED BY USER  ----------  ##########
 
 
@@ -85,15 +92,14 @@ results_gwama <- '.'
 gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
 gwama.dir <- "/Users/mailos/tmp/GWAMA_v2/"
 
-
 ## Create directory for GWAMA configuration files and GWAMA_Results
-if(!dir.exists(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/") )))
-   suppressWarnings(dir.create(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/"))))
+if(!dir.exists(file.path(paste(results_gwama, "GWAMA", sep="/") )))
+   suppressWarnings(dir.create(file.path( paste(results_gwama, "GWAMA", sep="/"))))
 
 ## Create directory for GWAMA_Results
 outputfolder <- paste0(results_gwama, "/GWAMA_Results")
-if(!dir.exists(file.path(getwd(), outputfolder )))
-   suppressWarnings(dir.create(file.path(getwd(), outputfolder)))
+if(!dir.exists(file.path( outputfolder )))
+   suppressWarnings(dir.create(file.path( outputfolder)))
 
 
 
@@ -110,11 +116,11 @@ for( metf in 1:length(metafiles))
 
    # Create folder for a meta-analysis in GWAMA folder, here we store the GWAMA input files for each meta-analysis,
    # We create one for complete meta-analysis
-   if(!dir.exists(file.path(getwd(), paste(results_gwama,"GWAMA", names(metafiles)[metf] ,sep="/") )))
-      suppressWarnings(dir.create(file.path(getwd(), paste(results_gwama,"GWAMA", names(metafiles)[metf], sep="/"))))
+   if(!dir.exists(file.path( paste(results_gwama,"GWAMA", names(metafiles)[metf] ,sep="/") )))
+      suppressWarnings(dir.create(file.path( paste(results_gwama,"GWAMA", names(metafiles)[metf], sep="/"))))
    # We create another for meta-analysis without filtered CpGs with low percentage (sufix _Filtr)
-   if(!dir.exists(file.path(getwd(), paste0(results_gwama,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
-      suppressWarnings(dir.create(file.path(getwd(), paste0(results_gwama,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
+   if(!dir.exists(file.path( paste0(results_gwama,"/GWAMA/", names(metafiles)[metf],"_Filtr") )))
+      suppressWarnings(dir.create(file.path( paste0(results_gwama,"/GWAMA/", names(metafiles)[metf],"_Filtr"))))
 
    # GWAMA File name base
    inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf])
@@ -139,7 +145,7 @@ for( metf in 1:length(metafiles))
 
       # Create GWAMA files for each file in meta-analysis and execute GWAMA
       for ( i in 1:length(modelfiles) )
-         create_GWAMA_files(results_folder,  modelfiles[i], inputfolder, N[i], list.lowCpGs )
+         create_GWAMA_files(file.path(results_folder,modelfiles[i]),  modelfiles[i], inputfolder, N[i], list.lowCpGs )
 
       #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
       outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir)
@@ -153,5 +159,15 @@ for( metf in 1:length(metafiles))
 
    }
 
-
 }
+
+
+# Venn_Diagrams for for meta-analysis with fixed effects
+for (i in 1:length(venn_diagrams))
+   plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, plotpath =  paste0(results_gwama, "/GWAMA_Results"), pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR')
+
+
+if(dir.exists(file.path( paste(results_gwama, "GWAMA", sep="/") )))
+   unlink(file.path(results_gwama, "GWAMA"), recursive=TRUE)
+
+

@@ -6,15 +6,15 @@
 #' @param path optional, path where QC data is stored, by default current path
 #' @param qcpath optional, path to store Venn Diagrams, by default current path
 #' @param pattern optional, pattern with data to be used in Venn diagrams, by default '*_QCData.txt'
-#' @param bn, optional, if true gets venn diagram with bonferroni adjusted values
-#' @param fdr, optional, if true gets venn diagram with fdr adjusted values
+#' @param bn, optional, column name with bonferroni adjusted values, if NULL, no venndiagram plot for Bonferroni
+#' @param fdr, column name with bonferroni adjusted values, if NULL, no venndiagram plot for FDR
 #'
 #' @return Venn diagrams
 #'
 #' @export
-plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '*_QCData.txt', bn = TRUE, fdr = TRUE)
+plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '*_QCData.txt',  bn = NULL, fdr = NULL)
 {
-   if(bn==FALSE & fdr == FALSE)
+   if( is.null(bn)  & is.null(fdr) )
       stop("No Venn diagram to plot")
 
    if(is.null(venndata))
@@ -25,11 +25,19 @@ plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '
 
    cohortsdata <- multmerge(qcpath, venndata, pattern)
 
-   if(bn == TRUE)
+   if(! bn %in% colnames(cohortsdata[[1]]))
+      warning("Field for Bonferroni not found in data")
+
+   if(!fdr %in% colnames(cohortsdata[[1]]))
+      warning("Field for FDR not found in data")
+
+   if(!is.null(bn) )
    {
+      selection <- paste0( "lapply(cohortsdata, subset,", paste0('`',bn,'`')," =='yes')")
+
       # Venn Diagram - Bonferroni
       VennDiagram::venn.diagram(
-         x = lapply(lapply(lapply(cohortsdata, subset, `padj.bonf`=='yes'), "[", 1),unlist),
+         x = lapply(lapply( eval(parse(text = selection))  , "[", 1),unlist),
          filename = paste0(plotpath,'/venn_diagramm_bonfer_',i,'.png'),
          output=TRUE,
 
@@ -52,10 +60,12 @@ plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '
 
    # Venn Diagram - FDR
 
-   if(fdr == TRUE)
+   if( !is.null(fdr) )
    {
+      selection <- paste0( "lapply(cohortsdata, subset,", paste0('`',fdr,'`')," <0.05)")
+
       VennDiagram::venn.diagram(
-         x = lapply(lapply(lapply(cohortsdata, subset, `padj.fdr`<0.05), "[", 1),unlist),
+         x = lapply(lapply(eval(parse(text = selection)), "[", 1),unlist),
          filename = paste0(plotpath,'/venn_diagramm_fdr_',i,'.png'),
          output=TRUE,
 

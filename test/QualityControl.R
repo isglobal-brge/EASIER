@@ -13,10 +13,11 @@ if (!require(reshape2, quietly = TRUE)) install.packages('reshape2') # Forest Pl
 library(EASIER)
 
 #..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER")
-
-setwd("/Users/mailos/tmp/proves")
+#..# setwd("/Users/mailos/tmp/proves")
 
 ########## ----------  VARIABLES DEFINED BY USER  ----------  ##########
+
+# (this data is only an example)
 
 files <- c('data/Cohort1_Model1_20170713.txt',
            'data/Cohort1_Model2_20170713.txt',
@@ -161,6 +162,6 @@ if ( length(files) > 1)
 
    # Venn_Diagrams()
    for (i in 1:length(venn_diagrams))
-      plot_venndiagram(venn_diagrams[[i]], qcpath = results_folder, plotpath = results_folder)
+      plot_venndiagram(venn_diagrams[[i]], qcpath = results_folder, plotpath = results_folder, bn='padj.bonf', fdr='padj.fdr')
 
 }

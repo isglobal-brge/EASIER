@@ -56,3 +56,4 @@ create_GWAMA_files <- function(qcpath, file, gwmodelpath, N, llowCpGs=NULL)
 
 
 }
+
