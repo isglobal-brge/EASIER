@@ -3,7 +3,7 @@
 ## ############ ##
 
 
-# Install requirede libraries
+# Install requirede libraries from R-Cran
 if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
 if (!require(meta, quietly = TRUE)) install.packages('meta', repos = 'https://cran.rediris.es/' )
 if (!require(tibble, quietly = TRUE)) install.packages('tibble')
@@ -18,11 +18,15 @@ if (!require(reshape, quietly = TRUE)) install.packages('reshape')
 if (!require(ggsignif, quietly = TRUE)) install.packages('ggsignif')
 if (!require(tools, quietly = TRUE)) install.packages('tools')
 
-# Bioconductor
-if (!require(missMethyl, quietly = TRUE)) BiocManager::install( "missMethyl" )
-if (!require(org.Hs.eg.db, quietly = TRUE)) BiocManager::install( "org.Hs.eg.db" )
-if (!require(GenomicRanges, quietly = TRUE)) BiocManager::install( "GenomicRanges" )
-if (!require(rtracklayer, quietly = TRUE)) BiocManager::install( "rtracklayer" )
+# Required libraries from Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+
+BiocManager::install( "missMethyl" )
+BiocManager::install( "org.Hs.eg.db" )
+BiocManager::install( "GenomicRanges" )
+BiocManager::install( "rtracklayer" )
+
 
 # Load libraries
 
@@ -47,7 +51,7 @@ library(rtracklayer)
 
 
 # Install methyTools (if needed)
-# devtools::install_github("isglobal-brge/methyTools@HEAD")
+devtools::install_github("isglobal-brge/methyTools@HEAD")
 library(methyTools)
 
 
@@ -301,7 +305,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          )
          names(data.GRange) <- data.GRange$name
 
-         # Find overlaps between CpGs and Fetal Placenta (States 15 ans 18)
+         # Find overlaps between CpGs and Fetal Placenta (States 15 and 18)
          over15 <- findOverlapValues(data.GRange, FP_15_E091 )
 
          if (enrichFP18 == TRUE){

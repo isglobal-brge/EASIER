@@ -1,9 +1,9 @@
-## ############### ##
-##  Meta-Analysis  ##
-## ############### ##
+## ######################################### ##
+##  Meta-Analysis to use with EASIER package ##
+## ######################################### ##
 
 
-# Install requirede libraries
+# Install requirede libraries from R-Cran
 if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
 if (!require(meta, quietly = TRUE)) install.packages('meta', repos = 'https://cran.rediris.es/' )
 if (!require(tibble, quietly = TRUE)) install.packages('tibble')
@@ -33,12 +33,13 @@ library(ggsignif)
 
 # Install methyTools (if needed)
 # devtools::install_github("isglobal-brge/EASIER@HEAD")
-library(methyTools)
+library(EASIER)
 
 
 ########## ----------  VARIABLES DEFINED BY USER  ----------  ##########
 
-## -- Variable definition for Meta-Analysis -- ##
+# Set working directory to metaanalysis folder
+setwd("<path to metaanalysis folder>/metaanalysis")
 
 # Files used in QC, needed in meta-analysis to plot ForestPlot
 files <- c('data/Cohort1_Model1_20170713.txt',
@@ -70,6 +71,7 @@ metafiles <- list(
    'MetaB' = c('PROJ1_Cohort2_B1','PROJ1_Cohort2_B2'))
 
 # Define maximum percent missing for each CpG
+#     if pcenMissin = 0 only runs meta-analysis with all data
 pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after GWAS meta-analysis will be deleted from the study.
 
 
@@ -78,7 +80,7 @@ results_folder <- 'QC_Results'
 results_gwama <- '.'
 
 
-# Venn diagrams
+# Venn diagrams ==> IMPORTANT : maximum 5 meta-analysis by venn diagram
 venn_diagrams <- list(
    c("MetaA1", "MetaA2", "MetaB" ),
    c("MetaA1_Filtr", "MetaA2_Filtr", "MetaB_Filtr" )
