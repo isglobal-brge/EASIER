@@ -9,12 +9,12 @@
 #' @param metaname string with meta-analysis name
 #' @param files string vector with files used in QC because we need data from this files to perform ForestPlots
 #' @param outputgwama string with gwama output path
-#' @param lowestp number, lowest p-values to show in forestplot, by default, lowestp=30
+#' @param nsignificatives number, lowest p-values to show in forestplot, by default, lowestp=30
 #'
 #' @return distribution plot
 #'
 #' @export
-plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, files, outputgwama, lowestp = 30 )
+plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, files, outputgwama, nsignificatives = 30 )
 {
    # We need the data from meta-analysis model and individual data from cohorts in the model
 
@@ -44,8 +44,8 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       data <- data[order(data$p.value),]
 
-      # We only get the lowestp first CpGs with lowest p-value
-      cpgs <- as.character(data[which(data$p.value<0.05),'rs_number'][1:lowestp])
+      # We only get the nsignificatives first CpGs with lowest p-value
+      cpgs <- as.character(data[which(data$p.value<0.05),'rs_number'][1:nsignificatives])
 
       tt <- data.frame(do.call(rbind, lapply(cpgs, function(cp) {
          tt <- sapply(cohorts, function(ch) {
@@ -89,7 +89,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
          par(mar = c(0, 0, 0, 0))
          meta::forest(mtg, leftcols=c("studlab"), leftlabs=c("Cohort"), rightcols=c("effect", "ci","pval","w.fixed","w.random"), fontsize=7, digits=3, print.pval=TRUE, addrow.overall=T,
                 col.fixed="red", col.random="blue",print.tau2 = FALSE, smlab = "", col.diamond.fixed="red", col.diamond.random = "blue", overall= T, test.overall=T,
-                fs.test.overall=7, fs.hetstat=5, fs.axis=5)
+                fs.test.overall=7, fs.hetstat=5, fs.axis=5, pooled.totals=TRUE)
          dev.off()
       })
 

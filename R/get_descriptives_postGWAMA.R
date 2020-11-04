@@ -72,6 +72,11 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       # Merge data with annotation before write results to a file
       data.full <-  merge( data, data.annot, by.x = "rs_number", by.y ="Name")
 
+      # Change "rs_number" column name by CpGId
+      colnames(data.full)[1] <- "CpGId"
+
+      # Remove allele columns
+      data.full <- data.full[-grep("*allele",colnames(data.full))]
 
       # Write data with adjustments in other file, we don't want to overwrite gwama results
       qc.fname <- paste0(analyzedata[f], "_Modif.out")

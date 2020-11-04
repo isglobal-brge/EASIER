@@ -17,7 +17,7 @@ getFisherTest <- function(significative, criteria, varname)
    xt <- chisq.test(rp1)
    or <- (rp1[1, 1] * rp1[2, 2]) / (rp1[1, 2] * rp1[2, 1])
 
-   return(list("RelIsland" = varname,
+   return(list("Data" = varname,
                "OR" = or,
                "OR.inf" = exp(log(or)-1.96*sqrt(sum(1/rp1))),
                "OR.sup" = exp(log(or)+1.96*sqrt(sum(1/rp1))),

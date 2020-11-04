@@ -32,8 +32,11 @@ getAllFisherTest <- function(significative, position, outputdir = ".", outputfil
 
    }
 
+   # if( plots )
+   #    plot_RelativetoIsland(ans, outputdir = outputdir ,outputfile = outputfile)
+
    if( plots )
-      plot_RelativetoIsland(ans, outputdir = outputdir ,outputfile = outputfile)
+      plot_OR(ans, outputdir = outputdir ,outputfile = outputfile)
 
 
    return(ans)

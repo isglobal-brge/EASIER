@@ -7,8 +7,7 @@
 #' @usage data(filter_450K)
 #'
 #' @format A data frame with 485577 rows and 50 variables
-#'
-#' @references Chen et al. (2013)
+#' @references Chen et al. \\(2013\\)
 #' \describe{
 #'   \item{MASK.sub25.copy, MASK.sub30.copy, MASK.sub35.copy, MASK.sub40.copy}{indicate whether the 25bp, 30bp, 35bp and 40bp 3'-subsequence of the probe is non-unique (TRUE/FALSE)}
 #'   \item{MASK.mapping}{"hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs (TRUE/FALSE). }
@@ -122,3 +121,19 @@
 #' @format A data frame with 3 variables
 "PMD_placenta"
 
+#' Imprinting Regions Placenta
+#'
+#' Imprinting regions for placenta
+#'
+#' @docType data
+#'
+#' @usage data(IR_Placenta)
+#' @format A data frame with 485 regions and 6 variables
+#' \describe{
+#'   \item{Chr_DMR}{Chromosome}
+#'   \item{Start_DMR}{Start position}
+#'   \item{End_DMR}{End position}
+#'   \item{DMR_Classification}{DMR classification, possible values are "Candidate mDMR", "Known placenta-specific mDMR", "Candidate pDMR", "Known mDMR" and "Known pDMR".}
+#'   \item{Known_gDMR }{Known DMR associated gene }
+#' }
+"IR_Placenta"

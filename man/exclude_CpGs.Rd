@@ -10,7 +10,8 @@ exclude_CpGs(
   exclude,
   ethnic = "EUR",
   artype = "450K",
-  filename = NULL
+  filename = NULL,
+  fileresume = NULL
 )
 }
 \arguments{
@@ -23,14 +24,12 @@ exclude_CpGs(
 \item{artype}{default value '450K'. Array type Illumina 450K or Illumina EPIC arrays, possible values are '450K' or 'EPIC' respectively.}
 
 \item{filename}{Optional, filename to write excluded cpgs and related information, if NULL no data are writed in a file}
+
+\item{fileresume}{Optional, filename to write descriptives for removed cpgs, if NULL no data are writed in a file}
 }
 \value{
 dataframe without the CpGs that meet the conditions
 }
 \description{
 Filter 450K or EPIC methylation array with previously defined conditions (selected conditionsin config.r). In order to minimize data size we merge only the selected ethnic column
-}
-\examples{
-exclude_CpGs()
-
 }

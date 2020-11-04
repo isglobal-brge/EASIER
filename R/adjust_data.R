@@ -23,7 +23,10 @@ adjust_data <- function( cohort, cpval, bn = TRUE, fdr = TRUE, filename = NULL, 
 
    # Write resume to external file
    if(!is.null(filename)) {
-      write(sprintf('Significative CpGs \n'), file = filename)
+      write(sprintf('\n# %s', strrep("-",21)), file = filename, append = TRUE)
+      write(sprintf('# Significative CpGs : '), file = filename, append = TRUE)
+      write(sprintf('# %s \n', strrep("-",21)), file = filename, append = TRUE)
+
       write(sprintf('# With significative p-value : %s',sum(cohort[,cpval] < 0.05) ), file = filename, append = TRUE)
       write(sprintf('# With significative p-value adjusted by FDR : %s', sum(cohort$padj.fdr<0.05)), file = filename, append = TRUE)
       write(sprintf('# With significative p-value adjusted by Bonferroni : %s',sum(cohort$padj.bonf =='yes') ), file = filename, append = TRUE)

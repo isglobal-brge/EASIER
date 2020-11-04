@@ -28,14 +28,12 @@
 #' @param ethnic default value 'EUR'. Ethnicity, possible values : EUR, SAS, AMR, GWD, YRI, TSI, IBS, CHS, PUR, JPT, GIH, CH_B, STU, ITU, LWK, KHV, FIN, ESN, CEU, PJL, AC_B, CLM, CDX, GBR, BE_B, PEL, MSL, MXL, ASW or GLOBAL.
 #' @param artype default value '450K'. Array type Illumina 450K or Illumina EPIC arrays, possible values are '450K' or 'EPIC' respectively.
 #' @param filename Optional, filename to write excluded cpgs and related information, if NULL no data are writed in a file
+#' @param fileresume Optional, filename to write descriptives for removed cpgs, if NULL no data are writed in a file
 #'
 #' @return dataframe without the CpGs that meet the conditions
 #'
-#' @examples
-#' exclude_CpGs()
-#'
 #' @export
-exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', filename = NULL)
+exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', filename = NULL, fileresume = NULL)
 {
    # Test if filter data exists and gets it
    if( toupper(artype) == '450K' ) {
@@ -62,15 +60,26 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
    # CpGs id to remove
    excludeid <- cohort[eval(parse(text=getCritera(exclude))), cpgid]
 
-   # Report exclussions to a file
-   if(!is.null(filename)) {
-      write(sprintf('# Criteria : %s\n', toupper(artype)), file = filename)
-      write(sprintf('# Total CpGs in data : %d', dim(cohort)[1]), file = filename, append = TRUE)
-      write(sprintf('# Number of excluded CpGs: %d', length(excludeid)), file = filename, append = TRUE)
-      write(sprintf('# Total CpGs after exclusion : %d\n', (dim(cohort)[1]) - length(excludeid)), file = filename, append = TRUE)
-      write(sprintf('# Percent excluded CpGs: %f %%\n', ((length(excludeid)/dim(cohort)[1])*100 )), file = filename, append = TRUE)
+   # Report descriptive exclussions to a descriptive file
+   if(!is.null(fileresume)) {
+      write(sprintf('\n# %s', strrep("-",16)), file = fileresume, append = TRUE)
+      write(sprintf('# Excluded CpGs : '), file = fileresume, append = TRUE)
+      write(sprintf('# %s\n', strrep("-",16)), file = fileresume, append = TRUE)
+      write(sprintf('# Criteria : %s\n', toupper(artype)), file = fileresume, append = TRUE)
+      write(sprintf('# Total CpGs in data : %d', dim(cohort)[1]), file = fileresume, append = TRUE)
+      write(sprintf('# Number of excluded CpGs: %d', length(excludeid)), file = fileresume, append = TRUE)
+      write(sprintf('# Total CpGs after exclusion : %d\n', (dim(cohort)[1]) - length(excludeid)), file = fileresume, append = TRUE)
+      write(sprintf('# Percent excluded CpGs: %f %%\n', ((length(excludeid)/dim(cohort)[1])*100 )), file = fileresume, append = TRUE)
+   }
 
-      # Report reason for exclusion
+   # Report CpG excluded and reason to a file
+   if(!is.null(filename)) {
+      # write(sprintf('# Criteria : %s\n', toupper(artype)), file = filename)
+      # write(sprintf('# Total CpGs in data : %d', dim(cohort)[1]), file = filename, append = TRUE)
+      # write(sprintf('# Number of excluded CpGs: %d', length(excludeid)), file = filename, append = TRUE)
+      # write(sprintf('# Total CpGs after exclusion : %d\n', (dim(cohort)[1]) - length(excludeid)), file = filename, append = TRUE)
+      # write(sprintf('# Percent excluded CpGs: %f %%\n', ((length(excludeid)/dim(cohort)[1])*100 )), file = filename, append = TRUE)
+      # Report exclusion reason
       suppressWarnings(
          write.table( cohort[eval(parse(text=getCritera(exclude))),],
                       filename, col.names = TRUE, row.names = FALSE, sep = '\t', append = TRUE, dec='.'))

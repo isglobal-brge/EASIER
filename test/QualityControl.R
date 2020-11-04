@@ -19,6 +19,10 @@ library(EASIER)
 
 # (this data is only an example)
 
+# Set working directory to metaanalysis folder
+setwd("<path to metaanalysis folder>/metaanalysis")
+
+# Files used in QC, needed in meta-analysis to plot ForestPlot
 files <- c('data/Cohort1_Model1_20170713.txt',
            'data/Cohort1_Model2_20170713.txt',
            'data/PROJ1_Cohort3_Model1_date_v2.txt',
@@ -40,7 +44,6 @@ prefixes <- c('Cohort1_A1', 'Cohort1_A2',
 
 # Array type, used : EPIC or 450K
 artype <- '450K'
-
 # Parameters to exclude CpGs
 exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
@@ -82,6 +85,14 @@ for ( i in 1:length(files) )
    if(!dir.exists(file.path(getwd(), results_folder, prefixes[i] )))
       suppressWarnings(dir.create(file.path(getwd(), results_folder, prefixes[i])))
 
+   # Creates an empty file to resume all data if an old file exist  removes
+   # the file and creates a new one
+   fResumeName <- paste0( file.path(getwd(), results_folder, prefixes[i]),"/",prefixes[i], "_descriptives.txt")
+   if ( file.exists(fResumeName) ) {
+      file.remove(fResumeName)
+   }
+   file.create(fResumeName)
+
    # Read data.
    cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
    print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
@@ -90,7 +101,7 @@ for ( i in 1:length(files) )
    cohort <- clean_NA_from_data(cohort)
 
    # Descriptives - Before CpGs deletion #
-   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), paste0(results_folder,'/',prefixes[i],'/',prefixes[i],'_descriptives_init.txt') )
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = TRUE)
 
    # Remove duplicates
    # cohort <- remove_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i], '/',prefixes[i],'_descriptives_duplic.txt'), paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
@@ -98,13 +109,13 @@ for ( i in 1:length(files) )
    test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
 
    # Exclude CpGs not meet conditions
-   cohort <- exclude_CpGs(cohort, "probeID", exclude, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt') )
+   cohort <- exclude_CpGs(cohort, "probeID", exclude, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName )
 
    # Descriptives - After CpGs deletion #
-   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_descriptives_last.txt') )
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = FALSE )
 
    # Adjust data by Bonferroni and FDR
-   cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, filename =  paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_ResumeSignificatives.txt')  )
+   cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, fResumeName  )
 
    # Write QC complete data to external file
    write_QCData(cohort, paste0(results_folder, '/',prefixes[i], '/',prefixes[i]))
@@ -154,11 +165,11 @@ plot_betas_boxplot(betas.data, paste(results_folder, 'BETAS_BoxPlot.pdf', sep="/
 if ( length(files) > 1)
 {
    # Precision_Plot(N)
-   plot_precisionp(precplot.data, paste(results_folder, prefixes[i], "precision_SE_N.png",sep='/'), main = "Precision Plot - 1/median(SE) vs sqrt(N)")
+   plot_precisionp(precplot.data, paste(results_folder,  "precision_SE_N.png",sep='/'), main = "Precision Plot - 1/median(SE) vs sqrt(N)")
 
    # Precision_Plot(n)
    if(length(n) == length(N))
-      plot_precisionp(precplot.data.n, paste(results_folder, prefixes[i], "precision_SE_N.png", sep='/'), main = "Subgroup Precision Plot -  1/median(SE) vs sqrt(n)")
+      plot_precisionp(precplot.data.n, paste(results_folder,  "precision_SE_N.png", sep='/'), main = "Subgroup Precision Plot -  1/median(SE) vs sqrt(n)")
 
    # Venn_Diagrams()
    for (i in 1:length(venn_diagrams))

@@ -157,7 +157,7 @@ for( metf in 1:length(metafiles))
       dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype, N[which(prefixes %in% modelfiles)] )
 
       # Forest-Plot
-      plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf], files, outputgwama  )
+      plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf], files, outputgwama, nsignificatives = 30  )
 
    }
 

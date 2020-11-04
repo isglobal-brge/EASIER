@@ -4,7 +4,7 @@
 \alias{plot_missMethyl_Summary}
 \title{Plot enrichment summary}
 \usage{
-plot_missMethyl_Summary(df, xl, yl, tit, filename = NULL)
+plot_missMethyl_Summary(df, xl, yl, tit, filename = NULL, N = 10)
 }
 \arguments{
 \item{df}{Dataframe with enrichment data}
@@ -16,6 +16,8 @@ plot_missMethyl_Summary(df, xl, yl, tit, filename = NULL)
 \item{tit}{string with main title}
 
 \item{filename}{optional string. File name to store results if no name is provided results are not written.}
+
+\item{N}{optional number of genes in the GO or KEGG term, by default N=10}
 }
 \value{
 plot

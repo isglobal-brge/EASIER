@@ -12,7 +12,7 @@ plot_ForestPlot(
   metaname,
   files,
   outputgwama,
-  lowestp = 30
+  nsignificatives = 30
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ plot_ForestPlot(
 
 \item{outputgwama}{string with gwama output path}
 
-\item{lowestp}{number, lowest p-values to show in forestplot, by default, lowestp=30}
+\item{nsignificatives}{number, lowest p-values to show in forestplot, by default, lowestp=30}
 }
 \value{
 distribution plot
