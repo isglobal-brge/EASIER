@@ -58,7 +58,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
    cohort <- merge(cohort, filters[,fieldstomerge], by.x= cpgid, by.y = "probeID" )
 
    # CpGs id to remove
-   excludeid <- cohort[eval(parse(text=getCritera(exclude))), cpgid]
+   excludeid <- cohort[eval(parse(text=getCritera(exclude, ethnic))), cpgid]
 
    # Report descriptive exclussions to a descriptive file
    if(!is.null(fileresume)) {
@@ -81,7 +81,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
       # write(sprintf('# Percent excluded CpGs: %f %%\n', ((length(excludeid)/dim(cohort)[1])*100 )), file = filename, append = TRUE)
       # Report exclusion reason
       suppressWarnings(
-         write.table( cohort[eval(parse(text=getCritera(exclude))),],
+         write.table( cohort[eval(parse(text=getCritera(exclude, ethnic))),],
                       filename, col.names = TRUE, row.names = FALSE, sep = '\t', append = TRUE, dec='.'))
    }
 
@@ -99,7 +99,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
 
 # Gets criteria dynamically from configuration variables
 # function called internally by exclude_CpGs
-getCritera <- function(exclude)
+getCritera <- function(exclude, ethnic)
 {
 
    possible_crit <- c( 'MASK_sub25_copy', 'MASK_sub30_copy', 'MASK_sub35_copy', 'MASK_sub40_copy',
@@ -144,6 +144,11 @@ getCritera <- function(exclude)
       # Add new criteria
       criter <- paste0(criter, paste0(" cohort$probeType %in% '",newCpGcond,"' | ", collapse = ''))
    }
+
+   # Adds ethnicity exclusion criteria
+   criter <- paste0(criter, " cohort$MASK_snp5_",ethnic," == TRUE |")
+
+   criter <- paste0(criter, paste0(" cohort$probeType %in% '",newCpGcond,"' | ", collapse = ''))
 
 
    # Remove extra '|' and add which function to exclusion criteria

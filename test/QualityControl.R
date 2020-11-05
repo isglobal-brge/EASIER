@@ -45,7 +45,7 @@ prefixes <- c('Cohort1_A1', 'Cohort1_A2',
 # Array type, used : EPIC or 450K
 artype <- '450K'
 # Parameters to exclude CpGs
-exclude <- c( 'MASK_sub35_copy', 'MASK_typeINextBaseSwitch', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
+exclude <- c( 'MASK_sub30_copy', 'MASK_extBase', 'MASK_mapping', 'MASK_typeINextBaseSwitch', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
 # Ethnic group
 ethnic <- 'EUR'
@@ -109,7 +109,7 @@ for ( i in 1:length(files) )
    test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
 
    # Exclude CpGs not meet conditions
-   cohort <- exclude_CpGs(cohort, "probeID", exclude, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName )
+   cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName )
 
    # Descriptives - After CpGs deletion #
    descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = FALSE )
