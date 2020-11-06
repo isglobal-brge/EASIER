@@ -8,7 +8,6 @@ author:
 - name: Marta Cosin
   affiliation: 
   - *isglobal
-  - *brge
 - name: Mariona Bustamante
   affiliation: 
   - *isglobal
@@ -21,11 +20,11 @@ author:
 package: EASIER
 output:
   
-   BiocStyle::pdf_document:
-    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
+   BiocStyle::pdf_document:
+    toc_float: true
 abstract: |
   Description of your vignette
 vignette: |
@@ -123,7 +122,7 @@ We also need to install `devtools` package, this package allows us to install pa
 if (!require(devtools, quietly = TRUE)) install.packages('devtools')
 ```
 
-The development version of `methyTools` package can be installed from BRGE GitHub repository:
+The development version of `EASIER` package can be installed from BRGE GitHub repository:
 
 ```{r installEASIER, eval=FALSE}
 devtools::install_github("isglobal-brge/EASIER@HEAD")
@@ -198,7 +197,7 @@ prefixes <- c('PROJ1_Cohort3_A1', 'PROJ1_Cohort3_A2',
 
 ### Illumina Array type and filter conditions
 
-The Illumina array type has to be indicated with one of these two possible values: 450K and EPIC. Filter CpGs is dependent on the Illumina array, thus this field has to be completed.:
+The Illumina array type has to be indicated with one of these two possible values: 450K and EPIC. Filter CpGs is dependent on the Illumina array, thus this field has to be completed. 
 
 ```{r QCVarartype}
 # Array type, used : EPIC or 450K
@@ -207,24 +206,31 @@ artype <- '450K'
 
 In the quality control (QC) process, we exclude those CpGs that do not accomplish the defined parameters (based on *Zhou et al. 2017, Solomon et al. 2018, Fernandez-Jimenez et al. 2019*). These parameters are defined in a character vector and are the following:
 
-  * **MASK_sub25_copy** : indicate whether the 25bp 3’-subsequence of the probe is non-unique. The sequence of the last 25bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on Zhou et al. (2017).
-  * **MASK_sub30_copy** : : indicate whether the 30bp 3’-subsequence of the probe is non-unique. The sequence of the last 30bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on *Zhou et al. (2017)*. In the paper they recommend 30bp, but in the code we prepared we have the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequence. 
-  * **MASK_sub35_copy** : indicate whether the 35bp 3’-subsequence of the probe is non-unique. The sequence of the last 35bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on *Zhou et al. (2017)*. In the paper they recommend 30bp, but in the code we prepared we have the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequence. 
-  * **MASK_sub40_copy** : indicate whether the 40bp 3’-subsequence of the probe is non-unique. The sequence of the last 40bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites), based on *Zhou et al. (2017)*. In the paper they recommend 30bp, but in the code we prepared we have the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequence. 
-  * **MASK_mapping** : "hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs. Probes that have poor quality mapping to the target genomic location as indicated in the array’s manifest file based on genome build GRCh37 and GRCh38 (for example due to the presence of INDELs - INDELs  are Insertion–deletion mutations present in the genome, and like SNPs are of great interest because they can alter human traits and can cause human diseases-), based on *Zhou et al. (2017)*.
-  * **MASK_extBase**  : Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. Probes with a SNP altering the CpG dinucleotide sequence context and hence the ability of target cytosines to be methylated. This also includes the special case where an actual C/T polymorphism is present instead of C/T difference introduced by bisulfite conversion (the extension base is inconsistent with the specified color channel (type-I) or CpG (type-II) according to mapping, based on *Zhou et al. (2017)*.
-  * **MASK_typeINextBaseSwitch**  : Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference), based on *Zhou et al. 2017*. 
-  * **MASK_snp5.common**  : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%), based on Zhou et al. 2017.
-  * **MASK_snp5.GMAF1p**  : Whether 5bp 3’-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1%, based on Zhou et al. 2017.
-  * **MASK_general** :  Recommended general purpose masking merged from *"MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p"*, based on *Zhou et al. 2017*.
-  * **cpg_probes** :  cpg probes classified as "cg" in the variable named "probeType". 
-  * **noncpg_probes** :  non-cpg probes classified as "ch" in the variable named "probeType". 
-  * **control_probes** :  control probes classified as "rs" in the variable named "probeType". 
-  * **Unreliable_450_EPIC** : Unreliable probes discordant between 450K and EPIC in blood, based on *Solomon et al. 2018*. 
-  * **Unreliable_450_EPIC_Pla**: Unreliable probes discordant between 450K and EPIC in plaenta, based on *Fernandez-Jimenez et al. 2019*. 
-  * **Sex** :  Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )
+#### Perform CpG exclusions –> non CpG probes and sexual CpGs:
 
-In this example we exclude CpGs that meet condition : MASK_sub35_copy, MASK_typeINextBaseSwitch, noncpg_probes, control_probes, Unreliable_450_EPIC and Sex.
+  * **Control probes ("control_probes")**: technical control probes that do not correspond to CpGs, such as bisulfite conversion I, bisulfite conversion II, extension, hybridization and negative. Classified as "rs" in the filtering variable named "probeType";
+  * **Non-cpg probes ("noncpg_probes")**: non-cpg probes classified as "ch" in the filtering variable named "probeType";
+  * **Sex chromosomes ("Sex")**: to avoid misleading results due to differences in sex-chromosome dosage on the human methylome. Filtering variable "Sex"; #
+
+#### Perform CpG exclusions –> hybridizing problems:
+
+  * **Poor mapping probes ("MASK_mapping")**: Probes that have poor quality mapping to the target genomic location as indicated in the array’s manifest file based on genome build GRCh37 and GRCh38 (for example due to the presence of INDELs (Insertion–deletion mutations present in the genome); 
+  * **Cross-hybridising probes ("MASK_sub30")**: The sequence of the last 30bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites); Zhou et al. recommend 30bp, but in the code we prepared there is the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequences (**"MASK_sub25", "MASK_sub40", "MASK_sub45"**).
+
+#### Perform CpG exclusions -> presence of SNPs:
+
+  * **"MASK_extBase"**: Probes with a SNP altering the CpG dinucleotide sequence context and hence the ability of target cytosines to be methylated (regardless of the MAF); 
+  * **"MASK_typeINextBaseSwitch"**: Probes with a SNP in the extension base that causes a color channel switch from the official annotation (regardless of the MAF); 
+  * **"MASK_snp5.GMAF1p"**: probes with SNPs at the last 5bp of the 3’ end of the probe, with an average minor allele frequency (MAF) >1%, by ethnic group; 
+  * **"MASK_snp5.common"**: probes with SNPs at the last 5bp of the 3’ end of the probe, with any average minor allele frequency (MAF) (can be <1%), by ethnic group;
+
+#### Perform CpG exclusions -> array consistency:
+
+  * **"Unrel_450_EPIC_blood"**: These are probes that are known to yield different results for the 450K and EPIC array in BLOOD, suggesting that results are unreliable for at least one of these arrays. CpGs based on Solomon et al. (2018).
+  * **"Unrel_450_EPIC_pla_restrict"** or **"Unrel_450_EPIC_pla"**: These are probes that are known to yield different results for the 450K and EPIC array in PLACENTA, suggesting that results are unreliable for at least one of these arrays. CpGs based on Fernandez-Gutierrez et al. (2019).
+ 
+In this example we filter CpGs that meet the following conditions: MASK_sub35_copy, MASK_typeINextBaseSwitch, noncpg_probes, control_probes, Unreliable_450_EPIC and Sex.
+
 
 ```{r QCVarexclude}
 # Parameters to exclude CpGs
@@ -236,7 +242,44 @@ exclude <- c( 'MASK_sub35_copy',
               'Sex')
 ```
 
-We also need to define the ethnic, ethnic can be : EUR SAS AMR GWD YRI TSI  IBS CHS PUR JPT  GIH CH_B STU ITU LWK KHV FIN ESN CEU PJL AC_B CLM CDX GBR BE_B PEL MSL  MXL ASW or  GMAF1p if population is very diverse.
+We also need to define the ethnic origin of the study population. Ethnic origins can be one of the table or *GMAF1p* if population is very diverse.
+
+| **Population Code** | **Population Description                                            ** | **Super Population Code** |
+| :-------------------: | :---------------------------------------------------------------------- | :-------: |
+| AFR                   | *African*                                                               | AFR       |
+| AMR                   | *Ad Mixed Americn*                                                      | AMR       |
+| EAS                   | *East Asian*                                                            | EAS       |
+| EUR                   | *European*                                                              | EUR       |
+| SAS                   | *South Asian*                                                           | SAS       |
+| CHBB                  | Han Chinese in Beijing, China                                           | EAS       |
+| JPT                   | Japanese in Tokyo, Japan                                                | EAS       |
+| CHS                   | Southern Han Chinese                                                    | EAS       |
+| CDX                   | Chinese Dai in Xishuangbanna, China                                     | EAS       |
+| KHV                   | Kinh in Ho Chi Minh City, Vietnam                                       | EAS       |
+| CEU                   | Utah Residents (CEPH) with Northern and Western European Ancestry       | EUR       |
+| TSI                   | Toscani in Italia                                                       | EUR       |
+| FIN                   | Finnish in Finland                                                      | EUR       |
+| GBR                   | British in England and Scotland                                         | EUR       |
+| IBS                   | Iberian Population in Spain                                             | EUR       |
+| YRI                   | Yoruba in Ibadan, Nigeria                                               | AFR       |
+| LWK                   | Luhya in Webuye, Kenya                                                  | AFR       |
+| GWD                   | Gambian in Western Divisions in the Gambia                              | AFR       |
+| MSL                   | Mende in Sierra Leone                                                   | AFR       |
+| ESN                   | Esan in Nigeria                                                         | AFR       |
+| ASW                   | Americans of African Ancestry in SW USA                                 | AFR       |
+| ACBB                  | African Caribbeans in Barbados                                          | AFR       |
+| MXL                   | Mexican Ancestry from Los Angeles USA                                   | AMR       |
+| PUR                   | Puerto Ricans from Puerto Rico                                          | AMR       |
+| CLM                   | Colombians from Medellin, Colombia                                      | AMR       |
+| PEL                   | Peruvians from Lima, Peru                                               | AMR       |
+| GIH                   | Gujarati Indian from Houston, Texas                                     | SAS       |
+| PJL                   | Punjabi from Lahore, Pakistan                                           | SAS       |
+| BEBB                  | Bengali from Bangladesh                                                 | SAS       |
+| STU                   | Sri Lankan Tamil from the UK                                            | SAS       |
+| ITU                   | Indian Telugu from the UK                                               | SAS       |
+|                       |                                                                         |           |
+| GMAF1p                | If population is very diverse                                           |           |
+
 
 ```{r QCVarethnic}
 ethnic <- 'EUR'
@@ -245,18 +288,18 @@ ethnic <- 'EUR'
 
 ### Other variables :
 
-To obtain the precision plot or perform the GWAMA meta-analysis we need to know the number of samples in our data, so we store this information in ”N”, defining the sample size for each of the files. The n array is similar to N but in that case we define the size of a dichotomous variable for example smoke.
+To obtain the precision plot and to perform the GWAMA meta-analysis we need to know the number of samples in the EWAS results, so we store this information in ”N”for each of the files. In addition, for case-control EWAS, we need to know the sample size of exposed or diseased individuals. This informaiotn is storaed as “n” for each of the files
+
 
 ```{r QCVarN}
 N <- c(100, 100, 166, 166, 240, 240 )
 n <- c(NA)
 ```
 
-## QC - Numerical analysis code
+## Quality Control - general code
 
 
-This code can be executed for each file defined in previous variable `files` but in this example we only show the analysis workflow for a simple file.
-
+As we show in the Quality control Flowchart, this code can be executed for each file defined in previous variable `files` but in this examplewe only show the analysis workflow for one of them.
 
 ```{r QCCode1}
 
@@ -287,7 +330,7 @@ if(!dir.exists(file.path(getwd(), results_folder )))
 
 ```
 
-First, we need to read the content of a file, 
+First, we need to read the content of a file with EWAS results,
 
 ```{r QCCodeRead}
    
@@ -296,7 +339,7 @@ cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
 print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
-and store the content of the file in a `cohort` variable.  After that, we perform a simple descriptive analysis, using the function `descriptives_CpGs`. This function needs the data to analyze (`cohort`), the fields for which we are interested to get descriptives, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. For the first file it would be: *QC_Results/PACE_AQUA_A1_descriptives_init.txt*
+and store the content of the file in a `cohort` variable.  After that, we perform a simple descriptive analysis, using the function `descriptives_CpGs`. This function needs the EWAS results to be analyzed (`cohort`), the fields for which we are interested to get descriptives, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. For the first file it would be: *QC_Results/PACE_AQUA_A1_descriptives_init.txt*
 
 ```{r QCCodeDescriptives}
 # Descriptives - Before CpGs deletion
@@ -317,7 +360,7 @@ cohort <- remove_duplicate_CpGs(cohort, "probeID",
 
 ```
 
-To exclude CpGs that we are not interested in, we use the function `exclude_CpGs`. Here we use the parameters defined before in exclude variable, which are the data, cohort, the CpG id field (can be the column number or the field name “probeId”), the filters to apply defined in `exclude` variable, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name will be  *QC_Results/PACE_AQUA_A1_excluded.txt*).
+To exclude CpGs that we are not interested in, we use the function `exclude_CpGs`. Here we use the parameters defined before in the `exclude` variable, which are the data, cohort, the CpG id field (can be the column number or the field name "probeId"), the filters to apply defined in `exclude` variable, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name will be  *QC_Results/PACE_AQUA_A1_excluded.txt*).
 \ 
 
 
@@ -337,7 +380,7 @@ descriptives_CpGs(cohort, seq(2,4),
                          '_descriptives_last.txt') )
 ```
 
-Now, we can get adjusted p-values by Bonferroni and FDR. The function to adjust data is `adjust_data`, and we have to indicate in which column the p-value is and what adjustment we want. By default the function adjust data by Bonferroni (`bn`) and FDR (`fdr`).
+Now, we can get adjusted p-values by Bonferroni and False Discovery Rate (FDR). The function to get adjusted p-values is `adjust_data`, and we have to indicate in which column the p-value is and what adjustment we want. By default the function adjust data by Bonferroni (`bn`) and FDR (`fdr`).
 This function, returns the input data with two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of significative values with bn, fdr, ....  in a text file, (the generated file in the example is called *QC_Results/PACE_AQUA_A1_ResumeSignificatives.txt* ).
 
 ```{r QCCodeAdjust}
@@ -354,14 +397,14 @@ cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE,
 head(cohort)
 ```
 
-We are ready to write the data into a file with the `write_QCData` function. The file generated by this function is very important for the next steps, to generate GWAMA files. This data is stored with *_QC_Data.txt* sufix. In this function data is annotated before being written to the file,
+Then EWAS results are annotated with the corresondign 450K or EPIC annotations and saved with the `write_QCData` function. The file generated by this function is the input for the meta-analysis with GWAMA. This data is stored with *_QC_Data.txt* sufix. In this function data is annotated before being written to the file,
 
 ```{r QCCodeWriteQData}
    # Write QC complete data to external file
    write_QCData(cohort, paste0(results_folder,'/',prefixes[i]))
 ```
 
-## QC - Graphical analysis code 
+## Quality Control - code for plots
 
 To perform a graphical analysis we have different functions. We can easily generate a SE or p-value distribution plots with  `plot_distribution` function
 
