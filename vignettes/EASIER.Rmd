@@ -76,7 +76,7 @@ In this vignette we will show how to apply EASIER con the EWAS results from  thr
 
 First, we need to install and load the required packages
 
-```{r installDependences, eval=FALSE}
+```{r installDependences, eval=TRUE}
 
 if (!require(rasterpdf, quietly = TRUE)) 
    install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
@@ -104,8 +104,9 @@ if (!require(ggsignif, quietly = TRUE))
    install.packages('ggsignif')
 if (!require(tools, quietly = TRUE)) 
    install.packages('tools')
+```
 
-
+```{r installDependencesBioC, eval=FALSE}
 # Required libraries from Bioconductor
 if (!requireNamespace("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
@@ -114,6 +115,14 @@ BiocManager::install( c("missMethyl",
                         "org.Hs.eg.db",
                         "GenomicRanges",
                         "rtracklayer") )
+```
+
+```{r loadBioC, eval=TRUE}
+# Load libraries from Bioconductor
+library("missMethyl")
+library("org.Hs.eg.db")
+library("GenomicRanges")
+library("rtracklayer")
 ```
 
 We also need to install `devtools` package, this package allows us to install packages directly from github
@@ -584,7 +593,7 @@ gwama.dir <- paste0(Sys.getenv("HOME"),
 
 ```
 
-### Quality Control - general code
+### Meta-Analysis - general code
 
 Now we are ready to execute the meta-analysis. You can find the script to perform the full meta-analysis in [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R) file. 
 
@@ -692,36 +701,607 @@ include_graphics("imgs/meta/venn.png")
 include_graphics("imgs/workflows/EnrichmentWorkflow.png") 
 ```
 
-## Gene-set or pathway enrichment - Based on genes
+
+Like Quality Control and Meta-analysis, we have created a script [Enrichment.R](https://github.com/isglobal-brge/EASIER/blob/main/test/Enrichment.R) using the library functions to carry out the *enrichment process* automatically only by defining some variables. The script follows the **Figure\@ref(fig:enrichworkflow)** workflow.
+
+The first step is define variables, after variable declaration, we read the files with CpGs, the file can contain only a list of CpGs, wit no mre data than the CpG name, can contain the results from GWAMA, depending if we have only a CpG list or the results from GWAMA, the enrichment is different, the differences are specified in next slides.
+
+## Variables definition
+
+First, we need to set up the working directory, in our case, we set the working directory to the metaanallysis folder, after that, we need to define the route to the files with the data to enrich in `FilesToEnrich` variable, this files could be files with only CpGs (a nude CpG list) or the results from GWAMA meta-analysis with p-values and other related data to this CpGs.
+
+```{r varEnrich, eval=FALSE}
+# Set working directory to metaanalysis folder
+setwd("<path to metaanalysis folder>/metaanalysis")
+
+# Files with CpG data to enrich may be a CpGs list or annotated GWAMA output
+FilesToEnrich <- c('toenrich/CpGstoEnrich.txt',
+                   'GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out'
+                    )
+```
+
+```{r varEnrich_eval, eval=TRUE, echo=FALSE}
+# Files with CpG data to enrich may be a CpGs list or annotated GWAMA output
+FilesToEnrich <- c('toenrich/CpGstoEnrich.txt',
+                   'GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out'
+                    )
+```
+
+
+After that, with those files with p-value information, we need to define which CpGs should be used for enrichment, 
+  * `BN` : CpGs that accomplish with Bonferroni criteria, possible values : TRUE or FALSE
+  * `FDR` : at what significance level based on FDR we want to take in to account CpGs, this value should be smaller or equal to 0.05, if FDR = NA, FDR is not taken in to a ccount
+  * `pvalue` : at what significance level based we want to take in to account CpGs, this value should be smaller or equal to 0.05, if pvalue = NA, FDR is not taken in to a
+
+```{r varEnrich_2, eval=TRUE}
+# Values for adjustment
+BN <-  TRUE       # Use Bonferroni ?
+FDR <- 0.7        # significance level for adjustment, if NA FDR is not used
+pvalue <- 0.05    # significance level for p-value, if NA p-value is not used
+```
+
+Like in previous steps, we define the artype and the folders used to store results in quality control and meta-analysis (needed in some enrichment steps if we are enriching GWAMA results) and the folder to store enrichment results.
+
+```{r varEnrich_3, eval=TRUE}
+# Array type, used : EPIC or 450K
+artype <- '450K'
+# Result paths definition for QC, Meta-Analysis and Enrichment
+results_folder <- 'QC_Results'
+results_gwama <- '.'
+results_enrich <- 'Enrichment'
+```
+
+Next variable `enrichtype` is related to enrichment type, enrichment for blood, placenta or a general enrichment, we can observe de differences between them in **Figure\@ref(fig:enrichworkflow)** if we are performing a placenta enrichment we must also define `enrichFP18 = TRUE` if we wan to use Fetal placenta States 18. For all branches, if we have the p-values we can indicate what type of statistical test we want to use, hypergeometric or Fisher if no test is defined, by default Fisher test is used.
+
+```{r varEnrich_4, eval=TRUE}
+# Enrichment type :  'BLOOD' or 'PLACENTA'
+#     if enrichtype <- 'BLOOD' => enrichment with : Cromatine States : BLOOD (crom15)
+#                                                   (To be implemented in future) Partially Methylated Domains (PMD) for Blood
+#     if enrichtype <- 'PLACENTA' => enrichment with: Cromatine States : PLACENTA (FP_15) optionally (FP_18)
+#                                                     Partially Methylated Domains (PMD) for Placenta
+#     if enrichtype is different from 'BLOOD' and 'PLACENTA' we only get the missMethyl and MSigDB enrichment and the Unique genes list.
+enrichtype <- 'PLACENTA'
+
+# Cromatine States Placenta Enrichment FP_18
+# if enrichFP18 = TRUE the enrichment is performed wit FP_15 and FP_18
+enrichFP18 <- FALSE
+
+# Test to be used : 'Fisher' or 'Hypergeometric' if testdata is different no test will be performed
+testdata <- 'Fisher'
+
+```
+
+Prepare output folcers to sotre data
+
+```{r executenoshow}
+## Check if we have any files to enrich and if these files exists
+if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='') {
+   for ( i in 1:length(FilesToEnrich))
+      if (!file.exists(FilesToEnrich[i])) stop(paste0('File ',FilesToEnrich[i],' does not exsits, please check file' ))
+}
+
+## Check variables
+
+if( ! toupper(enrichtype) %in% c('PLACENTA','BLOOD') )
+   warning('Only enrichment with MyssMethyl and MSigDB will be done')
+
+if( ! tolower(testdata) %in% c('fisher','hypergeometric') )
+   warning('Wrong value for testdata variable, values must be "Fisher" or "Hypergeometric". No test will be performed ')
+
+
+
+# Convert relative paths to absolute paths for FilesToEnrich
+FilesToEnrich <- unlist(sapply(FilesToEnrich, function(file) { if(substr(file,1,1)!='.' & substr(file,1,1)!='/') file <- paste0('./',file) else file }))
+FilesToEnrich <- sapply(FilesToEnrich, file_path_as_absolute)
+
+if(results_enrich!='.'){
+   outputfolder <- file.path(getwd(), results_enrich )
+}else{
+   outputfolder <- file.path(getwd() )}
+
+
+# Create dir to put results from enrichment
+if(!dir.exists(outputfolder))
+   suppressWarnings(dir.create(outputfolder))
+
+setwd( outputfolder)
+```
+
+
+
+## Common enrichment for Blood and Placenta
+
+```{r enrichworkflowcommon, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowcommon}Enrichment flowchart. Detailed common enrichment for blood, placenta and other", fig.pos='ht'}
+include_graphics("imgs/enrich/common.png") 
+```
+
+The procedure that we will detail is executed for each one of the files entered in the variable `FilesToEnrich`, we show how it works with CpG nude list (first file in `FilesToEnrich` variable) and wiht GWAMA output results (second file in `FilesToEnrich` variable).
+
+**CpG Nude List without p-values and annotattion**
+
+After define the variables we read the file content and test if data is a nude CpG list or a resulting file from GWAMA.  If the input file is a nude CpG list we first of all enrich this data with illumina annotation for EPIC or 450K with `get_annotattions` function (GWANA files are previously annotated in meta-analysis), in `get_annotattions` we have as a parameter the array type, and the data to enrich. 
+
+
+```{r EnrichCommon_1, eval=TRUE}
+i <- 1 # We get first file in FilesToEnrich
+
+# Enrich all CpGs
+allCpGs <- FALSE
+
+# Get data
+data <- NULL
+data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".", stringsAsFactors = FALSE)
+
+# Is a CpG list only ? then read without headers and annotate data
+if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
+   data <- read.table(FilesToEnrich[i], dec = ".") # Avoid header
+   data <- as.vector(t(data))
+   head(data)
+   data <- get_annotattions(data, artype, FilesToEnrich[i], outputfolder )
+   
+   head(data)
+   
+   allCpGs <- TRUE
+   data$chromosome <- substr(data$chr,4,length(data$chr))
+   data$rs_number <- data$CpGs
+}
+
+```
 
 ### GO and KEGG and MolSig
+
+When all data is annotated we enrich data with `missMethyl_enrichment` function, to this function we have to inform the paramteres to decide if the CpG is significative or not, we do that with previously defined variables  FDR, Bonferroni and pval, this only work with GWAMA results or with files that contains this information, if we are working with only CpG list, all the CpGs are enriched. missMethyl_enrichment  function performs the enrichment with GO and KEGG  , 
+
+
+```{r EnrichCommon_2, eval=TRUE, cache=TRUE}
+## -- Functional Enrichmnet
+## ------------------------
+
+# Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
+miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs, plots = TRUE )
+
+head(miss_enrich$GO)
+head(miss_enrich$KEGG)
+```
+
 ### Pathways with Molecular Signatures Database (MSigDB)
 
-## Molecular enrichment - Based on CpGs
+We can get the Molecular Signatures Database (MSigDB) enrichment with `MSigDB_enrichment` function, this functions needs the list of CpGs or the output data from GWAMA, in that case also needs the parameters to take in to account to decide whether CpG is or not significative. 
 
-### Common enrichment - Blood and Placenta
+```{r EnrichCommon_3, eval=TRUE, cache=TRUE}
+## -- Molecular Enrichmnet
+## -----------------------
 
-#### Gene relative position
-#### CpG island relative position
+# Molecular Signatures Database enrichment
+msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
 
+head(msd_enrich$MSigDB)
 
-### Specific Blood
-#### 15 ROADMAP chromatine states
-
-
-### Specific Placenta
-
-#### ROADMAP chromatine states
-#### Fetal Placenta 15 and Fetap Placenta 18  
-#### Partially methylated domains (PMDs) – Paper
-#### Impreinted regions - Paper
+```
 
 
+### Get unique genes
+
+To get the list with unique genes related to significative CpGs
+
+```{r EnrichUniqueGene, eval=TRUE}
+      # get unique genes from data
+geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], 
+                           function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}),
+                    getUniqueGenes)
+
+geneUniv
+```
+
+
+### Gene relative position
+
+When we have p-values we can apply statistical tests 'Fisher' or 'Hypergeometric',  depends on variable `testdata` defined previously. We apply the test for FDR and Bonferroni significative CpGs (taking in to account the initial definition for FDR and Bonferroni) and for  Hyper and Hypo methylated.
+
+First of all, we have to classify CpGs in Hyper and Hypo methylated, to do that, we apply the function `getHyperHypo` to beta values, we also get a binary classification ('yes', 'no') for FDR taking in to account the significance level declared before.
+
+```{r EnrichComStatsPrep, eval=FALSE}
+if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+{
+
+   ## -- Prepare data
+   ## ---------------
+
+   # Add column bFDR to data for that CpGs that accomplish with FDR
+    # Classify fdr into "yes" and no taking into account FDR significance level
+   data$bFDR <- getBinaryClassificationYesNo(data$FDR, "<", FDR) 
+
+   # Classify by Hyper and Hypo methylated
+   data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
+
+   # CpGs FDR and Hyper and Hypo respectively
+   FDR_Hyper <- ifelse(data$bFDR == 'yes' & 
+                          data$meth_state=='Hyper', "yes", "no")
+   FDR_Hypo <- ifelse(data$bFDR == 'yes' & 
+                         data$meth_state=='Hypo', "yes", "no")
+
+   # CpGs Bonferroni and Hyper and Hypo respectively
+   BN_Hyper <- ifelse(data$Bonferroni == 'yes' & 
+                         data$meth_state=='Hyper', "yes", "no")
+   BN_Hypo <- ifelse(data$Bonferroni == 'yes' & 
+                        data$meth_state=='Hypo', "yes", "no")
+```
+
+Now, we get all descriptive data related to Gene positions for significative CpGs an all fisher test with `getAllFisherTest`  or all Hypergeometric test with `getAllHypergeometricTest` for all Gene positions, this functions write all results in `outputfile` inside `outputdir` parameters
+
+```{r EnrichComStats_GeneP, eval=FALSE}
+## --  CpG Gene position
+## ---------------------
+
+# Get descriptives
+get_descriptives_GenePosition(data$UCSC_RefGene_Group, 
+                              data$Bonferroni, 
+                              "Bonferroni", 
+                              outputdir = "GenePosition/Fisher_BN_Desc",
+                              outputfile = FilesToEnrich[i])
+get_descriptives_GenePosition(data$UCSC_RefGene_Group, d
+                              ata$bFDR , "FDR", 
+                              outputdir = "GenePosition/Fisher_FDR_Desc", 
+                              outputfile = FilesToEnrich[i])
+
+
+if( tolower(testdata) =='fisher') {
+   ## --  Fisher Test - Gene position - FDR, FDR_hyper and FDR_hypo
+   GenePosition_fdr <- getAllFisherTest(data$bFDR, 
+                                  data$UCSC_RefGene_Group, 
+                                  outputdir = "GenePosition/Fisher_FDR", 
+                                  outputfile = FilesToEnrich[i], 
+                                  plots = TRUE )
+   GenePosition_fdr_hyper <- getAllFisherTest(FDR_Hyper, 
+                                  data$UCSC_RefGene_Group, 
+                                  outputdir = "GenePosition/Fisher_FDRHyper", 
+                                  outputfile = FilesToEnrich[i], 
+                                  plots = TRUE )
+   GenePosition_fdr_hypo <- getAllFisherTest(FDR_Hypo, 
+                                    data$UCSC_RefGene_Group, 
+                                    outputdir = "GenePosition/Fisher_FDRHypo", 
+                                    outputfile = FilesToEnrich[i], plots = TRUE )
+}
+else if ( tolower(testdata) =='hypergeometric') {
+   ## --  HyperGeometric Test - Island relative position - 
+   ## FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
+   GenePosition_fdr <- getAllHypergeometricTest(data$bFDR, 
+                                    data$UCSC_RefGene_Group, 
+                                    outputdir = "GenePosition/HyperG_FDR", 
+                                    outputfile = FilesToEnrich[i])
+   GenePosition_fdr_hyper <- getAllHypergeometricTest(FDR_Hyper,
+                                    data$UCSC_RefGene_Group,
+                                    outputdir = "GenePosition/HyperG_FDRHyper", 
+                                    outputfile = FilesToEnrich[i])
+   GenePosition_fdr_hypo <- getAllHypergeometricTest(FDR_Hypo, 
+                                   data$UCSC_RefGene_Group,
+                                   outputdir = "GenePosition/HyperG_FDRHypo", 
+                                   outputfile = FilesToEnrich[i])
+}
+```
+
+we can also get a collapsed plot with all results regardless if the applied test has been fisher or hypergeometric with `plot_TestResults_Collapsed` function. 
+
+```{r EnrichComStatsGenePplots, eval=FALSE}
+         plot_TestResults_Collapsed(list(fdr = GenePosition_fdr, 
+                                         fdr_hypo = GenePosition_fdr_hypo, 
+                                         fdr_hyper = GenePosition_fdr_hyper),
+                                    outputdir = "GenePosition", 
+                                    outputfile = FilesToEnrich[i], main = )
+```
+
+```{r enriGenePos, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:genepos}Gene position with Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
+include_graphics("imgs/enrich/plot_genepos.png") 
+```
+
+### CpG island relative position
+
+We can also proceed with the same steps with CpGs Island relative position, in that case, we get the descriptives to Relative to Island position with `get_descriptives_RelativetoIsland` function, the procedure to get we also get a plot with statistical results.
+
+```{r EnrichComStatsRelIsland, eval=FALSE}
+
+## --  CpG Island relative position
+## --------------------------------
+
+# Get descriptives
+get_descriptives_RelativetoIsland(data$Relation_to_Island, 
+                            data$Bonferroni, 
+                            "Bonferroni", 
+                            outputdir = "RelativeToIsland/Fisher_BN_RelativeToIsland", 
+                            outputfile = FilesToEnrich[i])
+get_descriptives_RelativetoIsland(data$Relation_to_Island, 
+                            data$bFDR , 
+                            "FDR", 
+                            outputdir = "RelativeToIsland/Fisher_FDR_RelativeToIsland",
+                            outputfile = FilesToEnrich[i])
+
+
+if( tolower(testdata) =='fisher') {
+   ## --  Fisher Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
+   relative_island_fdr <- getAllFisherTest(data$bFDR, 
+                                  data$Relation_to_Island, 
+                                  outputdir = "RelativeToIsland/Fisher_FDR", 
+                                  outputfile = FilesToEnrich[i], plots = TRUE )
+   relative_island_fdr_hyper <- getAllFisherTest(FDR_Hyper, 
+                                  data$Relation_to_Island, 
+                                  outputdir = "RelativeToIsland/Fisher_FDRHyper", 
+                                  outputfile = FilesToEnrich[i], plots = TRUE )
+   relative_island_fdr_hypo <- getAllFisherTest(FDR_Hypo,
+                                       data$Relation_to_Island, 
+                                       outputdir = "RelativeToIsland/Fisher_FDRHypo", 
+                                       outputfile = FilesToEnrich[i], plots = TRUE )
+}
+
+      
+```
+
+
+```{r enrichRelIsland, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:genepos}Gene position with Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
+include_graphics("imgs/enrich/plot_relatisland.png") 
+```
+
+
+## Specific Blood
+
+
+```{r enrichworkflowblood, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowblood}Enrichment flowchart. Detailed Blood enrichment", fig.pos='ht'}
+include_graphics("imgs/enrich/blood.png") 
+```
+
+As we show in **Figure\@ref(fig:enrichworkflowblood)** blood enrichment is done with the chromatine states 15, in that case we also perform an statistical analysis applying Fisher or Hypergeometric and Hyper and Hypo methylated CpGs.
+
+### 15 ROADMAP chromatine states
+
+```{r EnrichBlood, eval=FALSE}
+
+## --  ROADMAP  -  Metilation in Cromatine States - BLOOD
+## -------------------------------------------------------
+##  Analysis of methylation changes in the different chromatin 
+##  states (CpGs are diff meth in some states and others don't)
+
+# Prepare data
+# Adds chromatine state columns
+crom_data <- addCrom15Columns(data, "CpGId") 
+
+if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+{
+
+   # Columns with chromatin status information :
+   ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG",
+                    "Enh","ZNF.Rpts","Het","TssBiv","BivFlnk",
+                    "EnhBiv","ReprPC","ReprPCWk","Quies")
+
+   if( !is.na(FDR) ) {
+      chrom_states_fdr <- getAllChromStateOR( crom_data$bFDR, 
+                                  crom_data[,ChrStatCols], 
+                                  outputdir = "CromStates/OR_FDR", 
+                                  outputfile = FilesToEnrich[i], 
+                                  plots = TRUE )
+      chrom_states_fdr_hyper <- getAllChromStateOR( FDR_Hyper, 
+                                  crom_data[,ChrStatCols], 
+                                  outputdir = "CromStates/OR_FDRHyper", 
+                                  outputfile = FilesToEnrich[i], 
+                                  plots = TRUE )
+      chrom_states_fdr_hypo <- getAllChromStateOR( FDR_Hypo,
+                                 crom_data[,ChrStatCols], 
+                                 outputdir = "CromStates/OR_FDRHypo", 
+                                 outputfile = FilesToEnrich[i], 
+                                 plots = TRUE )
+   }
+   if ( BN == TRUE) {
+      chrom_states_bn <- getAllChromStateOR( crom_data$Bonferroni, 
+                                 crom_data[,ChrStatCols], 
+                                 outputdir = "CromStates/OR_BN", 
+                                 outputfile = FilesToEnrich[i], 
+                                 plots = TRUE )
+      chrom_states_bn_hyper <- getAllChromStateOR( BN_Hyper, 
+                                 crom_data[,ChrStatCols], 
+                                 outputdir = "CromStates/OR_BNHyper", 
+                                 outputfile = FilesToEnrich[i], 
+                                 plots = TRUE )
+      chrom_states_bn_hypo <- getAllChromStateOR( BN_Hypo, 
+                                crom_data[,ChrStatCols], 
+                                outputdir = "CromStates/OR_BNHypo", 
+                                outputfile = FilesToEnrich[i], 
+                                      plots = TRUE )
+   }
+}
+
+```
+
+
+## Specific Placenta
+
+
+```{r enrichworkflowplacenta, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowplacenta}Enrichment flowchart. Detailed Placenta enrichment", fig.pos='ht'}
+include_graphics("imgs/enrich/placenta.png") 
+```
+
+### ROADMAP chromatine states Fetal Placenta 15 and 18  
+
+```{r EnrichPlacentachromstates, eval=FALSE}
+
+## -- ROADMAP  -  Regulatory feature enrichment analysis - PLACENTA
+## -----------------------------------------------------------------
+
+# Convert to Genomic Ranges
+data.GRange <- GRanges(
+   seqnames = Rle(data$chr),
+   ranges=IRanges(data$pos, end=data$pos),
+   name=data$CpGs,
+   chr=data$chromosome,
+   pos=data$pos
+)
+names(data.GRange) <- data.GRange$name
+
+# Find overlaps between CpGs and Fetal Placenta (States 15 and 18)
+over15 <- findOverlapValues(data.GRange, FP_15_E091 )
+
+if (enrichFP18 == TRUE){
+   over18 <- findOverlapValues(data.GRange, FP_18_E091 )
+   # Add states 15 and 18 to data.GRange file
+   # and write to a file : CpGs, state15 and state18
+   data.chrstates <- c(mcols(over15$ranges), over15$values, over18$values)
+   colnames(data.chrstates)[grep("States",colnames(data.chrstates))] <-  
+      c("States15_FP", "States18_FP")
+} else {
+   # Add states 15 to data.GRange file and write to a file : CpGs, state15
+   data.chrstates <- c(mcols(over15$ranges), over15$values)
+   colnames(data.chrstates)[grep("States",colnames(data.chrstates))] <-  
+      c("States15_FP")
+}
+
+# Merge annotated data with chromatine states with states with data
+crom_data <- merge(data, data.chrstates, by.x = "CpGs", by.y = "name" )
+
+fname <- paste0("ChrSates_Pla_data/List_CpGs_",
+                tools::file_path_sans_ext(basename(FilesToEnrich[i])),
+                "_annot_plac_chr_states.txt")
+dir.create("ChrSates_Pla_data", showWarnings = FALSE)
+write.table( crom_data, fname, quote=F, row.names=F, sep="\t")
+
+## --  Fisher Test - States15_FP - BN,  BN_hyper and BN_hypo 
+## (Depletion and Enrichment)
+States15FP_bn <- getAllFisherTest(crom_data$Bonferroni,
+                               crom_data$States15_FP, 
+                               outputdir = "ChrSates_15_Pla/Fisher_BN", 
+                               outputfile = FilesToEnrich[i])
+States15FP_bnhyper <- getAllFisherTest(BN_Hyper, 
+                                 crom_data$States15_FP, 
+                                 outputdir = "ChrSates_15_Pla/Fisher_BNHyper", 
+                                 outputfile = FilesToEnrich[i])
+States15FP_bnhypo <- getAllFisherTest(BN_Hypo, 
+                                crom_data$States15_FP, 
+                                outputdir = "ChrSates_15_Pla/Fisher_BNHypo", 
+                                outputfile = FilesToEnrich[i])
+
+
+## --  Plot collapsed data HyperGeometric Test - States15_FP - BN
+plot_TestResults_Collapsed(list(bn = States15FP_bn, 
+                                bn_hypo = States15FP_bnhypo, 
+                                bn_hyper = States15FP_bnhyper),
+                           outputdir = "ChrSates_15_Pla", 
+                           outputfile = FilesToEnrich[i])
+
+
+```
+
+
+```{r chr15pla1, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:chr15pla1}Chromatine states 15 for placenta - Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
+include_graphics("imgs/enrich/chr15pla.png") 
+```
+
+
+### Partially methylated domains (PMDs) – Paper
+
+```{r EnrichPlacentaPMD, eval=FALSE}
+
+ ## -- Partially Methylated Domains (PMDs) PLACENTA
+## ------------------------------------------------
+
+# Create genomic ranges from PMD data
+PMD.GRange <- getEnrichGenomicRanges(PMD_placenta$Chr_PMD, 
+                                     PMD_placenta$Start_PMD, 
+                                     PMD_placenta$End_PMD)
+
+# Find overlaps between CpGs and PMD (find subject hits, query hits )
+overPMD <- findOverlapValues(data.GRange, PMD.GRange )
+
+#Create a data.frame with CpGs and PMDs information
+mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overPMD$qhits]), 
+                             DataFrame(PMD = PMD.GRange$name[overPMD$shits])))
+
+# Merge with results from meta-analysis (A2)
+crom_data <- merge(crom_data, mdata, by.x="CpGs", by.y="CpG",all=T)
+# crom_data <- crom_data[order(crom_data$p.value),]
+
+# CpGs with PMD as NA
+PMD_NaN <- ifelse(is.na(crom_data$PMD),'IsNA','NotNA' )
+
+
+## --  Fisher Test - PMD - BN,  BN_hyper and BN_hypo  
+## (Full data ) (Depletion and Enrichment)
+PMD_bn <- getAllFisherTest(crom_data$Bonferroni, 
+                           PMD_NaN, 
+                           outputdir = "PMD_Pla/Fisher_BN", 
+                           outputfile = FilesToEnrich[i])
+PMD_bnhyper <- getAllFisherTest(BN_Hyper, 
+                                PMD_NaN, 
+                                outputdir = "PMD_Pla/Fisher_BNHyper", 
+                                outputfile = FilesToEnrich[i])
+PMD_bnhypo <- getAllFisherTest(BN_Hypo, 
+                               PMD_NaN, 
+                               outputdir = "PMD_Pla/Fisher_BNHypo", 
+                               outputfile = FilesToEnrich[i])
+
+ ## --  Plot collapsed data HyperGeometric Test - States15_FP - BN
+plot_TestResults_Collapsed(list(bn = PMD_bn, 
+                                bn_hypo = PMD_bnhypo, 
+                                bn_hyper = PMD_bnhyper),
+                           outputdir = "PMD_Pla", 
+                           outputfile = FilesToEnrich[i])
+
+```
+
+```{r pmd15pla, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:pmd15pla}Partial Metilated Domains for placenta - Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
+include_graphics("imgs/enrich/pmd_pla.png") 
+```
+
+### Impreinted regions - Paper
+
+```{r EnrichPlacentaIR, eval=FALSE}
+## -- Imprinting Regions PLACENTA
+## ------------------------------------------------
+
+# Create genomic ranges from DMR data
+DMR.GRange <- getEnrichGenomicRanges(IR_Placenta$Chr_DMR, 
+                                     IR_Placenta$Start_DMR, 
+                                     IR_Placenta$End_DMR)
+
+# Find overlaps between CpGs and DMR (find subject hits, query hits )
+overDMR <- findOverlapValues(data.GRange, DMR.GRange )
+
+#Create a data.frame with CpGs and DMRs information
+mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overDMR$qhits]), 
+                             DataFrame(DMR = DMR.GRange$name[overDMR$shits])))
+
+# Merge with results from meta-analysis (A2)
+crom_data <- merge(crom_data, mdata, by.x="CpGs", by.y="CpG",all=T)
+
+# CpGs with DMR as NA
+DMR_NaN <- ifelse(is.na(crom_data$DMR.y),'IsNA','NotNA' )
+
+## --  Fisher Test - DMR - BN,  BN_hyper and BN_hypo  
+## (Full data ) (Depletion and Enrichment)
+DMR_bn <- getAllFisherTest(crom_data$Bonferroni,
+                           DMR_NaN, 
+                           outputdir = "DMR_Pla/Fisher_BN", 
+                           outputfile = FilesToEnrich[i])
+DMR_bnhyper <- getAllFisherTest(BN_Hyper, 
+                                DMR_NaN, 
+                                outputdir = "DMR_Pla/Fisher_BNHyper", 
+                                outputfile = FilesToEnrich[i])
+DMR_bnhypo <- getAllFisherTest(BN_Hypo, 
+                               DMR_NaN, 
+                               outputdir = "DMR_Pla/Fisher_BNHypo", 
+                               outputfile = FilesToEnrich[i])
+
+ ## --  Plot collapsed data HyperGeometric Test - States15_FP - BN
+plot_TestResults_Collapsed(list(bn = DMR_bn, 
+                                bn_hypo = DMR_bnhypo, 
+                                bn_hyper = DMR_bnhyper),
+                           outputdir = "DMR_Pla", outputfile = FilesToEnrich[i])
+
+```
+
+```{r chr15pla, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:chr15pla}Imprinted Regions for placenta - Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
+include_graphics("imgs/enrich/iregions.png") 
+```
 
 
 
 # Session info {.unnumbered}
 
-```{r sessionInfo, echo=FALSE}
-sessionInfo()
-```
+<!-- ```{r sessionInfo, echo=FALSE} -->
+<!-- sessionInfo() -->
+<!-- ``` -->

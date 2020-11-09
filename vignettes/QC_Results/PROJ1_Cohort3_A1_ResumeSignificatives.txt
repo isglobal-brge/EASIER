@@ -1,0 +1,290 @@
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
+
+# ---------------------
+# Significative CpGs : 
+# --------------------- 
+
+# With significative p-value : 78
+# With significative p-value adjusted by FDR : 0
+# With significative p-value adjusted by Bonferroni : 0
+# N : 0
+# lambda : 1.00717807754296
