@@ -13,7 +13,8 @@ if (!require(reshape2, quietly = TRUE)) install.packages('reshape2') # Forest Pl
 library(EASIER)
 
 #..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER")
-#..# setwd("/Users/mailos/tmp/proves")
+#..# setwd("/Users/mailos/tmp/proves/")
+#..# cohort$N_for_probe <- sample.int(100,dim(cohort)[1], replace = TRUE)
 
 ########## ----------  VARIABLES DEFINED BY USER  ----------  ##########
 
@@ -23,7 +24,8 @@ library(EASIER)
 setwd("<path to metaanalysis folder>/metaanalysis")
 
 # Files used in QC, needed in meta-analysis to plot ForestPlot
-files <- c('data/Cohort1_Model1_20170713.txt',
+files <- c('data/PACE_GENR_20201006_C.txt',
+           'data/Cohort1_Model1_20170713.txt',
            'data/Cohort1_Model2_20170713.txt',
            'data/PROJ1_Cohort3_Model1_date_v2.txt',
            'data/PROJ1_Cohort3_Model2_date_v2.txt',
@@ -38,7 +40,8 @@ files <- c('data/Cohort1_Model1_20170713.txt',
 results_folder <- 'QC_Results'
 
 # Prefixes for each file
-prefixes <- c('Cohort1_A1', 'Cohort1_A2',
+prefixes <- c('PACE_GENR_C',
+              'Cohort1_A1', 'Cohort1_A2',
               'PROJ1_Cohort2_A1','PROJ1_Cohort2_A2', 'PROJ1_Cohort2_B1', 'PROJ1_Cohort2_B2', 'PROJ1_Cohort2_C1', 'PROJ1_Cohort2_C2',
               'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
@@ -50,9 +53,21 @@ exclude <- c( 'MASK_sub30_copy', 'MASK_extBase', 'MASK_mapping', 'MASK_typeINext
 # Ethnic group
 ethnic <- 'EUR'
 
-N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
+N <- c(100, 100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
 n <- c(NA)
 
+# Minimum sample representation percentage required for CpGs
+# Filter minimum percentage of missings for each CpG in cohort
+# We need to define two parameters,
+#  - colname_NforProbe:
+#        Column name with Number of individuals per probe, this variable only needs
+#           to be defined if you want to filter CpGs with low representation.
+#         If defined value in colname_NforProbe not exists, no filter will be applied
+#  - pcMissingSamples :
+#        Máximum percent of missing samples allowed,
+
+colname_NforProbe <- 'N_for_probe'
+pcMissingSamples <- 0.9
 
 # Venn diagrams
 venn_diagrams <- list(
@@ -108,8 +123,11 @@ for ( i in 1:length(files) )
 
    test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
 
+   # Remove cpGs with low representation
+   cohort <- filterLowRepresentedCpGsinCohort(cohort, colname_NforProbe, pcMissingSamples, N[i], fileresume = fResumeName )
+
    # Exclude CpGs not meet conditions
-   cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName )
+   cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype )
 
    # Descriptives - After CpGs deletion #
    descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = FALSE )
@@ -158,7 +176,7 @@ if(length(n) == length(N))
    precplot.data.n <- as.data.frame(cbind( SE = medianSE, invSE = (1/medianSE), N = value_n, sqrt_N = sqrt(n), cohort = cohort_label ))
 
 # BoxPlot with Betas in all Models and cohorts
-plot_betas_boxplot(betas.data, paste(results_folder, 'BETAS_BoxPlot.pdf', sep="/"))
+plot_betas_boxplot(betas.data, paste(results_folder, 'BETAS_BoxPlot.png', sep="/"))
 
 ##  Post model analysis  ##
 
