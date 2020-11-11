@@ -165,9 +165,12 @@ for( metf in 1:length(metafiles))
 
 
 # Venn_Diagrams for for meta-analysis with fixed effects
-for (i in 1:length(venn_diagrams))
-   plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, plotpath =  paste0(results_gwama, "/GWAMA_Results"), pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR')
 
+for (i in 1:length(venn_diagrams)){
+   if(length(venn_diagrams[[i]])>1){
+      plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, plotpath =  paste0(results_gwama, "/GWAMA_Results"), pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR')
+   }
+}
 
 if(dir.exists(file.path( paste(results_gwama, "GWAMA", sep="/") )))
    unlink(file.path(results_gwama, "GWAMA"), recursive=TRUE)

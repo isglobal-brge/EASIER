@@ -140,13 +140,16 @@ annotate_CpGs <- function(CpGs, arrray)
 {
 
    # Get library for 450K or Epic
-   if( arrray == '450K')
+   if( arrray == '450K'){
       library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
-   else
+      ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+   }else{
       library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
+      ann <- getAnnotation(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
+   }
 
    # Download data
-   ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+
    ann$gene <- rownames(ann)
 
    # Merge cpgs with annotations
