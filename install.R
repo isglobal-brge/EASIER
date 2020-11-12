@@ -1,0 +1,20 @@
+# Install requirede libraries
+devtools::install('rasterpdf', repos = 'https://cran.rediris.es/' )
+devtools::install('meta', repos = 'https://cran.rediris.es/' )
+devtools::install('tibble')
+devtools::install('dplyr')
+devtools::install('tidyverse')
+devtools::install('stringr')
+devtools::install('meta') # Forest Plot
+devtools::install('ggplot2')
+devtools::install('VennDiagram')
+devtools::install('RColorBrewer')
+devtools::install('reshape')
+devtools::install('ggsignif')
+devtools::install('tools')
+devtools::install('BiocManager')
+# Bioconductor
+BiocManager::install( "missMethyl" )
+BiocManager::install( "org.Hs.eg.db" )
+BiocManager::install( "GenomicRanges" )
+BiocManager::install( "rtracklayer" )
