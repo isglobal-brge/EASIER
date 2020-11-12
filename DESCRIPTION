@@ -11,16 +11,22 @@ Description: The EASIER package performs epigenetic wide-association study (EWAS
 License: MIT License
 Encoding: UTF-8
 LazyData: true
-Imports: ggplot2,
-   VennDiagram,
-   RColorBrewer,
-   tibble,
-   dplyr,
-   stringr,
+Imports: 
    rasterpdf,
    meta,
+   tidyverse,
+   dplyr,
+   stringr,
+   ggplot2,
+   VennDiagram,
+   RColorBrewer,
+   reshape2,
+   ggsignif,
    missMethyl,
-   org.Hs.eg.db
+   org.Hs.eg.db,
+   IlluminaHumanMethylation450kanno.ilmn12.hg19,
+   IlluminaHumanMethylationEPICanno.ilm10b4.hg19,
+   tools
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 Depends: 

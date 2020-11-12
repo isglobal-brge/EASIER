@@ -3,55 +3,26 @@
 ## ############ ##
 
 
-# Install requirede libraries from R-Cran
-if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
-if (!require(meta, quietly = TRUE)) install.packages('meta', repos = 'https://cran.rediris.es/' )
-if (!require(tibble, quietly = TRUE)) install.packages('tibble')
-if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
-if (!require(tidyverse, quietly = TRUE)) install.packages::install( "tidyverse" )
-if (!require(stringr, quietly = TRUE)) install.packages('stringr')
-if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
-if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
-if (!require(VennDiagram, quietly = TRUE)) install.packages('VennDiagram')
-if (!require(RColorBrewer, quietly = TRUE)) install.packages('RColorBrewer')
-if (!require(reshape, quietly = TRUE)) install.packages('reshape')
-if (!require(ggsignif, quietly = TRUE)) install.packages('ggsignif')
-if (!require(tools, quietly = TRUE)) install.packages('tools')
+## -------------------------------------
+##  Install EASIER Package Code
+## -------------------------------------
+##
+##  Uncomment this code to install EASIER package
+#
+# # Install devtools
+# install.packages("devtools")
+#
+# # Install required packages
+# devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
-# Required libraries from Bioconductor
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
+# # Install EASIER package
+# devtools::install_github("isglobal-brge/EASIER@HEAD")
 
-# BiocManager::install( "missMethyl" )
-# BiocManager::install( "org.Hs.eg.db" )
-# BiocManager::install( "GenomicRanges" )
-# BiocManager::install( "rtracklayer" )
+##  END -  Install EASIER Package Code
+## -------------------------------------
 
 
-# Load libraries
-
-library(rasterpdf)
-library(meta)
-library(tibble)
-library(dplyr)
-library(stringr)
-library(meta)
-library(ggplot2)
-library(VennDiagram)
-library(RColorBrewer)
-library(reshape)
-library(ggsignif)
-
-# Bioconductor
-require(missMethyl)
-require(org.Hs.eg.db)
-require(GenomicRanges)
-require(rtracklayer)
-
-
-
-# Install EASIER (if needed)
-#..# devtools::install_github("isglobal-brge/EASIER@HEAD")
+# Load package
 require(EASIER)
 
 
@@ -71,9 +42,9 @@ FilesToEnrich <- c('./GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out',
                    )
 
 # Values for adjustment
-BN <-  TRUE       # Use Bonferroni ?
-FDR <- 0.7        # significance level for adjustment, if NA FDR is not used
-pvalue <- 0.05    # significance level for p-value, if NA p-value is not used
+BN <-  TRUE    # Use Bonferroni ?
+FDR <- 0.7     # significance level for adjustment, if NA FDR is not used
+pvalue <- 0.05 # significance level for p-value, if NA p-value is not used
 
 # Array type, used : EPIC or 450K
 artype <- '450K'
@@ -84,10 +55,12 @@ results_gwama <- '.'
 results_enrich <- 'Enrichment'
 
 # Enrichment type :  'BLOOD' or 'PLACENTA'
-#     if enrichtype <- 'BLOOD' => enrichment with : Cromatine States : BLOOD (crom15)
-#                                                   (To be implemented in future) Partially Methylated Domains (PMD) for Blood
-#     if enrichtype <- 'PLACENTA' => enrichment with: Cromatine States : PLACENTA (FP_15) optionally (FP_18)
-#                                                     Partially Methylated Domains (PMD) for Placenta
+#     if enrichtype <- 'BLOOD' => enrichment with :
+#                          Cromatine States : BLOOD (crom15)
+#                          (To be implemented in future) Partially Methylated Domains (PMD) for Blood
+#     if enrichtype <- 'PLACENTA' => enrichment with:
+#                          Cromatine States : PLACENTA (FP_15) optionally (FP_18)
+#                          Partially Methylated Domains (PMD) for Placenta
 #     if enrichtype is different from 'BLOOD' and 'PLACENTA' we only get the missMethyl and MSigDB enrichment and the Unique genes list.
 enrichtype <- 'PLACENTA'
 
@@ -98,8 +71,11 @@ enrichFP18 <- FALSE
 # Test to be used : 'Fisher' or 'Hypergeometric' if testdata is different no test will be performed
 testdata <- 'Fisher'
 
-
 ########## ----------  END VARIABLES DEFINED BY USER  ----------  ##########
+
+
+
+
 
 ## Check if we have any files to enrich and if these files exists
 if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='') {

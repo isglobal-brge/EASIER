@@ -37,6 +37,7 @@ vignette: |
 knitr::opts_chunk$set(message = FALSE, warning = FALSE,
                       cache=TRUE)
 library(knitr)
+library(tools)
 ```
 
 # Prerequisites
@@ -74,68 +75,20 @@ In this vignette we will show how to apply EASIER con the EWAS results from  thr
 
 # Getting started
 
-First, we need to install and load the required packages
+To install the required packages input the following commands to the R console:
 
-```{r installDependences, eval=TRUE}
+```{r installDependences, eval=FALSE}
+# Install devtools
+install.packages("devtools")
 
-if (!require(rasterpdf, quietly = TRUE)) 
-   install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
-if (!require(meta, quietly = TRUE)) 
-   install.packages('meta', repos = 'https://cran.rediris.es/' )
-if (!require(tibble, quietly = TRUE)) 
-   install.packages('tibble')
-if (!require(dplyr, quietly = TRUE)) 
-   install.packages('dplyr')
-if (!require(tidyverse, quietly = TRUE)) 
-   install.packages::install( "tidyverse" )
-if (!require(stringr, quietly = TRUE)) 
-   install.packages('stringr')
-if (!require(meta, quietly = TRUE)) 
-   install.packages('meta') # Forest Plot
-if (!require(ggplot2, quietly = TRUE)) 
-   install.packages('ggplot2')
-if (!require(VennDiagram, quietly = TRUE)) 
-   install.packages('VennDiagram')
-if (!require(RColorBrewer, quietly = TRUE)) 
-   install.packages('RColorBrewer')
-if (!require(reshape, quietly = TRUE)) 
-   install.packages('reshape')
-if (!require(ggsignif, quietly = TRUE)) 
-   install.packages('ggsignif')
-if (!require(tools, quietly = TRUE)) 
-   install.packages('tools')
-```
+# Install required packages 
+devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
-```{r installDependencesBioC, eval=FALSE}
-# Required libraries from Bioconductor
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
-
-BiocManager::install( c("missMethyl",
-                        "org.Hs.eg.db",
-                        "GenomicRanges",
-                        "rtracklayer") )
-```
-
-```{r loadBioC, eval=TRUE}
-# Load libraries from Bioconductor
-library("missMethyl")
-library("org.Hs.eg.db")
-library("GenomicRanges")
-library("rtracklayer")
-```
-
-We also need to install `devtools` package, this package allows us to install packages directly from github
-
-```{r installdevtools, eval=FALSE}
-if (!require(devtools, quietly = TRUE)) install.packages('devtools')
-```
-
-The development version of `EASIER` package can be installed from BRGE GitHub repository:
-
-```{r installEASIER, eval=FALSE}
+# Install EASIER package
 devtools::install_github("isglobal-brge/EASIER@HEAD")
 ```
+
+The previous commands will install a library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run EASIER, finally the package EASIER is installed.
 
 ```{r loadMethyTools, eval=TRUE}
 library(EASIER)
@@ -258,7 +211,7 @@ We also need to define the ethnic origin of the study population. Ethnic origins
 | **Population Code** | **Population Description                                            ** | **Super Population Code** |
 | :-------------------: | :---------------------------------------------------------------------- | :-------: |
 | AFR                   | *African*                                                               | AFR       |
-| AMR                   | *Ad Mixed Americn*                                                      | AMR       |
+| AMR                   | *Ad Mixed American*                                                     | AMR       |
 | EAS                   | *East Asian*                                                            | EAS       |
 | EUR                   | *European*                                                              | EUR       |
 | SAS                   | *South Asian*                                                           | SAS       |
@@ -515,16 +468,38 @@ pcentMissing <- 0.8 # CpGs with precense lower than pcentMissing after EWAS
 results_folder <- 'QC_Results'
 results_gwama <- '.'
 
+# Venn diagrams ==> IMPORTANT : maximum 5 meta-analysis by venn diagram
+venn_diagrams <- list(
+   c("MetaA1", "MetaA2" )
+)
+
+## -- End Variable definition for Meta-Analysis -- ##
 ```
 
-Then, we define the GWAMA execution path for ISGlobal Servers ws05 and ws06.  
+Then, we define the GWAMA execution path for ISGlobal Servers ws05 and ws06. To perform meta-analyses we use GWAMA, a Software tool for meta-analysis developed by Intitute of Genomics from University of Tartu. This software is available at  [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). As mentioned before it must be installed on the computer where we are running analysis and the installation path must be defined in `gwama.dir` variable :
+
+```{r metaVarGwama, eval=FALSE}
+
+# GWAMA binary path  (GWAMA IsGlobal Server sw05 and sw06 installation)
+gwama.dir <- paste0(Sys.getenv("HOME"), 
+                    "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
+
+```
+
+### Meta-Analysis - general code
+
+In this example we only run the first meta-analysis with all CpGs and with CpGs with missing data lower than `pcentMissing = 0.8` but in a complete script all meta-analyses are performed for both cases: **complete and lowCpGs**.
+
+First, we must create the needed folders. In this example we create a `GWAMA` folder where we will put the input files for GWAMA, and `GWAMA_Results` folder where we will store all the results, when we finish the code execution the `GWAMA` folder with temporal configuration files is removed.
 
 ```{r metaFolders, eval=FALSE}
 
 ## Create directory for GWAMA configuration files and GWAMA_Results 
 ## inside the defined results_gwama variable defined before.
-if(!dir.exists(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/") )))
-   suppressWarnings(dir.create(file.path(getwd(), paste(results_gwama, "GWAMA", sep="/"))))
+if(!dir.exists(file.path(getwd(), 
+                         paste(results_gwama, "GWAMA", sep="/") )))
+   suppressWarnings(dir.create(file.path(getwd(), 
+                                         paste(results_gwama, "GWAMA", sep="/"))))
 
 ## Create directory for GWAMA_Results
 outputfolder <- paste0(results_gwama, "/GWAMA_Results")
@@ -539,61 +514,48 @@ generate_hapmap_file(artype, hapmapfile)
 
 ```
 
-In this example we only run the first meta-analysis with all CpGs and with CpGs with missing data lower than `pcentMissing = 0.8` but in a complete script all meta-analyses are performed for both cases: **complete and lowCpGs**.
-
-First, we must create the needed folders. In this example we create a `GWAMA` folder where we will put the input files for GWAMA, and `GWAMA_Results` folder where we will store all the results, when we finish the code execution the `GWAMA` folder with temporal configuration files is removed.
-
+We also create some folders to store configuration files inside GWAMA folder, one folder with configuration files for each meta-analysis, for example, for `MetaA1` meta-analysis we create the path `GWAMA\MetaA1` inside this path, we store all gwama configuration files.
 
 ```{r metaFolders2, eval=FALSE}
    
-   list.lowCpGs <- NULL
+list.lowCpGs <- NULL
 
-   # Create folder for a meta-analysis in GWAMA folder, here we 
-   # store the GWAMA input files for each meta-analysis,
-   # We create one for complete meta-analysis
-   if(!dir.exists(file.path(getwd(), 
-                            paste(results_gwama,"GWAMA", names(metafiles)[metf],
-                                  sep="/") )))
-      suppressWarnings(dir.create(file.path(getwd(), 
-                                            paste(results_gwama,"GWAMA", 
-                                                  names(metafiles)[metf], 
-                                                  sep="/"))))
-   # We create another for meta-analysis without filtered CpGs with low 
-   # percentage (sufix _Filtr)
-   if(!dir.exists(file.path(getwd(), 
-                            paste0(results_gwama,"/GWAMA/", 
-                                   names(metafiles)[metf],
-                                   "_Filtr") )))
-      suppressWarnings(dir.create(file.path(getwd(), 
-                                            paste0(results_gwama, "/GWAMA/",
-                                                   names(metafiles)[metf],
-                                                   "_Filtr"))))
+# Create folder for a meta-analysis in GWAMA folder, here we 
+# store the GWAMA input files for each meta-analysis,
+# We create one for complete meta-analysis
+if(!dir.exists(file.path(getwd(), 
+                         paste(results_gwama,"GWAMA", names(metafiles)[metf],
+                               sep="/") )))
+   suppressWarnings(dir.create(file.path(getwd(), 
+                                         paste(results_gwama,"GWAMA", 
+                                               names(metafiles)[metf], 
+                                               sep="/"))))
+# We create another for meta-analysis without filtered CpGs with low 
+# percentage (sufix _Filtr)
+if(!dir.exists(file.path(getwd(), 
+                         paste0(results_gwama,"/GWAMA/", 
+                                names(metafiles)[metf],
+                                "_Filtr") )))
+   suppressWarnings(dir.create(file.path(getwd(), 
+                                         paste0(results_gwama, "/GWAMA/",
+                                                names(metafiles)[metf],
+                                                "_Filtr"))))
 
-   # GWAMA File name base
-   inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf])
+# GWAMA File name base
+inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf])
 
-   modelfiles <- unlist(metafiles[metf])
+modelfiles <- unlist(metafiles[metf])
 
-   # Execution with all CpGs and without filtered CpGs
-   runs <- c('Normal', 'lowcpgs') 
-   lowCpGs = FALSE;
-   outputfiles <- list()
+# Execution with all CpGs and without filtered CpGs
+runs <- c('Normal', 'lowcpgs') 
+lowCpGs = FALSE;
+outputfiles <- list()
 
-   outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
+outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
    
 ```
 
-To perform meta-analyses we use GWAMA, a Software tool for meta-analysis developed by Intitute of Genomics from University of Tartu. This software is available at  [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). As mentioned before it must be installed on the computer where we are running analysis and the installation path must be defined in `gwama.dir` variable :
-
-```{r metaVarGwama, eval=FALSE}
-
-# GWAMA binary path  (GWAMA IsGlobal Server sw05 and sw06 installation)
-gwama.dir <- paste0(Sys.getenv("HOME"), 
-                    "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
-
-```
-
-### Meta-Analysis - general code
+\ 
 
 Now we are ready to execute the meta-analysis. You can find the script to perform the full meta-analysis in [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R) file. 
 
@@ -619,26 +581,26 @@ GWANA is executed by fixed and random effects. The function `run_GWAMA_MetaAnaly
 ```{r metaAnalys, eval=FALSE}
 for(j in 1:length(runs))
 {
-   if(runs[j]=='lowcpgs') {
-      lowCpGs = TRUE
-      # Get low presence CpGs in order to exclude this from the new meta-analysis
-      list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
-      inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
-      outputgwama <- paste0(outputgwama,"_Filtr")
-   }
+ if(runs[j]=='lowcpgs') {
+   lowCpGs = TRUE
+   # Get low presence CpGs in order to exclude this from the new meta-analysis
+   list.lowCpGs <- get_low_presence_CpGs(outputfiles[[j-1]], pcentMissing)
+   inputfolder <- paste0(results_gwama,"/GWAMA/",  names(metafiles)[metf], "_Filtr")
+   outputgwama <- paste0(outputgwama,"_Filtr")
+ }
 
-   # Create a GWAMA files for each file in meta-analysis and one file with 
-   # gwama meta-analysis configuration
-   for ( i in 1:length(modelfiles) )
-      create_GWAMA_files(results_folder,  modelfiles[i], 
-                         inputfolder, N[i], list.lowCpGs )
+ # Create a GWAMA files for each file in meta-analysis and one file with 
+ # gwama meta-analysis configuration
+ for ( i in 1:length(modelfiles) )
+   create_GWAMA_files(results_folder,  modelfiles[i], 
+                      inputfolder, N[i], list.lowCpGs )
 
-   # Execute GWAMA meta-analysis and manhattan-plot, QQ-plot and a file 
-   # with gwama results.
-   outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, 
-                                                    outputgwama, 
-                                                    names(metafiles)[metf], 
-                                                    gwama.dir)
+ # Execute GWAMA meta-analysis and manhattan-plot, QQ-plot and a file 
+ # with gwama results.
+ outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, 
+                                                 outputgwama, 
+                                                 names(metafiles)[metf], 
+                                                 gwama.dir)
 ```
 
 ```{r manhat, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:manhat}Manhattan plot obtained with GWAMA ", fig.pos='ht'}
@@ -650,17 +612,17 @@ After getting the GWAMA results, we perform an analysis with `get_descriptives_p
 To finish we generate the ForestPlot associated to the most significative CpGs, by default we get the 30 top significative CpGs.
 
 ```{r metaAnalys2, eval=FALSE}
-   # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
-   dataPost <- get_descriptives_postGWAMA(outputgwama, 
-                                          outputfiles[[runs[j]]], 
-                                          modelfiles, 
-                                          names(metafiles)[metf], 
-                                          artype, 
-                                          N[which(prefixes %in% modelfiles)] )
+ # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
+ dataPost <- get_descriptives_postGWAMA(outputgwama, 
+                                       outputfiles[[runs[j]]], 
+                                       modelfiles, 
+                                       names(metafiles)[metf], 
+                                       artype, 
+                                       N[which(prefixes %in% modelfiles)] )
 
-   # Forest-Plot
-   plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], 
-                    inputfolder, names(metafiles)[metf], files, outputgwama  )
+ # Forest-Plot
+ plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], 
+                 inputfolder, names(metafiles)[metf], files, outputgwama  )
 
 }
 
@@ -678,7 +640,8 @@ Wen we have all the meta-analysis we create the venn diagrams defined in `venn_d
 
 ```{r metavenndiag, eval=FALSE}
 for (i in 1:length(venn_diagrams))
-   plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, plotpath =  paste0(results_gwama, "/GWAMA_Results"), 
+   plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, 
+                    plotpath =  paste0(results_gwama, "/GWAMA_Results"), 
                     pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR')
 
 ```
@@ -755,18 +718,21 @@ Next variable `enrichtype` is related to enrichment type, enrichment for blood, 
 
 ```{r varEnrich_4, eval=TRUE}
 # Enrichment type :  'BLOOD' or 'PLACENTA'
-#     if enrichtype <- 'BLOOD' => enrichment with : Cromatine States : BLOOD (crom15)
-#                                                   (To be implemented in future) Partially Methylated Domains (PMD) for Blood
-#     if enrichtype <- 'PLACENTA' => enrichment with: Cromatine States : PLACENTA (FP_15) optionally (FP_18)
-#                                                     Partially Methylated Domains (PMD) for Placenta
-#     if enrichtype is different from 'BLOOD' and 'PLACENTA' we only get the missMethyl and MSigDB enrichment and the Unique genes list.
+#     if enrichtype <- 'BLOOD' => enrichment with : 
+#                          Cromatine States : BLOOD (crom15)
+#                          (To be implemented in future) Partially Methylated Domains (PMD) for Blood
+#     if enrichtype <- 'PLACENTA' => enrichment with: 
+#                          Cromatine States : PLACENTA (FP_15) optionally (FP_18)
+#                          Partially Methylated Domains (PMD) for Placenta
+#     if enrichtype is different from 'BLOOD' and 'PLACENTA' 
+#     we only get the missMethyl and MSigDB enrichment and the Unique genes list.
 enrichtype <- 'PLACENTA'
 
 # Cromatine States Placenta Enrichment FP_18
 # if enrichFP18 = TRUE the enrichment is performed wit FP_15 and FP_18
 enrichFP18 <- FALSE
 
-# Test to be used : 'Fisher' or 'Hypergeometric' if testdata is different no test will be performed
+# Test to be used: 'Fisher' or 'Hypergeometric' for different values no test will be performed
 testdata <- 'Fisher'
 
 ```
@@ -777,7 +743,9 @@ Prepare output folcers to sotre data
 ## Check if we have any files to enrich and if these files exists
 if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='') {
    for ( i in 1:length(FilesToEnrich))
-      if (!file.exists(FilesToEnrich[i])) stop(paste0('File ',FilesToEnrich[i],' does not exsits, please check file' ))
+      if (!file.exists(FilesToEnrich[i])) {
+         stop(paste0('File ',FilesToEnrich[i],' does not exsits, please check file' ))
+      }
 }
 
 ## Check variables
@@ -791,7 +759,11 @@ if( ! tolower(testdata) %in% c('fisher','hypergeometric') )
 
 
 # Convert relative paths to absolute paths for FilesToEnrich
-FilesToEnrich <- unlist(sapply(FilesToEnrich, function(file) { if(substr(file,1,1)!='.' & substr(file,1,1)!='/') file <- paste0('./',file) else file }))
+FilesToEnrich <- unlist(sapply(FilesToEnrich, 
+                               function(file) { if(substr(file,1,1)!='.' & substr(file,1,1)!='/') 
+                                  file <- paste0('./',file) 
+                               else 
+                                  file }))
 FilesToEnrich <- sapply(FilesToEnrich, file_path_as_absolute)
 
 if(results_enrich!='.'){
@@ -830,7 +802,8 @@ allCpGs <- FALSE
 
 # Get data
 data <- NULL
-data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".", stringsAsFactors = FALSE)
+data <- read.table(FilesToEnrich[i], header = TRUE, 
+                   sep = "", dec = ".", stringsAsFactors = FALSE)
 
 # Is a CpG list only ? then read without headers and annotate data
 if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
@@ -858,7 +831,8 @@ When all data is annotated we enrich data with `missMethyl_enrichment` function,
 ## ------------------------
 
 # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
-miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs, plots = TRUE )
+miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], 
+                                     artype, BN, FDR, pvalue, allCpGs, plots = TRUE )
 
 head(miss_enrich$GO)
 head(miss_enrich$KEGG)
@@ -887,7 +861,9 @@ To get the list with unique genes related to significative CpGs
 ```{r EnrichUniqueGene, eval=TRUE}
       # get unique genes from data
 geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], 
-                           function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}),
+                           function(cpgs) { 
+                              data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name
+                              }),
                     getUniqueGenes)
 
 geneUniv
@@ -1196,7 +1172,7 @@ include_graphics("imgs/enrich/chr15pla.png")
 
 ```{r EnrichPlacentaPMD, eval=FALSE}
 
- ## -- Partially Methylated Domains (PMDs) PLACENTA
+## -- Partially Methylated Domains (PMDs) PLACENTA
 ## ------------------------------------------------
 
 # Create genomic ranges from PMD data
@@ -1251,7 +1227,7 @@ include_graphics("imgs/enrich/pmd_pla.png")
 
 ```{r EnrichPlacentaIR, eval=FALSE}
 ## -- Imprinting Regions PLACENTA
-## ------------------------------------------------
+## -------------------------------
 
 # Create genomic ranges from DMR data
 DMR.GRange <- getEnrichGenomicRanges(IR_Placenta$Chr_DMR, 
@@ -1302,6 +1278,6 @@ include_graphics("imgs/enrich/iregions.png")
 
 # Session info {.unnumbered}
 
-<!-- ```{r sessionInfo, echo=FALSE} -->
-<!-- sessionInfo() -->
-<!-- ``` -->
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```

@@ -3,36 +3,25 @@
 ## ######################################### ##
 
 
-# Install requirede libraries from R-Cran
-if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf', repos = 'https://cran.rediris.es/' )
-if (!require(meta, quietly = TRUE)) install.packages('meta', repos = 'https://cran.rediris.es/' )
-if (!require(tibble, quietly = TRUE)) install.packages('tibble')
-if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
-if (!require(tidyverse, quietly = TRUE)) install.packages::install( "tidyverse" )
-if (!require(stringr, quietly = TRUE)) install.packages('stringr')
-if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
-if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
-if (!require(VennDiagram, quietly = TRUE)) install.packages('VennDiagram')
-if (!require(RColorBrewer, quietly = TRUE)) install.packages('RColorBrewer')
-if (!require(reshape, quietly = TRUE)) install.packages('reshape')
-if (!require(ggsignif, quietly = TRUE)) install.packages('ggsignif')
+## -------------------------------------
+##  Install EASIER Package Code
+## -------------------------------------
+##
+##  Uncomment this code to install EASIER package
+#
+# # Install devtools
+# install.packages("devtools")
+#
+# # Install required packages
+# devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
-# Load libraries
-
-library(rasterpdf)
-library(meta)
-library(tibble)
-library(dplyr)
-library(stringr)
-library(meta)
-library(ggplot2)
-library(VennDiagram)
-library(RColorBrewer)
-library(reshape)
-library(ggsignif)
-
-# Install methyTools (if needed)
+# # Install EASIER package
 # devtools::install_github("isglobal-brge/EASIER@HEAD")
+
+##  END -  Install EASIER Package Code
+## -------------------------------------
+
+# load package
 library(EASIER)
 
 

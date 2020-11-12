@@ -1,20 +1,33 @@
-if (!require(rasterpdf, quietly = TRUE)) install.packages('rasterpdf')
-if (!require(ggplot2, quietly = TRUE)) install.packages('ggplot2')
-if (!require(VennDiagram, quietly = TRUE)) install.packages('VennDiagram')
-if (!require(RColorBrewer, quietly = TRUE)) install.packages('RColorBrewer')
-if (!require(tibble, quietly = TRUE)) install.packages('tibble')
-if (!require(dplyr, quietly = TRUE)) install.packages('dplyr')
-if (!require(stringr, quietly = TRUE)) install.packages('stringr')
-if (!require(meta, quietly = TRUE)) install.packages('meta') # Forest Plot
-if (!require(reshape2, quietly = TRUE)) install.packages('reshape2') # Forest Plot
+## ################################################## ##
+##  Quality Control Script to use with EASIER package ##
+## ################################################## ##
 
+
+## -------------------------------------
+##  Install EASIER Package Code
+## -------------------------------------
+##
+##  Uncomment this code to install EASIER package
+#
+# # Install devtools
+# install.packages("devtools")
+#
+# # Install required packages
+# devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
+
+# # Install EASIER package
 # devtools::install_github("isglobal-brge/EASIER@HEAD")
 
+##  END -  Install EASIER Package Code
+## -------------------------------------
+
+
+# load package
 library(EASIER)
 
 #..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER")
 #..# setwd("/Users/mailos/tmp/proves/")
-#..# cohort$N_for_probe <- sample.int(100,dim(cohort)[1], replace = TRUE)
+
 
 ########## ----------  VARIABLES DEFINED BY USER  ----------  ##########
 
