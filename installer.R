@@ -1,6 +1,6 @@
 # Install requirede libraries
 devtools::install_github("ilarischeinin/rasterpdf")
-devtools::install('meta', repos = 'http://cran.us.r-project.org' )
+devtools::install_github("guido-s/meta")
 devtools::install('tibble')
 devtools::install('dplyr')
 devtools::install('tidyverse')
