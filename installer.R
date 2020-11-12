@@ -1,5 +1,5 @@
 # Install requirede libraries
-devtools::install('rasterpdf', repos = 'https://cran.rediris.es/' )
+devtools::install_github("ilarischeinin/rasterpdf")
 devtools::install('meta', repos = 'https://cran.rediris.es/' )
 devtools::install('tibble')
 devtools::install('dplyr')
