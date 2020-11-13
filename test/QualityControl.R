@@ -59,12 +59,13 @@ prefixes <- c('PACE_GENR_C',
               'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
 # Array type, used : EPIC or 450K
-artype <- '450K'
+artype <- c('450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPIC', '450K', '450K', 'EPIC')
+
 # Parameters to exclude CpGs
 exclude <- c( 'MASK_sub30_copy', 'MASK_extBase', 'MASK_mapping', 'MASK_typeINextBaseSwitch', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
 # Ethnic group
-ethnic <- 'EUR'
+ethnic <- c('EUR', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
 
 N <- c(100, 100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
 n <- c(NA)
@@ -140,13 +141,13 @@ for ( i in 1:length(files) )
    cohort <- filterLowRepresentedCpGsinCohort(cohort, colname_NforProbe, pcMissingSamples, N[i], fileresume = fResumeName )
 
    # Exclude CpGs not meet conditions
-   cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic, filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype )
+   cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
 
    # Descriptives - After CpGs deletion #
    descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = FALSE )
 
    # Adjust data by Bonferroni and FDR
-   cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, fResumeName  )
+   cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, fResumeName, N[i]  )
 
    # Write QC complete data to external file
    write_QCData(cohort, paste0(results_folder, '/',prefixes[i], '/',prefixes[i]))

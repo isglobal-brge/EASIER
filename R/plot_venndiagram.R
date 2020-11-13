@@ -11,6 +11,8 @@
 #'
 #' @return Venn diagrams
 #'
+#' @import VennDiagram RColorBrewer
+#'
 #' @export
 plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '*_QCData.txt',  bn = NULL, fdr = NULL)
 {

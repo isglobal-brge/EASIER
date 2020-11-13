@@ -39,9 +39,11 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
    if( toupper(artype) == '450K' ) {
       try(data("filter_450K") )
       filters <- filter_450K
-   }else {
+   }else if(toupper(artype) == 'EPIC') {
       try(data("filter_EPIC"))
       filters <- filter_EPIC
+   }else{
+      stop( paste0( "Unknown array type ", toupper(artype) ) )
    }
 
 
@@ -65,7 +67,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
       write(sprintf('\n# %s', strrep("-",16)), file = fileresume, append = TRUE)
       write(sprintf('# Excluded CpGs : '), file = fileresume, append = TRUE)
       write(sprintf('# %s\n', strrep("-",16)), file = fileresume, append = TRUE)
-      write(sprintf('# Criteria : %s\n', toupper(artype)), file = fileresume, append = TRUE)
+      write(sprintf('# Criteria : \n\tArray type : %s \n\tEthnia : %s \n', toupper(artype), toupper(ethnic)), file = fileresume, append = TRUE)
       write(sprintf('# Total CpGs in data : %d', dim(cohort)[1]), file = fileresume, append = TRUE)
       write(sprintf('# Number of excluded CpGs: %d', length(excludeid)), file = fileresume, append = TRUE)
       write(sprintf('# Total CpGs after exclusion : %d\n', (dim(cohort)[1]) - length(excludeid)), file = fileresume, append = TRUE)

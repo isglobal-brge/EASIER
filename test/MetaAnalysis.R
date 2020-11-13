@@ -3,6 +3,10 @@
 ## ######################################### ##
 
 
+#..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER")
+#..# setwd("/Users/mailos/tmp/proves")
+
+
 ## -------------------------------------
 ##  Install EASIER Package Code
 ## -------------------------------------
