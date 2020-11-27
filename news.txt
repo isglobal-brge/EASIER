@@ -1,0 +1,11 @@
+Changes history :
+
+
+2020/11/27 :
+-------------
+
+   MetaAnalysis :
+      * Added option to specify array type for each meta-analysis
+
+   Enrichment :
+      * Added option to specify array type for each Enrichment

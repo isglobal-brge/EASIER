@@ -12,7 +12,7 @@
 #'
 #'
 #' @export
-run_GWAMA_MetaAnalysis <- function(inputfolder, outputfolder, outputfilename, gwama.dir)
+run_GWAMA_MetaAnalysis <- function(inputfolder, outputfolder, outputfilename, gwama.dir, hapmapfile)
 {
 
    # -- GWAMA meta-analysis --

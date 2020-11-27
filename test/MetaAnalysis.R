@@ -54,14 +54,14 @@ prefixes <- c('Cohort1_A1', 'Cohort1_A2',
 # Samples in original files used in QC
 N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
 
-# Array type, used : EPIC or 450K
-artype <- '450K'
-
 # Define data for each meta-analysis
 metafiles <- list(
    'MetaA1' = c('Cohort1_A1','PROJ1_Cohort2_A1', 'PROJ1_Cohort3_A1' ),
    'MetaA2' = c('Cohort1_A2','PROJ1_Cohort2_A2', 'P1_Cohort3_A2' ),
    'MetaB' = c('PROJ1_Cohort2_B1','PROJ1_Cohort2_B2'))
+
+# Array type, used in each meta-analysis : EPIC or 450K
+artype <- c('450K', "EPIC", "450K")
 
 # Define maximum percent missing for each CpG
 #     if pcenMissin = 0 only runs meta-analysis with all data
@@ -97,10 +97,12 @@ if(!dir.exists(file.path( outputfolder )))
    suppressWarnings(dir.create(file.path( outputfolder)))
 
 
-
-# Create map file for GWAMA --> Used in Manhattan plots
-hapmapfile <- paste(results_gwama,"GWAMA", "hapmap.map" ,sep = "/")
-generate_hapmap_file(artype, hapmapfile)
+# Create hapmap files for the different artypes that we cab use (450K and EPIC)
+# map file is used in Manhattan plots
+hapmapfile_450K <- paste(results_gwama,"GWAMA", "hapmap_450K.map" ,sep = "/")
+generate_hapmap_file("450K", hapmapfile_450K)
+hapmapfile_EPIC <- paste(results_gwama,"GWAMA", "hapmap_EPIC.map" ,sep = "/")
+generate_hapmap_file("EPIC", hapmapfile_EPIC)
 
 
 
@@ -142,12 +144,18 @@ for( metf in 1:length(metafiles))
       for ( i in 1:length(modelfiles) )
          create_GWAMA_files(file.path(results_folder,modelfiles[i]),  modelfiles[i], inputfolder, N[i], list.lowCpGs )
 
+
+      # Get hapmapfile attending to current metaanalysis artype
+      hapmapfile <- hapmapfile_450K
+      if(artype[i]=='EPIC'){
+         hapmapfile <- hapmapfile_450K
+      }
+
       #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
-      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir)
+      outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir, hapmapfile)
 
       # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
-      ##..## dataPost <- get_descriptives_postGWAMA(outputfolder, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype )
-      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype, N[which(prefixes %in% modelfiles)] )
+      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype[i], N[which(prefixes %in% modelfiles)] )
 
       # Forest-Plot
       plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf], files, outputgwama, nsignificatives = 30  )
