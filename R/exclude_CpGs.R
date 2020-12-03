@@ -84,7 +84,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
       # Report exclusion reason
       suppressWarnings(
          write.table( cohort[eval(parse(text=getCritera(exclude, ethnic))),],
-                      filename, col.names = TRUE, row.names = FALSE, sep = '\t', append = TRUE, dec='.'))
+                      filename, col.names = TRUE, row.names = FALSE, sep = '\t', append = FALSE, dec='.'))
    }
 
    # Rmove CpGs with exclusion parameters

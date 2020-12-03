@@ -13,33 +13,43 @@
 filterLowRepresentedCpGsinCohort <- function(data, colname, pcmissing, Ntotal, fileresume)
 {
 
-   if( colname=='' | is.na(colname) | is.null(colname)) {
-      return(data)
-   }
+   if( !is.null(colname) & !is.null(pcmissing))
+   {
 
-   if( ! colname %in% names(data) ) {
-      warning(paste0(colname, " does not exist in dataframe, no filter applied"))
-      return(data)
-   }
+      if( ! colname %in% names(data) ) {
+         warning(paste0(colname, " does not exist in dataframe, no filter applied"))
+         return(data)
+      }
 
-   totCpgs <- dim(data)[1]
-   data$pecent <- data[colname]/Ntotal
-   data <- data[which(data$pecent>=pcmissing),]
-   remCpGs <- totCpgs - dim(data)[1]
+      if( pcmissing=='' | is.na(pcmissing) ){
+         warning("No missing percentage defined, no filter applied")
+         return(data)
+      }
 
-   # Report descriptive exclussions to a descriptive file
-   if(!is.null(fileresume)) {
-      write(sprintf('\n# %s', strrep("-",36)), file = fileresume, append = TRUE)
-      write(sprintf('# Remove CpGs with low representation: '), file = fileresume, append = TRUE)
-      write(sprintf('# %s\n', strrep("-",36)), file = fileresume, append = TRUE)
-      write(sprintf('# Minimum percentage : %s\n', pcmissing), file = fileresume, append = TRUE)
-      write(sprintf('# Total CpGs in data : %d', dim(data)[1]), file = fileresume, append = TRUE)
-      write(sprintf('# Number of excluded CpGs: %d', remCpGs), file = fileresume, append = TRUE)
-      write(sprintf('# Total CpGs after exclusion : %d\n', dim(data)[1] ), file = fileresume, append = TRUE)
-      write(sprintf('# Percent excluded CpGs: %f %%\n', ((remCpGs/totCpgs)*100 )), file = fileresume, append = TRUE)
+      totCpgs <- dim(data)[1]
+      data$pecent <- data[colname]/Ntotal
+      data <- data[which(data$pecent>=pcmissing),]
+      remCpGs <- totCpgs - dim(data)[1]
+
+      # Report descriptive exclussions to a descriptive file
+      if(!is.null(fileresume)) {
+         write(sprintf('\n# %s', strrep("-",36)), file = fileresume, append = TRUE)
+         write(sprintf('# Remove CpGs with low representation: '), file = fileresume, append = TRUE)
+         write(sprintf('# %s\n', strrep("-",36)), file = fileresume, append = TRUE)
+         write(sprintf('# Minimum percentage : %s\n', pcmissing), file = fileresume, append = TRUE)
+         write(sprintf('# Total CpGs in data : %d', dim(data)[1]), file = fileresume, append = TRUE)
+         write(sprintf('# Number of excluded CpGs: %d', remCpGs), file = fileresume, append = TRUE)
+         write(sprintf('# Total CpGs after exclusion : %d\n', dim(data)[1] ), file = fileresume, append = TRUE)
+         write(sprintf('# Percent excluded CpGs: %f %%\n', ((remCpGs/totCpgs)*100 )), file = fileresume, append = TRUE)
+      }
+   } else {
+      if( is.null(colname)){
+         warning("The column with number of samples for CpG was not defined, no filter applied")
+      } else {
+         warning("The missing percentage was not defined, no filter applied")
+      }
    }
 
    return(data)
 
 }
-

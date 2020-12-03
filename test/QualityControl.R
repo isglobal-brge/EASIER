@@ -38,6 +38,7 @@ setwd("<path to metaanalysis folder>/metaanalysis")
 
 # Files used in QC, needed in meta-analysis to plot ForestPlot
 files <- c('data/PACE_GENR_20201006_C.txt',
+           'data/PACE_GENR_20201006_C.txt',
            'data/Cohort1_Model1_20170713.txt',
            'data/Cohort1_Model2_20170713.txt',
            'data/PROJ1_Cohort3_Model1_date_v2.txt',
@@ -53,21 +54,21 @@ files <- c('data/PACE_GENR_20201006_C.txt',
 results_folder <- 'QC_Results'
 
 # Prefixes for each file
-prefixes <- c('PACE_GENR_C',
+prefixes <- c('PACE_GENR_C_EUR','PACE_GENR_C_GMAF1p',
               'Cohort1_A1', 'Cohort1_A2',
               'PROJ1_Cohort2_A1','PROJ1_Cohort2_A2', 'PROJ1_Cohort2_B1', 'PROJ1_Cohort2_B2', 'PROJ1_Cohort2_C1', 'PROJ1_Cohort2_C2',
               'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
 # Array type, used : EPIC or 450K
-artype <- c('450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPIC', '450K', '450K', 'EPIC')
+artype <- c('450K', '450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPIC', '450K', '450K', 'EPIC')
 
 # Parameters to exclude CpGs
 exclude <- c( 'MASK_sub30_copy', 'MASK_extBase', 'MASK_mapping', 'MASK_typeINextBaseSwitch', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
 # Ethnic group
-ethnic <- c('EUR', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
+ethnic <- c('EUR','GMAF1p', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
 
-N <- c(100, 100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
+N <- c(100, 100, 100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
 n <- c(NA)
 
 # Minimum sample representation percentage required for CpGs
@@ -138,6 +139,10 @@ for ( i in 1:length(files) )
    test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
 
    # Remove cpGs with low representation
+   # first, we test if colname_NforProbe and pcMissingSampes are defined
+   if( !exists("colname_NforProbe") ) { colname_NforProbe <- NULL }
+   if( !exists("pcMissingSamples") ) { pcMissingSamples <- NULL }
+
    cohort <- filterLowRepresentedCpGsinCohort(cohort, colname_NforProbe, pcMissingSamples, N[i], fileresume = fResumeName )
 
    # Exclude CpGs not meet conditions

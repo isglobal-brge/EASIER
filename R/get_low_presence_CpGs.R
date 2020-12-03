@@ -8,9 +8,13 @@
 #' @return array with low CpGs ids detected based on pcentMissing (variable from configuration file config_postQR)
 #'
 #' @export
-get_low_presence_CpGs <- function(outputfiles, pcentMissing)
+get_low_presence_CpGs <- function(outputfiles, pcentMissing=NULL)
 {
    data <- get_GWAMA_results(outputfiles[1])
+   if(is.null(pcentMissing) | pcentMissing==''){
+      pcentMissing = 0.8;
+   }
+
 
    # Get presence by CpGs
    effectpositions <- grep("X[0-9]",names(data)) # Posicions
