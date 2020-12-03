@@ -4,7 +4,7 @@
 \alias{get_low_presence_CpGs}
 \title{Get CpGs with low presence}
 \usage{
-get_low_presence_CpGs(outputfiles, pcentMissing)
+get_low_presence_CpGs(outputfiles, pcentMissing = NULL)
 }
 \arguments{
 \item{outputfiles}{filename with results from GWAMA}

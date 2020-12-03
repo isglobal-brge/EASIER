@@ -4,7 +4,13 @@
 \alias{run_GWAMA_MetaAnalysis}
 \title{Run GWAMA meta-analysis}
 \usage{
-run_GWAMA_MetaAnalysis(inputfolder, outputfolder, outputfilename, gwama.dir)
+run_GWAMA_MetaAnalysis(
+  inputfolder,
+  outputfolder,
+  outputfilename,
+  gwama.dir,
+  hapmapfile
+)
 }
 \arguments{
 \item{inputfolder}{string. Path with input files for GWAMA.}
