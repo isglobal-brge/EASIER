@@ -47,7 +47,8 @@ FDR <- 0.7     # significance level for adjustment, if NA FDR is not used
 pvalue <- 0.05 # significance level for p-value, if NA p-value is not used
 
 # Array type, used : EPIC or 450K
-artype <- '450K'
+# this data is defined for each file to analyse
+artype <- c('450K', 'EPIC', 'EPIC')
 
 # Result paths definition for QC, Meta-Analysis and Enrichment
 results_folder <- 'QC_Results'
@@ -126,7 +127,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
          data <- read.table(FilesToEnrich[i], dec = ".") # Avoid header
          data <- as.vector(t(data))
-         data <- get_annotattions(data, artype, FilesToEnrich[i], outputfolder )
+         data <- get_annotattions(data, artype[i], FilesToEnrich[i], outputfolder )
          allCpGs <- TRUE
          data$chromosome <- substr(data$chr,4,length(data$chr))
          data$rs_number <- data$CpGs
@@ -136,9 +137,38 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       ## ------------------------
 
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
-      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs, plots = TRUE )
+      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype[i], BN, FDR, pvalue, allCpGs, plots = TRUE )
 
+      # get unique genes from data
+      geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}), getUniqueGenes)
 
+      # Enrichment with ConsensusPathDB
+
+      # Available FSet types :
+      # 1 P     manually curated pathways from pathway databases
+      # 2 N     interaction network neighborhood-based functional sets
+      # 3 G2    Gene Ontology-based sets, GO level 2
+      # 4 G3    Gene Ontology-based sets, GO level 3
+      # 5 G4    Gene Ontology-based sets, GO level 4
+      # 6 G5    Gene Ontology-based sets, GO level 5
+      # 7 C     protein complex-based sets
+
+      acFSet <- c('C', 'P', 'G2', 'G3')
+      acType <- 'entrez-gene'
+
+      # Get Enrichment
+      CPDB_enrich <- lapply(names(geneUniv), function( data, accFSet, genes ) {
+         print(data)
+         lapply(accFSet,
+                get_consensusPdb_OverRepresentation,
+                entityType='genes',
+                accNumbers=na.omit(as.character(eval(parse(text = paste0("genes$",data))))),
+                accType=acType,
+                outputdir = "ConsensusPathDB",
+                outputfile = gsub(".", "_", data, fixed=TRUE) )},
+         accFSet = acFSet, genes = geneUniv)
+
+      names(CPDB_enrich) <- names(geneUniv)
 
       ## -- Online Tools
 
@@ -152,11 +182,8 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       ## -----------------------
 
       # Molecular Signatures Database enrichment
-      msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype, BN, FDR, pvalue, allCpGs)
+      msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype[i], BN, FDR, pvalue, allCpGs)
 
-
-      # get unique genes from data
-      geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}), getUniqueGenes)
 
       ## --  FER - with Online tools ==> A veure si es pot fer l'enriquiment automàtic amb les eines web.....
       ##### TO DO  : Fer-ho amb script automàtic??? --> Descarregar la informació associada als gens des de les webs utilitzant

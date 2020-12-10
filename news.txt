@@ -1,6 +1,13 @@
 Changes history :
 
 
+2020/12/10 :
+-------------
+
+   Enrichment :
+      * Added ConsensusPath enrichment for OverExpression analysis
+
+
 2020/11/27 :
 -------------
 
