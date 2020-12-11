@@ -1,6 +1,6 @@
 # EASIER
 
-## **E**w**AS**: quality control, meta-analys**I**s and **E**n**R**ichment
+**E**w**AS**: quality control, meta-analys**I**s and **E**n**R**ichment
 
 The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis:
 
