@@ -1,7 +1,7 @@
 Package: EASIER
 Type: Package
 Title: EwAS: quality control, meta-analysIs and EnRichment
-Version: 0.1.0
+Version: 0.1.1
 Author: Dolors Pelegrí, Marta Cosín, Mariona Bustamante and Juan R Gonzalez
 Maintainer: Dolors Pelegrí <dolors.pelegri@isglobal.org>
 Description: The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis
@@ -26,7 +26,8 @@ Imports:
    org.Hs.eg.db,
    IlluminaHumanMethylation450kanno.ilmn12.hg19,
    IlluminaHumanMethylationEPICanno.ilm10b4.hg19,
-   tools
+   tools,
+   brgeEnrich
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 Depends: 

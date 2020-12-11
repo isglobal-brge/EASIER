@@ -74,6 +74,7 @@ results_gwama <- '.'
 
 
 # Venn diagrams ==> IMPORTANT : maximum 5 meta-analysis by venn diagram
+venndiag_threshold <- 0.05
 venn_diagrams <- list(
    c("MetaA1", "MetaA2", "MetaB" ),
    c("MetaA1_Filtr", "MetaA2_Filtr", "MetaB_Filtr" )
@@ -169,7 +170,7 @@ for( metf in 1:length(metafiles))
 
 for (i in 1:length(venn_diagrams)){
    if(length(venn_diagrams[[i]])>1){
-      plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, plotpath =  paste0(results_gwama, "/GWAMA_Results"), pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR')
+      plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, plotpath =  paste0(results_gwama, "/GWAMA_Results"), pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR', venndiag_threshold)
    }
 }
 

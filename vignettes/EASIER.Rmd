@@ -20,11 +20,11 @@ author:
 package: EASIER
 output:
   
-   BiocStyle::pdf_document:
-    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
+   BiocStyle::pdf_document:
+    toc_float: true
 abstract: |
   Description of your vignette
 vignette: |
@@ -102,7 +102,7 @@ library(readtext)
 ## Quality Control Flowchart
 
 
-```{r qcworkflow, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:qcworkflow}Quality control flowchart. This flowchart is used in the script under test folder to perform the quality control (QuqlityControl.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
+```{r qcworkflow, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:qcworkflow}Quality control flowchart. This flowchart is used in the script under test folder to perform the quality control (QualityControl.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
 include_graphics("imgs/workflows/QCWorkflow.png") 
 ```
 
@@ -437,16 +437,38 @@ Venn diagrams are obtained with function `plot_venndiagram`,. We need to define 
 
 ## Meta-Analysis flowchart
 
+To perform the meta-analyses, we use GWAMA, a Software tool for meta-analysis developed by the Institute of Genomics from University of Tartu. This software is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). It is already installed in ISGlobal servers.
 
-```{r metaworkflow, echo=FALSE, out.width='120%',  fig.align='center',  fig.cap="\\label{fig:metaworkflow}Meta-analysis flowchart. This flowchart is used in the script under test folder to perform the quality control (MetaAnalysis.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
-include_graphics("imgs/workflows/MetaAnalysisWorkflow.png") 
+Like the previous **Quality Control module** of the **EASIER R package**, we have created a script named **MetaAnalysis.R** to carry out the meta-analysis. This script just need some minor editing to indicate information specific to the study. 
+The script follows the workflow indicated in the Figure 8. Briefly, it starts formatting the QCed EWAS results and preparing configuration files to run GWAMA. Then it runs the meta-analysis, annotates the results and performs some quality control checks (lamda, QQ plot, heterogeneity, etc). Finally, it performs forest-plots of the top CpGs and Venn diagrams to compare results between meta-analysis.
+
+
+```{r metaworkflow, echo=FALSE, out.width='100%', fig.align='center', fig.cap="\\label{fig:metaworkflow}Meta-analysis flowchart. The script MetaAnalysis.R, contains the code to perform the steps indicated in the flowchart.The only editing required by the researcher is defining the initial variables, which are specific to each study. The rest of the script is automatic and does not need any editing.", fig.pos='ht'}
+include_graphics("imgs/workflows/MetaAnalysisWorkflow.png")
 ```
 
-## Initial Variables definition
 
-Like in quality control analysis, in the meta-analysis we need to define some variables. One of this variables is the one that refers to the the QCed EWAS results that will be combine and anlayze in each meta-analysis.  For example, in `metafiles` variable we have defined two different meta-analysis, MetaA1 and MetaA2 . In the first one, MetaA1, we have the datasets ‘PROJ1_Cohort3_A1’, ‘PROJ1_Cohort2_A1’ and ‘Cohort1_A1’, and we can use the simplified form to make all the study more understandable
+## Initial definition of variables specific to the study
 
-We can also exclude those CpGs with low representation in meta-analysis, we can set the minimum percentage with `pcentMissing` variable. In this example, we take into account all CpGs present in at least 80% of the datasets of the meta-analysis. We execute the meta-analysis twice, one with all CpGs and other with only CpGs with presence higher than the indicated in `pcentMissing`.
+Like in the Quality Control module of the EASIER R package, in the Meta-analysis module we need to define some initial variables, which are specific to each study \textcolor{red}{(this is the only part of the code that requires editing!)}. These variables are:
+
+1. **artype**: Type of array, either EPIC or 450K. If you are combining studies with data from the EPIC array and studies with data from the 450K array, remember to run the Quality Control module selecting ‘450K’ if you only want to consider CpG probes from the 450K array, or selecting ‘EPIC’ if you want to consider all the CpG probes from EPIC even though for some cohorts you will have more than 50\% missings.
+
+2. **metafiles**: list of files of QCed EWAS results that will be combined and analysed in each meta-analysis. In the example below we have defined two different meta-analyses, MetaA1 and MetaA2. In the first one, MetaA1, we will meta-analyse EWAS results from ‘PROJ1_Cohort3_A1’, ‘PROJ1_Cohort2_A1’ and ‘Cohort1_A1’. To make the study more understandable we refer to the meta-analyses with this files as MetaA1 or the name that we consider.
+
+3. **pcentMissing**: We can also exclude those CpGs not present in a % of the studies, by setting the minimum representation percentage. In this example, we have set up the percentage to 80%. This means the code will execute the meta-analysis twice, one with all CpGs and another with only CpGs present in 80% of the studies. 
+Note: if you are combining data from 450K and EPIC arrays and you selected ‘EPIC’ as the ‘artype’, with this setting you are able to choose running a meta-analysis in parallel only considering CpGs with high representation and therefore eliminating those CpGs only present in the EPIC array. 
+
+4. **results_folder**: To indicate the folder where to save the output of the meta-analysis. For ISGlobal researchers we recommend to set it to “QC_Results”.
+
+5. **venndiag_threshold**: To indicate the threshold to consider CpGs as significant. CpGs with p-value lower than this threshold will be considered as significant. By default this value is 0.05
+
+6. **venn_diagrams**: To compare the overlap of significant CpGs between meta-analysis. P-value significance threshold is configured in `venndiag_threshold` variable, by default this value is 0.05. In the example we are comparing the results of the meta-analysis 1 (MetaA1) and the meta-analysis 2 (MetaA2).
+
+7. **gwama.dir**: To define the GWAMA execution path. For ISGlobal researchers, this parameter does not have to be modified. 
+
+\ 
+
 
 ```{r meta_variables, eval=FALSE}
 
@@ -469,6 +491,8 @@ results_folder <- 'QC_Results'
 results_gwama <- '.'
 
 # Venn diagrams ==> IMPORTANT : maximum 5 meta-analysis by venn diagram
+venndiag_threshold <- 0.05
+
 venn_diagrams <- list(
    c("MetaA1", "MetaA2" )
 )
@@ -476,7 +500,6 @@ venn_diagrams <- list(
 ## -- End Variable definition for Meta-Analysis -- ##
 ```
 
-Then, we define the GWAMA execution path for ISGlobal Servers ws05 and ws06. To perform meta-analyses we use GWAMA, a Software tool for meta-analysis developed by Intitute of Genomics from University of Tartu. This software is available at  [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). As mentioned before it must be installed on the computer where we are running analysis and the installation path must be defined in `gwama.dir` variable :
 
 ```{r metaVarGwama, eval=FALSE}
 
@@ -486,11 +509,20 @@ gwama.dir <- paste0(Sys.getenv("HOME"),
 
 ```
 
-### Meta-Analysis - general code
+### Overview of the MetaAnalysis.R code
 
-In this example we only run the first meta-analysis with all CpGs and with CpGs with missing data lower than `pcentMissing = 0.8` but in a complete script all meta-analyses are performed for both cases: **complete and lowCpGs**.
+
+Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify it to adapt to their needs.
+
+The meta-analysis is performed two times: 
+1.	With all CpGs
+2.	With CpGs with missing data lower than a threshold configured in `pcentMissing` variable
+
+In this example we only run the first meta-analysis but in a full run script all meta-analyses are performed for both cases: complete and lowCpGs.
 
 First, we must create the needed folders. In this example we create a `GWAMA` folder where we will put the input files for GWAMA, and `GWAMA_Results` folder where we will store all the results, when we finish the code execution the `GWAMA` folder with temporal configuration files is removed.
+
+\ 
 
 ```{r metaFolders, eval=FALSE}
 
@@ -514,7 +546,9 @@ generate_hapmap_file(artype, hapmapfile)
 
 ```
 
-We also create some folders to store configuration files inside GWAMA folder, one folder with configuration files for each meta-analysis, for example, for `MetaA1` meta-analysis we create the path `GWAMA\MetaA1` inside this path, we store all gwama configuration files.
+We also create some folders to store configuration files inside GWAMA folder, one folder with configuration files for each meta-analysis, for example, for `MetaA1` meta-analysis we create the path `GWAMA\MetaA1` inside this path, we store all GWAMA configuration files.
+
+\ 
 
 ```{r metaFolders2, eval=FALSE}
    
@@ -555,32 +589,25 @@ outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
    
 ```
 
+
+\pagebreak
+
+
+Now we are ready to execute the meta-analysis following the steps indicated in the workflow [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R). These are the functions that will be used: 
+
+1. **`create_GWAMA_files`**: 
+
+To modify EWAS QCed results to GWAMA format and create GWAMA configuration files. In this function specify:
+-	the GWAMA folder created before in the `qcpath` parameter
+-	a character vector with all the models present in the meta-analysis (previously defined in the metafiles variable), 
+-	the folder with the input data (these are the `QC_Dataoutput` files from the **Quality Control module**), 
+-	the number of samples in the study, 
+-	we need to indicate if this is the execution with all CpGs or not. If not, we indicate the list with excluded CpGs, which can be obtained with `get_low_presence_CpGs` function. 
+
 \ 
-
-Now we are ready to execute the meta-analysis. You can find the script to perform the full meta-analysis in [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R) file. 
-
-\ 
-
-Like in Quality control , in GWAMA meta-analysis we created the script MetaAnalysis.R using the library functions to carry out the meta analysis process automatically only by defining the previous variables. The script follows the **Figure\@ref(fig:metaworkflow)** workflow. In this vignette we will explain how the script works to allow you to modify if necessary.
-
-\ 
-
-First of all, we need to generate files with predefined format by GWAMA. To do that, we use the function `create_GWAMA_files`. In this function we have to specify the gwama folder created before in `qcpath` parameter, a character vector with models present in meta-analysis (previously defined in metafiles variable), the folder with original data (these are the QC_Data output files from QC), the number of samples in the study, and we need to indicate if this is the execution with all CpGs or not (if not, we indicate the list with excluded CpGs, which can be obtained with `get_low_presence_CpGs` function.
-
-`create_GWAMA_files` function takes the original files and converts them to the GWAMA format, it also creates the .ini file necessary to run GWAMA 
-
-When we have all the files ready to execute GWAMA, we proceed to its execution with `run_GWAMA_MetaAnalysis` function. This function needs to know:
-
-* the folder with data to be analysed, (this is the GWAMA folder),
-* where to store the results (by default this function creates a subfolder with meta-analysis name and stores all the results together),
-* the meta-analysiss name,
-* where is the GWAMA binary installed,
-
-GWANA is executed by fixed and random effects. The function `run_GWAMA_MetaAnalysis` function generates one .out file with meta-analysis results, and the associated Manhattan plots and  QQ plots, one for fixed effects and another for random effects.
 
 ```{r metaAnalys, eval=FALSE}
-for(j in 1:length(runs))
-{
+
  if(runs[j]=='lowcpgs') {
    lowCpGs = TRUE
    # Get low presence CpGs in order to exclude this from the new meta-analysis
@@ -594,7 +621,26 @@ for(j in 1:length(runs))
  for ( i in 1:length(modelfiles) )
    create_GWAMA_files(results_folder,  modelfiles[i], 
                       inputfolder, N[i], list.lowCpGs )
+```
 
+\ 
+
+2. **`run_GWAMA_MetaAnalysis`**
+
+\ 
+
+To run both fixed and random effects meta-analsyis with GWAMA. This function needs to know:
+-	the folder with data to be analysed, (this is the GWAMA folder),
+-	where to store the meta-analysis results (by default this function creates a subfolder with the meta-analysis name). The following files are stored there: meta-analysis results, Manhattan plots and QQ plots, both for fixed effects and random effects,
+-	the meta-analysis name,
+-	where is the GWAMA binary installed
+
+
+All these parameters have been specified in section 5.2 Initial definition of variables specific to the study.
+
+\ 
+
+```{r metaGWANA, eval=FALSE}
  # Execute GWAMA meta-analysis and manhattan-plot, QQ-plot and a file 
  # with gwama results.
  outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, 
@@ -603,13 +649,23 @@ for(j in 1:length(runs))
                                                  gwama.dir)
 ```
 
-```{r manhat, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:manhat}Manhattan plot obtained with GWAMA ", fig.pos='ht'}
+```{r manhat, echo=FALSE, out.width='70%',  fig.align='center',  fig.cap="\\label{fig:manhat}Manhattan plot obtained with GWAMA ", fig.pos='ht'}
 include_graphics("imgs/meta/manhattan.png") 
 ```
 
-After getting the GWAMA results, we perform an analysis with `get_descriptives_postGWAMA` function (similar to what was done in the quality control procedure but with meta-analysis results). This function adjusts p-values, annotates CpGs, and generates a file with descriptive results and plot heterogeneity distribution, SE distribution, p-values distribution, QQ-plot with lambda, and the volcano plot.
+\ 
 
-To finish we generate the ForestPlot associated to the most significative CpGs, by default we get the 30 top significative CpGs.
+3.	**`get_descriptives_postGWAMA`**: 
+
+To make a quality control check of the meta-analyses. This function is similar to what was done in the **Quality Control module**, but not instead of being applied to cohort specific results, it is applied meta-analysis results. This function does:
+
+-	adjusts p-values,
+-	annotates CpGs,
+-	generates a file with a description of the results, 
+-	generates plots showing the distribution of the heterogeneity, SE, p-values,
+-	generates QQ-plots with lambda and Volcano-plots.
+
+\ 
 
 ```{r metaAnalys2, eval=FALSE}
  # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
@@ -619,32 +675,49 @@ To finish we generate the ForestPlot associated to the most significative CpGs, 
                                        names(metafiles)[metf], 
                                        artype, 
                                        N[which(prefixes %in% modelfiles)] )
+```
 
+```{r heteroi2, echo=FALSE, out.width='70%',  fig.align='center',  fig.cap="\\label{fig:heteroi2}Heterogeneity distribution plot (i2) ", fig.pos='ht'}
+include_graphics("imgs/Heteroi2.png") 
+```
+
+\ 
+
+4.	**`plot_ForestPlot`**: 
+
+To generate forest-plots for the top 30 significant CpGs.
+
+\ 
+
+```{r ForestPlot, eval=FALSE}
  # Forest-Plot
  plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], 
                  inputfolder, names(metafiles)[metf], files, outputgwama  )
 
-}
-
 ```
 
-```{r heteroi2, echo=FALSE, out.width='80%',  fig.align='center',  fig.cap="\\label{fig:heteroi2}Heterogeneity distribution plot (i2) ", fig.pos='ht'}
-include_graphics("imgs/Heteroi2.png") 
-```
 
 ```{r Forestplot, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:Forestplot}Forest plot for cpg22718050 ", fig.pos='ht'}
 include_graphics("imgs/FP_cg22718050.png") 
 ```
 
-Wen we have all the meta-analysis we create the venn diagrams defined in `venn_diagrams` variable with `plot_venndiagram` function for FDR and Bonferroni significative CpGs.
+\pagebreak
+
+5. **`venn_diagrams`**: 
+
+To generate Venn diagrams comparing the overlap of significant CpGs between meta-analyses. FDR or BN CpGs can be selected for this comparison.
+
 
 ```{r metavenndiag, eval=FALSE}
 for (i in 1:length(venn_diagrams))
    plot_venndiagram(venn_diagrams[[i]], qcpath = outputfolder, 
                     plotpath =  paste0(results_gwama, "/GWAMA_Results"), 
-                    pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR')
+                    pattern = '_Fixed_Modif.out',bn='Bonferroni', fdr='FDR',
+                    venndiag_threshold)
 
 ```
+
+\ 
 
 this is venn diagram output example
 
@@ -826,7 +899,7 @@ if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
 When all data is annotated we enrich data with `missMethyl_enrichment` function, to this function we have to inform the paramteres to decide if the CpG is significative or not, we do that with previously defined variables  FDR, Bonferroni and pval, this only work with GWAMA results or with files that contains this information, if we are working with only CpG list, all the CpGs are enriched. missMethyl_enrichment  function performs the enrichment with GO and KEGG  , 
 
 
-```{r EnrichCommon_2, eval=TRUE, cache=TRUE}
+```{r EnrichCommon_2, eval=FALSE, cache=TRUE}
 ## -- Functional Enrichmnet
 ## ------------------------
 
@@ -842,7 +915,7 @@ head(miss_enrich$KEGG)
 
 We can get the Molecular Signatures Database (MSigDB) enrichment with `MSigDB_enrichment` function, this functions needs the list of CpGs or the output data from GWAMA, in that case also needs the parameters to take in to account to decide whether CpG is or not significative. 
 
-```{r EnrichCommon_3, eval=TRUE, cache=TRUE}
+```{r EnrichCommon_3, eval=FALSE, cache=TRUE}
 ## -- Molecular Enrichmnet
 ## -----------------------
 
@@ -858,7 +931,7 @@ head(msd_enrich$MSigDB)
 
 To get the list with unique genes related to significative CpGs
 
-```{r EnrichUniqueGene, eval=TRUE}
+```{r EnrichUniqueGene, eval=FALSE}
       # get unique genes from data
 geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], 
                            function(cpgs) { 
@@ -1276,8 +1349,8 @@ include_graphics("imgs/enrich/iregions.png")
 
 
 
-# Session info {.unnumbered}
+<!-- # Session info {.unnumbered} -->
 
-```{r sessionInfo, echo=FALSE}
-sessionInfo()
-```
+<!-- ```{r sessionInfo, echo=FALSE} -->
+<!-- sessionInfo() -->
+<!-- ``` -->

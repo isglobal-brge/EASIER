@@ -1,5 +1,18 @@
 Changes history :
 
+2020/12/11 :
+-------------
+
+   Changed version to 0.1.1
+   Changed scripts folder, now the scripts for Quality Control, Meta-Analysis and Enrichment are in module_scripts folder
+
+   Meta-Analysis :
+      * threshold variable in meta-analysis configuration variables, this threshould is used in  venn diagrams
+
+   Vignette :
+      * The meta-analysis part has been modified
+      * The vignette has been updated with recent changes.
+
 
 2020/12/10 :
 -------------

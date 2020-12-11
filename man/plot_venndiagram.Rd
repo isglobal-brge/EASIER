@@ -10,7 +10,8 @@ plot_venndiagram(
   plotpath = ".",
   pattern = "*_QCData.txt",
   bn = NULL,
-  fdr = NULL
+  fdr = NULL,
+  threshold = 0.05
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ plot_venndiagram(
 \item{bn, }{optional, column name with bonferroni adjusted values, if NULL, no venndiagram plot for Bonferroni}
 
 \item{fdr, }{column name with bonferroni adjusted values, if NULL, no venndiagram plot for FDR}
+
+\item{threshold, }{numeric, optiona, by default threshlold = 0.05, we take in to account all CpGs with p-value lower than this threshold}
 
 \item{path}{optional, path where QC data is stored, by default current path}
 }

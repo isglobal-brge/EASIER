@@ -8,13 +8,14 @@
 #' @param pattern optional, pattern with data to be used in Venn diagrams, by default '*_QCData.txt'
 #' @param bn, optional, column name with bonferroni adjusted values, if NULL, no venndiagram plot for Bonferroni
 #' @param fdr, column name with bonferroni adjusted values, if NULL, no venndiagram plot for FDR
+#' @param threshold, numeric, optiona, by default threshlold = 0.05, we take in to account all CpGs with p-value lower than this threshold
 #'
 #' @return Venn diagrams
 #'
 #' @import VennDiagram RColorBrewer
 #'
 #' @export
-plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '*_QCData.txt',  bn = NULL, fdr = NULL)
+plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '*_QCData.txt',  bn = NULL, fdr = NULL, threshold = 0.05)
 {
    if( is.null(bn)  & is.null(fdr) )
       stop("No Venn diagram to plot")
@@ -64,7 +65,7 @@ plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '
 
    if( !is.null(fdr) )
    {
-      selection <- paste0( "lapply(cohortsdata, subset,", paste0('`',fdr,'`')," <0.05)")
+      selection <- paste0( "lapply(cohortsdata, subset,", paste0('`',fdr,'`')," <",threshold,")")
 
       VennDiagram::venn.diagram(
          x = lapply(lapply(eval(parse(text = selection)), "[", 1),unlist),
