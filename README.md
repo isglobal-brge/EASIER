@@ -23,9 +23,9 @@ The EASIER package performs epigenetic wide-association study (EWAS) downstream 
    - ConsensusPath Data Base
    - Gene relative position
    - CpG island relative position
-   - Specific enrichment for blood : 
+   - Specific for Blood : 
       - 15 ROADMAP chromatine states
-   - Specific enrichment for blood : 
+   - Specific for Placenta : 
       - ROADMAP chromatine states Fetal Placenta 15 and 18  
       - Partially methylated domains (PMDs)
       - Impreinted regions
