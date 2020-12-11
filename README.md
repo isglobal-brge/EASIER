@@ -30,5 +30,3 @@ The EASIER package performs epigenetic wide-association study (EWAS) downstream 
       - Partially methylated domains (PMDs)
       - Impreinted regions
 
-
-In this vignette we will show how to apply EASIER con the EWAS results from three cohorts and two distinct models for each cohort.
