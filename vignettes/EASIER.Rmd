@@ -19,11 +19,11 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
-   BiocStyle::pdf_document:
-    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
+   BiocStyle::pdf_document:
+    toc_float: true
 bibliography: bibliography.bib
 abstract: |
   The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results (using GWAMA) and 3) Functional enrichment (pathway and molecular enrichments)
@@ -772,7 +772,7 @@ Like the other modules of the **EASIER R package (Quality Control and Meta-analy
 
 \ 
 
-The script follows the workflow indicated in **Figure\@ref(fig:enrichworkflow)**. Briefly, the first step is to define initial variables, specific to the study. The only part that requires editing. Then we read the files with the list of CpGs for which we want to test for the enrichment. If the file only contains CpG names, we start annotating these CpGs to genes and to other molecular features. After that, the script performs gene-set enrichment (at the gene level), by applying missmethyl R package using the databases: GO terms, KEGG and Molecular Signatures DB (MSigDB). Then, it performs enrichment for gene and CpG island relative positions. In this case, the enrichment is performed for all CpGs as well as for hypo and hyper-methylated CpGs, given that coefficients of the association are provided in the list of CpGs. Finally it performs molecular enrichment specific for these tissues: blood, placenta or other. For blood, it tests the enrichment for blood chromatin states. For placenta, it test the enrichment for placenta chromatin states, for placenta partially methylated domains (PMDs) and for placenta imprinted regions.
+The script follows the workflow indicated in **Figure\@ref(fig:enrichworkflow)**. Briefly, the first step is to define initial variables, specific to the study. The only part that requires editing. Then we read the files with the list of CpGs for which we want to test for the enrichment. If the file only contains CpG names, we start annotating these CpGs to genes and to other molecular features. After that, the script performs gene-set enrichment (at the gene level), by applying missmethyl R package using the databases: GO terms, KEGG and Molecular Signatures DB (MSigDB) and enrichment with ConsensusPathDB using brgeEnrich package [https://github.com/isglobal-brge/brgeEnrich](https://github.com/isglobal-brge/brgeEnrich). Then, it performs enrichment for gene and CpG island relative positions. In this case, the enrichment is performed for all CpGs as well as for hypo and hyper-methylated CpGs, given that coefficients of the association are provided in the list of CpGs. Finally it performs molecular enrichment specific for these tissues: blood, placenta or other. For blood, it tests the enrichment for blood chromatin states. For placenta, it test the enrichment for placenta chromatin states, for placenta partially methylated domains (PMDs) and for placenta imprinted regions.
 
 \ 
 
@@ -1098,6 +1098,61 @@ head(msd_enrich$MSigDB)
 ```
 
 \ 
+
+### Gene-set enrichment: ConsensusPathDB
+
+\ 
+
+`get_consensusPdb_OverRepresentation` function conducts a functional enrichment using brgEnrich R package and the public database ConsensusPathDB Database (http://consensuspathdb.org). We can get enrichment for different FileSet types : 
+
+\ 
+
+-  P     manually curated pathways from pathway databases
+-  N     interaction network neighborhood-based functional sets
+-  G2    Gene Ontology-based sets, GO level 2
+-  G3    Gene Ontology-based sets, GO level 3
+-  G4    Gene Ontology-based sets, GO level 4
+-  G5    Gene Ontology-based sets, GO level 5
+-  C     protein complex-based sets
+
+\ 
+
+```{r ConsensusPathDB, eval=FALSE, cache=TRUE}
+
+## -- Online Tools
+
+# Enrichment with ConsensusPathDB
+#     - Consensus path http://consensuspathdb.org/ 
+#     (gene-set analysis – over-representation analysis)
+
+# Available FSet types :
+# 1 P     manually curated pathways from pathway databases
+# 2 N     interaction network neighborhood-based functional sets
+# 3 G2    Gene Ontology-based sets, GO level 2
+# 4 G3    Gene Ontology-based sets, GO level 3
+# 5 G4    Gene Ontology-based sets, GO level 4
+# 6 G5    Gene Ontology-based sets, GO level 5
+# 7 C     protein complex-based sets
+
+acFSet <- c('C', 'P', 'G2', 'G3')
+acType <- 'entrez-gene'
+
+# Get Enrichment
+CPDB_enrich <- lapply(names(geneUniv), function( data, accFSet, genes ) {
+   print(data)
+   lapply(accFSet,
+          get_consensusPdb_OverRepresentation,
+          entityType='genes',
+          accNumbers=na.omit(as.character(eval(parse(text = paste0("genes$",data))))),
+          accType=acType,
+          outputdir = "ConsensusPathDB",
+          outputfile = gsub(".", "_", data, fixed=TRUE) )},
+   accFSet = acFSet, genes = geneUniv)
+
+names(CPDB_enrich) <- names(geneUniv)
+
+```
+
 
 ### Enrichment for gene relative positions
 
