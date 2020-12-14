@@ -19,14 +19,14 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
-  
+   BiocStyle::pdf_document:
+    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
-   BiocStyle::pdf_document:
-    toc_float: true
+bibliography: bibliography.bib
 abstract: |
-  Description of your vignette
+  The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results (using GWAMA) and 3) Functional enrichment (pathway and molecular enrichments)
 vignette: |
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{"EASIER - EwAS: quality control, meta-analysIs and EnRichment"}
@@ -40,6 +40,17 @@ library(knitr)
 library(tools)
 ```
 
+```{r textformat, include=FALSE, eval=TRUE}
+colorize <- function(x, color) {
+  if (knitr::is_latex_output()) {
+    sprintf("\\textcolor{%s}{%s}", color, x)
+  } else if (knitr::is_html_output()) {
+    sprintf("<span style='color: %s;'>%s</span>", color, 
+      x)
+  } else x
+}
+```
+
 # Prerequisites
 
 The package requires other packages to be installed. These include: `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf`, `tidyverse`, `reshape`, `ggsignif`, `tools` and `meta` all available in CRAN. The package also requires other packages from Bioconductor to perform annotations and enrichment : `IlluminaHumanMethylation450kanno.ilmn12.hg19`, `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`, `missMethyl`, `org.Hs.eg.db`, `GenomicRanges` and `rtracklayer`.
@@ -51,22 +62,33 @@ To perform meta-analyses we use GWAMA, a Software tool for meta analysis develop
 The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis:
 
 * Quality control of EWAS results
-    + Folders: input and ouput
-    + Configuration: array type, sample, ethnic, exclusion CpGs criteria
-    + CpG filtering selection -> list of CpGs filtered and reason
-    + QC with summaries -> summary SE, Beta, lambda, significatives...
-    + QC with plots -> QQplot, Distribution plot, precision plot, ...
-    + CpG annotation and adjustment -> QCed EWAS results file
+   + Folders: input and ouput
+   + Configuration: array type, sample, ethnic, exclusion CpGs criteria
+   + CpG filtering selection -> list of CpGs filtered and reason
+   + QC with summaries -> summary SE, Beta, lambda, significatives...
+   + QC with plots -> QQplot, Distribution plot, precision plot, ...
+   + CpG annotation and adjustment -> QCed EWAS results file
 
 * Meta-analysis of EWAS results (using GWAMA)
-    + Folders: input and output
-    + Link to GWAMA
-    + Format QCed EWAS results file
-    + Run GWAMA -> EWAS meta-analysis results file
-    + Meta-analysis with summaries -> xxxxxxx
-    + Meta-analysis with plots -> Heterogeneity plot, distribution plots, QQ-plots, Volcano plots, Manhattan plots andForest plots, 
+   + Folders: input and output
+   + Link to GWAMA
+   + Format QCed EWAS results file
+   + Run GWAMA -> EWAS meta-analysis results file
+   + Meta-analysis with summaries -> xxxxxxx
+   + Meta-analysis with plots -> Heterogeneity plot, distribution plots, QQ-plots, Volcano plots, Manhattan plots andForest plots, 
 
 * Functional enrichment (pathway and molecular enrichments)
+   + GO and KEGG and MolSig
+   + Pathways with Molecular Signatures Database (MSigDB)
+   + ConsensusPath Data Base
+   + Gene relative position
+   + CpG island relative position
+   + Specific for Blood : 
+      - 15 ROADMAP chromatine states
+   + Specific for Placenta : 
+      - ROADMAP chromatine states Fetal Placenta 15 and 18  
+      - Partially methylated domains (PMDs)
+      - Impreinted regions
 
 
 In this vignette we will show how to apply EASIER con the EWAS results from  three cohorts and two distinct models for each cohort.
@@ -450,7 +472,7 @@ include_graphics("imgs/workflows/MetaAnalysisWorkflow.png")
 
 ## Initial definition of variables specific to the study
 
-Like in the Quality Control module of the EASIER R package, in the Meta-analysis module we need to define some initial variables, which are specific to each study \textcolor{red}{(this is the only part of the code that requires editing!)}. These variables are:
+Like in the Quality Control module of the EASIER R package, in the Meta-analysis module we need to define some initial variables, which are specific to each study `r colorize("(this is the only part of the code that requires editing!)", 'red')`. These variables are:
 
 1. **artype**: Type of array, either EPIC or 450K. If you are combining studies with data from the EPIC array and studies with data from the 450K array, remember to run the Quality Control module selecting ‘450K’ if you only want to consider CpG probes from the 450K array, or selecting ‘EPIC’ if you want to consider all the CpG probes from EPIC even though for some cohorts you will have more than 50\% missings.
 
@@ -595,9 +617,14 @@ outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
 
 Now we are ready to execute the meta-analysis following the steps indicated in the workflow [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R). These are the functions that will be used: 
 
+\ 
+
 1. **`create_GWAMA_files`**: 
 
+\ 
+
 To modify EWAS QCed results to GWAMA format and create GWAMA configuration files. In this function specify:
+
 -	the GWAMA folder created before in the `qcpath` parameter
 -	a character vector with all the models present in the meta-analysis (previously defined in the metafiles variable), 
 -	the folder with the input data (these are the `QC_Dataoutput` files from the **Quality Control module**), 
@@ -630,6 +657,7 @@ To modify EWAS QCed results to GWAMA format and create GWAMA configuration files
 \ 
 
 To run both fixed and random effects meta-analsyis with GWAMA. This function needs to know:
+
 -	the folder with data to be analysed, (this is the GWAMA folder),
 -	where to store the meta-analysis results (by default this function creates a subfolder with the meta-analysis name). The following files are stored there: meta-analysis results, Manhattan plots and QQ plots, both for fixed effects and random effects,
 -	the meta-analysis name,
@@ -649,7 +677,7 @@ All these parameters have been specified in section 5.2 Initial definition of va
                                                  gwama.dir)
 ```
 
-```{r manhat, echo=FALSE, out.width='70%',  fig.align='center',  fig.cap="\\label{fig:manhat}Manhattan plot obtained with GWAMA ", fig.pos='ht'}
+```{r manhat, echo=FALSE, out.width='90%',  fig.align='center',  fig.cap="\\label{fig:manhat}Manhattan plot obtained with GWAMA ", fig.pos='ht'}
 include_graphics("imgs/meta/manhattan.png") 
 ```
 
@@ -677,13 +705,15 @@ To make a quality control check of the meta-analyses. This function is similar t
                                        N[which(prefixes %in% modelfiles)] )
 ```
 
-```{r heteroi2, echo=FALSE, out.width='70%',  fig.align='center',  fig.cap="\\label{fig:heteroi2}Heterogeneity distribution plot (i2) ", fig.pos='ht'}
+```{r heteroi2, echo=FALSE, out.width='90%',  fig.align='center',  fig.cap="\\label{fig:heteroi2}Heterogeneity distribution plot (i2) ", fig.pos='ht'}
 include_graphics("imgs/Heteroi2.png") 
 ```
 
 \ 
 
 4.	**`plot_ForestPlot`**: 
+
+\ 
 
 To generate forest-plots for the top 30 significant CpGs.
 
@@ -703,10 +733,15 @@ include_graphics("imgs/FP_cg22718050.png")
 
 \pagebreak
 
+\ 
+
 5. **`venn_diagrams`**: 
+
+\ 
 
 To generate Venn diagrams comparing the overlap of significant CpGs between meta-analyses. FDR or BN CpGs can be selected for this comparison.
 
+\ 
 
 ```{r metavenndiag, eval=FALSE}
 for (i in 1:length(venn_diagrams))
@@ -733,61 +768,126 @@ include_graphics("imgs/meta/venn.png")
 
 ## Enrichment Flowchart
 
+Like the other modules of the **EASIER R package (Quality Control and Meta-analysis)**, we have created a script named **Enrichment.R** to carry out the functional enrichment. This script just need some minor editing to indicate information specific to the study.
+
+\ 
+
+The script follows the workflow indicated in **Figure\@ref(fig:enrichworkflow)**. Briefly, the first step is to define initial variables, specific to the study. The only part that requires editing. Then we read the files with the list of CpGs for which we want to test for the enrichment. If the file only contains CpG names, we start annotating these CpGs to genes and to other molecular features. After that, the script performs gene-set enrichment (at the gene level), by applying missmethyl R package using the databases: GO terms, KEGG and Molecular Signatures DB (MSigDB). Then, it performs enrichment for gene and CpG island relative positions. In this case, the enrichment is performed for all CpGs as well as for hypo and hyper-methylated CpGs, given that coefficients of the association are provided in the list of CpGs. Finally it performs molecular enrichment specific for these tissues: blood, placenta or other. For blood, it tests the enrichment for blood chromatin states. For placenta, it test the enrichment for placenta chromatin states, for placenta partially methylated domains (PMDs) and for placenta imprinted regions.
+
+\ 
+
 ```{r enrichworkflow, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflow}Enrichment flowchart. This flowchart is used in the script under test folder to perform the enrichment (Enrichment.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
 include_graphics("imgs/workflows/EnrichmentWorkflow.png") 
 ```
 
+\ 
 
-Like Quality Control and Meta-analysis, we have created a script [Enrichment.R](https://github.com/isglobal-brge/EASIER/blob/main/test/Enrichment.R) using the library functions to carry out the *enrichment process* automatically only by defining some variables. The script follows the **Figure\@ref(fig:enrichworkflow)** workflow.
+## Initial definition of variables specific to the study
 
-The first step is define variables, after variable declaration, we read the files with CpGs, the file can contain only a list of CpGs, wit no mre data than the CpG name, can contain the results from GWAMA, depending if we have only a CpG list or the results from GWAMA, the enrichment is different, the differences are specified in next slides.
+\ 
 
-## Variables definition
+Like in the other modules of the **EASIER R package**, in this **Functional Enrichment module** we need to define some initial variables, which are specific to the study (`r colorize('this is the only part of the code that has to be edited!', 'red')`). 
 
-First, we need to set up the working directory, in our case, we set the working directory to the metaanallysis folder, after that, we need to define the route to the files with the data to enrich in `FilesToEnrich` variable, this files could be files with only CpGs (a nude CpG list) or the results from GWAMA meta-analysis with p-values and other related data to this CpGs.
+These variables are:
+
+\ 
+
+**1. Working directory:**
+
+\ 
+
+First, we need to set up the working directory. For ISGlobal researchers, we set the working directory to the meta-analysis folder. 
+
+\ 
 
 ```{r varEnrich, eval=FALSE}
 # Set working directory to metaanalysis folder
 setwd("<path to metaanalysis folder>/metaanalysis")
+```
 
+\ 
+
+**2. Files to enrich:**
+
+\ 
+
+To indicate directory and files with the CpGs to be used for the enrichment. We need to indicate the route to the files with the list of CpGs to be tested for enrichment (`FilesToEnrich` variable). These files can contain, either a list of CpG names or the results from GWAMA meta-analysis including the association p-values and coefficients together with the CpG names
+
+\ 
+
+```{r FilesToEnrich, eval=TRUE}
 # Files with CpG data to enrich may be a CpGs list or annotated GWAMA output
 FilesToEnrich <- c('toenrich/CpGstoEnrich.txt',
                    'GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out'
                     )
 ```
 
-```{r varEnrich_eval, eval=TRUE, echo=FALSE}
-# Files with CpG data to enrich may be a CpGs list or annotated GWAMA output
-FilesToEnrich <- c('toenrich/CpGstoEnrich.txt',
-                   'GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out'
-                    )
-```
+\ 
 
+**3. P-value threshold:**
 
-After that, with those files with p-value information, we need to define which CpGs should be used for enrichment, 
+\ 
+
+In the case of performing the enrichment using the results of GWAMA, we need to define the p-value threshold to select the CpGs to test for the enrichment. One of these options is possible:
+
   * `BN` : CpGs that accomplish with Bonferroni criteria, possible values : TRUE or FALSE
-  * `FDR` : at what significance level based on FDR we want to take in to account CpGs, this value should be smaller or equal to 0.05, if FDR = NA, FDR is not taken in to a ccount
-  * `pvalue` : at what significance level based we want to take in to account CpGs, this value should be smaller or equal to 0.05, if pvalue = NA, FDR is not taken in to a
+  * `FDR` : at what significance level based on FDR we want to take in to account CpGs, if FDR = NA, FDR is not taken in to a ccount
+  * `pvalue` : at what significance level based we want to take in to account CpGs, this value should be smaller or equal to 0.05, we recommend, however, lower pvalues in order not to increase the noise i nthe data. (ex. 1e-05), if pvalue = NA, FDR is not taken in to account.
+
+\ 
 
 ```{r varEnrich_2, eval=TRUE}
 # Values for adjustment
 BN <-  TRUE       # Use Bonferroni ?
-FDR <- 0.7        # significance level for adjustment, if NA FDR is not used
+FDR <- 0.05        # significance level for adjustment, if NA FDR is not used
 pvalue <- 0.05    # significance level for p-value, if NA p-value is not used
 ```
 
-Like in previous steps, we define the artype and the folders used to store results in quality control and meta-analysis (needed in some enrichment steps if we are enriching GWAMA results) and the folder to store enrichment results.
+\ 
 
-```{r varEnrich_3, eval=TRUE}
+**4. Array type:**
+
+\ 
+
+`artype`, type of array: 450K or EPIC.
+
+\ 
+
+```{r varEnrich_3_1, eval=TRUE}
 # Array type, used : EPIC or 450K
 artype <- '450K'
+```
+
+\ 
+
+**5. Indicate folders for input and output data:**
+
+\ 
+
+We have to indicate the folders used to store results in quality control and meta-analysis (only needed if we are enriching GWAMA results) and the folder to store enrichment results.
+
+\ 
+
+```{r varEnrich_3, eval=TRUE}
 # Result paths definition for QC, Meta-Analysis and Enrichment
 results_folder <- 'QC_Results'
 results_gwama <- '.'
 results_enrich <- 'Enrichment'
 ```
 
-Next variable `enrichtype` is related to enrichment type, enrichment for blood, placenta or a general enrichment, we can observe de differences between them in **Figure\@ref(fig:enrichworkflow)** if we are performing a placenta enrichment we must also define `enrichFP18 = TRUE` if we wan to use Fetal placenta States 18. For all branches, if we have the p-values we can indicate what type of statistical test we want to use, hypergeometric or Fisher if no test is defined, by default Fisher test is used.
+\ 
+
+**6. Enrichment type:**
+
+\ 
+
+To define the type of enrichment to be performed (`enrichtype` variabe). Two options are possible:
+
+* *Blood:* It performs the gene-set enrichment, the enrichment for gene and CpG island relative positions plus a molecular enrichment specific for blood ROADMAP chromatin states. 
+
+* *Placenta:* It performs the gene-set enrichment, the enrichment for gene and CpG island relative positions plus molecular enrichments specific for placenta: for placenta ROADMAP chromatin states, for placenta partially methylated domains (PMDs), and for placenta imprinted regions. When performing this enrichment, we have to also define enrichFP18=TRUE if we want to use fetal placenta 19 chromatin states, or enrichFP18=FALSE if want to use fetal placenta 15 chromatin states. The difference between the two is the number of chromatin states considered (18 or 15).
+
+\ 
 
 ```{r varEnrich_4, eval=TRUE}
 # Enrichment type :  'BLOOD' or 'PLACENTA'
@@ -805,14 +905,31 @@ enrichtype <- 'PLACENTA'
 # if enrichFP18 = TRUE the enrichment is performed wit FP_15 and FP_18
 enrichFP18 <- FALSE
 
+```
+
+\ 
+
+**7. Enrichment statistical test:**
+
+\ 
+
+To indicate which statistical test we want to apply for the enrichment we define the variable `testdata`. It can be Fisher or Hypergeometric. By default: Fisher.
+
+\ 
+
+```{r varEnrich_test, eval=TRUE}
 # Test to be used: 'Fisher' or 'Hypergeometric' for different values no test will be performed
 testdata <- 'Fisher'
 
 ```
 
-Prepare output folcers to sotre data
+\ 
 
-```{r executenoshow}
+Then the code creates several folders where to store the results. `r colorize('No editing is needed in this part.', 'red')`.
+
+\ 
+
+```{r executenoshow, eval=TRUE, }
 ## Check if we have any files to enrich and if these files exists
 if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='') {
    for ( i in 1:length(FilesToEnrich))
@@ -852,20 +969,27 @@ if(!dir.exists(outputfolder))
 setwd( outputfolder)
 ```
 
+\ 
 
+## Overview of the Enrichment.R code 
 
-## Common enrichment for Blood and Placenta
+`r colorize('Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify it to adapt to their needs.', 'red')`
+
+\ 
 
 ```{r enrichworkflowcommon, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowcommon}Enrichment flowchart. Detailed common enrichment for blood, placenta and other", fig.pos='ht'}
 include_graphics("imgs/enrich/common.png") 
 ```
 
-The procedure that we will detail is executed for each one of the files entered in the variable `FilesToEnrich`, we show how it works with CpG nude list (first file in `FilesToEnrich` variable) and wiht GWAMA output results (second file in `FilesToEnrich` variable).
+\ 
 
-**CpG Nude List without p-values and annotattion**
+### Read list of CpGs for enrichment 
 
-After define the variables we read the file content and test if data is a nude CpG list or a resulting file from GWAMA.  If the input file is a nude CpG list we first of all enrich this data with illumina annotation for EPIC or 450K with `get_annotattions` function (GWANA files are previously annotated in meta-analysis), in `get_annotattions` we have as a parameter the array type, and the data to enrich. 
+\ 
 
+The procedure that we will detail here is executed for each one of the files entered in the variable `FilesToEnrich.` We show how it works with a CpG nude list (first file in `FilesToEnrich` variable) and with GWAMA output results (second file in `FilesToEnrich` variable). 
+
+\ 
 
 ```{r EnrichCommon_1, eval=TRUE}
 i <- 1 # We get first file in FilesToEnrich
@@ -877,8 +1001,18 @@ allCpGs <- FALSE
 data <- NULL
 data <- read.table(FilesToEnrich[i], header = TRUE, 
                    sep = "", dec = ".", stringsAsFactors = FALSE)
+```
 
-# Is a CpG list only ? then read without headers and annotate data
+\ 
+
+### Annotate CpGs (if working with lists of CpG names)
+
+After defining the variables specific to each study, we read the file content and test if data is a list of CpG names or an output file from GWAMA.
+If the input file is a list of CpG names we first annotate it with the `get_annotations` function (GWAMA files are already annotated in the Meta-analysis module). In `get_annotattions` we have as a parameter the array type, and the data to enrich.
+
+\ 
+
+```{r EnrichCommon_2_1, eval=TRUE}
 if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
    data <- read.table(FilesToEnrich[i], dec = ".") # Avoid header
    data <- as.vector(t(data))
@@ -894,10 +1028,41 @@ if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
 
 ```
 
-### GO and KEGG and MolSig
+\ 
 
-When all data is annotated we enrich data with `missMethyl_enrichment` function, to this function we have to inform the paramteres to decide if the CpG is significative or not, we do that with previously defined variables  FDR, Bonferroni and pval, this only work with GWAMA results or with files that contains this information, if we are working with only CpG list, all the CpGs are enriched. missMethyl_enrichment  function performs the enrichment with GO and KEGG  , 
+### Get list of unique genes 
 
+\ 
+
+The `getUniqueGenes` function retrieves the list of unique genes annotated to the significant CpGs and stores the result in `geneUniv` variable. This list of genes will be used to perform the gene-set enrichment.
+
+\ 
+
+```{r EnrichUniqueGene, eval=FALSE}
+      # get unique genes from data
+geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], 
+                           function(cpgs) { 
+                              data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name
+                              }),
+                    getUniqueGenes)
+
+geneUniv
+```
+
+\ 
+
+### Gene-set enrichment: GO terms and KEGG 
+
+\ 
+
+The gene-set enrichment with the `missMethyl_enrichment` function (which is based on the missmethyl R package (REF)). missmethyl performs the enrichment by taking into account the number of probes per gene on the array, as well as taking into account multi-gene associated probes. It uses two reference databases:
+
+*	Gene Ontology (GO) terms
+*	Kyoto Encyclopedia of Genes and Genomes (KEGG)
+
+If the list of CpGs does not contain p-values, all the CpGs will be used for the enrichment. If the list of CpGs contains p-values, we will use those passing a specific p-value threshold (indicated in the section 6.2).
+
+\ 
 
 ```{r EnrichCommon_2, eval=FALSE, cache=TRUE}
 ## -- Functional Enrichmnet
@@ -911,9 +1076,15 @@ head(miss_enrich$GO)
 head(miss_enrich$KEGG)
 ```
 
-### Pathways with Molecular Signatures Database (MSigDB)
+\ 
 
-We can get the Molecular Signatures Database (MSigDB) enrichment with `MSigDB_enrichment` function, this functions needs the list of CpGs or the output data from GWAMA, in that case also needs the parameters to take in to account to decide whether CpG is or not significative. 
+### Gene-set enrichment: Molecular Signatures Database (MSigDB)
+
+\ 
+
+`MSigDB_enrichment` function conducts a functional enrichment using missmethyl R package and the public database Molecular Signatures Database (MSigDB). The same parameters as above have to be indicated
+
+\ 
 
 ```{r EnrichCommon_3, eval=FALSE, cache=TRUE}
 ## -- Molecular Enrichmnet
@@ -926,28 +1097,17 @@ head(msd_enrich$MSigDB)
 
 ```
 
+\ 
 
-### Get unique genes
+### Enrichment for gene relative positions
 
-To get the list with unique genes related to significative CpGs
+\ 
 
-```{r EnrichUniqueGene, eval=FALSE}
-      # get unique genes from data
-geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], 
-                           function(cpgs) { 
-                              data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name
-                              }),
-                    getUniqueGenes)
+In this section we will test the enrichment for gene relative positions (annotated with the Illumina annotation as: 1st Exon, 3’UTR, 5’UTR, Gene Body, TSS1500 (distal promoter), TSS200 (proximal promoter)). 
 
-geneUniv
-```
+Given that we have provided the coefficients of the association, we can do the enrichment for all significant CpGs and also stratifying by hypo- and hyper-methylated CpGs. This is done with the `getHyperHypo` function which classifies CpGs in significant or not (for FDR, BN or the indicated p-value threshold) and in hypo- and hyper-methylated.
 
-
-### Gene relative position
-
-When we have p-values we can apply statistical tests 'Fisher' or 'Hypergeometric',  depends on variable `testdata` defined previously. We apply the test for FDR and Bonferroni significative CpGs (taking in to account the initial definition for FDR and Bonferroni) and for  Hyper and Hypo methylated.
-
-First of all, we have to classify CpGs in Hyper and Hypo methylated, to do that, we apply the function `getHyperHypo` to beta values, we also get a binary classification ('yes', 'no') for FDR taking in to account the significance level declared before.
+\ 
 
 ```{r EnrichComStatsPrep, eval=FALSE}
 if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
@@ -976,7 +1136,11 @@ if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
                         data$meth_state=='Hypo', "yes", "no")
 ```
 
-Now, we get all descriptive data related to Gene positions for significative CpGs an all fisher test with `getAllFisherTest`  or all Hypergeometric test with `getAllHypergeometricTest` for all Gene positions, this functions write all results in `outputfile` inside `outputdir` parameters
+\ 
+
+Then, we test the enrichment of the CpGs for gene relative positions with the `getAllFisherTest` (Fisher test) or the `getAllHypergeometricTest` (Hypergeometric test) functions. These functions write the results in the outputfile inside the previously indicated folder outputdir.
+
+\ 
 
 ```{r EnrichComStats_GeneP, eval=FALSE}
 ## --  CpG Gene position
@@ -1029,7 +1193,11 @@ else if ( tolower(testdata) =='hypergeometric') {
 }
 ```
 
-we can also get a collapsed plot with all results regardless if the applied test has been fisher or hypergeometric with `plot_TestResults_Collapsed` function. 
+\ 
+
+We can also get a plot with enrichment results with the `plot_TestResults_Collapsed` function.
+
+\ 
 
 ```{r EnrichComStatsGenePplots, eval=FALSE}
          plot_TestResults_Collapsed(list(fdr = GenePosition_fdr, 
@@ -1039,13 +1207,21 @@ we can also get a collapsed plot with all results regardless if the applied test
                                     outputfile = FilesToEnrich[i], main = )
 ```
 
+\ 
+
 ```{r enriGenePos, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:genepos}Gene position with Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
 include_graphics("imgs/enrich/plot_genepos.png") 
 ```
 
-### CpG island relative position
+\ 
 
-We can also proceed with the same steps with CpGs Island relative position, in that case, we get the descriptives to Relative to Island position with `get_descriptives_RelativetoIsland` function, the procedure to get we also get a plot with statistical results.
+### Enrichment for CpG island relative positions
+
+\ 
+
+Similar as above, and with the function `get_descriptives_RelativetoIsland` we can get an enrichment for CpG island relative positions (CpG island, N-shore, N-shelf, S-shore, S-shelf). The function gives a plot together with the corresponding statistical results.
+
+\ 
 
 ```{r EnrichComStatsRelIsland, eval=FALSE}
 
@@ -1084,22 +1260,31 @@ if( tolower(testdata) =='fisher') {
       
 ```
 
+\ 
 
 ```{r enrichRelIsland, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:genepos}Gene position with Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
 include_graphics("imgs/enrich/plot_relatisland.png") 
 ```
 
+\ 
 
-## Specific Blood
+### Specific molecular enrichments for blood
 
+\ 
+
+As we show in **Figure \@ref(fig:enrichworkflowcommon)**, there are some molecular enrichment specific for each tissue. For blood, the code tests the enrichment for ROADMAP blood 15 chromatin states reference. To this end, each CpG in the array is annotated to one or several chromatin states by taking a state as present in that locus if it is described in at least 1 of the 27 blood-related cell types present in ROADMAP.
+
+\ 
 
 ```{r enrichworkflowblood, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowblood}Enrichment flowchart. Detailed Blood enrichment", fig.pos='ht'}
 include_graphics("imgs/enrich/blood.png") 
 ```
 
-As we show in **Figure\@ref(fig:enrichworkflowblood)** blood enrichment is done with the chromatine states 15, in that case we also perform an statistical analysis applying Fisher or Hypergeometric and Hyper and Hypo methylated CpGs.
+\ 
 
-### 15 ROADMAP chromatine states
+Here, we also can select the Fisher or Hypergeometric test, and the enrichment is done for all CpGs and separately for hyper- and hypo-methylated CpGs (if coefficients of the association are provided).
+
+\ 
 
 ```{r EnrichBlood, eval=FALSE}
 
@@ -1158,15 +1343,30 @@ if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
 
 ```
 
+\ 
 
-## Specific Placenta
+### Specific molecular enrichments for placenta
 
+\ 
+
+In the case of working with placenta, several enrichments are performed. All they can be conducted applying a Fisher test or a Hypergeometric test, and also if coefficients of the association is provided, then they are done for all CpGs as well as for hypo- and hyper-methylated CpGs.
+
+\ 
 
 ```{r enrichworkflowplacenta, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowplacenta}Enrichment flowchart. Detailed Placenta enrichment", fig.pos='ht'}
 include_graphics("imgs/enrich/placenta.png") 
 ```
 
-### ROADMAP chromatine states Fetal Placenta 15 and 18  
+\ 
+
+**A) ROADMAP fetal placenta chromatin state references **
+
+Enrichment for fetal placenta chromatin states is based on the data released from ROADMAP:
+
+-  FP_15_E091 (15 chromatin states)
+-  FP_18_E091 (18 chromatin states)
+
+\ 
 
 ```{r EnrichPlacentachromstates, eval=FALSE}
 
@@ -1235,13 +1435,20 @@ plot_TestResults_Collapsed(list(bn = States15FP_bn,
 
 ```
 
+\ 
 
 ```{r chr15pla1, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:chr15pla1}Chromatine states 15 for placenta - Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
 include_graphics("imgs/enrich/chr15pla.png") 
 ```
 
+\ 
 
-### Partially methylated domains (PMDs) – Paper
+**B) Placenta partially methylated domains (PMDs) **
+
+Placenta partially methylated domains (PMDs) are large regions that cover approximately 37% of the human genome, which are partially methylated and contain placenta-specific repressed genes. Enrichment for placenta PMDs is based on the list provided in [@schroeder2013human]
+
+\ 
+
 
 ```{r EnrichPlacentaPMD, eval=FALSE}
 
@@ -1292,11 +1499,19 @@ plot_TestResults_Collapsed(list(bn = PMD_bn,
 
 ```
 
+\ 
+
 ```{r pmd15pla, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:pmd15pla}Partial Metilated Domains for placenta - Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
 include_graphics("imgs/enrich/pmd_pla.png") 
 ```
 
-### Impreinted regions - Paper
+\ 
+
+**C) Placenta imprinted regions **
+
+Placenta germline differentially methylated regions (gDMRs) are regions of the genome which show differential methylation according to the parental origin of the genome. They are associated with expression of imprinted genes, genes which are expressed in a parent-of-origin-specific manner. Enrichment for placenta imprinted regions is based on the list provided in [@hamada2016allele]
+
+\ 
 
 ```{r EnrichPlacentaIR, eval=FALSE}
 ## -- Imprinting Regions PLACENTA
@@ -1343,14 +1558,13 @@ plot_TestResults_Collapsed(list(bn = DMR_bn,
 
 ```
 
+\ 
+
 ```{r chr15pla, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:chr15pla}Imprinted Regions for placenta - Fisher test for Hyper and Hypo methylated CpGs", fig.pos='ht'}
 include_graphics("imgs/enrich/iregions.png") 
 ```
 
+\ 
 
-
-<!-- # Session info {.unnumbered} -->
-
-<!-- ```{r sessionInfo, echo=FALSE} -->
-<!-- sessionInfo() -->
-<!-- ``` -->
+References {#references .unnumbered}
+==========
