@@ -32,8 +32,8 @@ require(EASIER)
 
 ########## ----------  VARIABLES DEFINED BY USER  ----------  ##########
 
-# Set working directory to metaanalysis folder
-setwd("<path to metaanalysis folder>/metaanalysis")
+# Set working directory to enrichment folder
+setwd("<path to metaanalysis folder>/Enrichment")
 
 # Files with CpG data to enrich may be a CpGs list or annotated GWAMA output
 FilesToEnrich <- c('./GWAMA_Results/MetaA1/MetaA1_Fixed_Modif.out',
@@ -96,7 +96,7 @@ if( ! tolower(testdata) %in% c('fisher','hypergeometric') )
 
 # Convert relative paths to absolute paths for FilesToEnrich
 FilesToEnrich <- unlist(sapply(FilesToEnrich, function(file) { if(substr(file,1,1)!='.' & substr(file,1,1)!='/') file <- paste0('./',file) else file }))
-FilesToEnrich <- sapply(FilesToEnrich, file_path_as_absolute)
+FilesToEnrich <- sapply(FilesToEnrich, tools::file_path_as_absolute)
 
 if(results_enrich!='.'){
    outputfolder <- file.path(getwd(), results_enrich )
@@ -142,7 +142,11 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       # get unique genes from data
       geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}), getUniqueGenes)
 
+
+      ## -- Online Tools
+
       # Enrichment with ConsensusPathDB
+      #     - Consensus path http://cpdb.molgen.mpg.de/ (gene-set analysis – over-representation analysis)
 
       # Available FSet types :
       # 1 P     manually curated pathways from pathway databases
@@ -170,13 +174,6 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
       names(CPDB_enrich) <- names(geneUniv)
 
-      ## -- Online Tools
-
-      #     - Consensus path http://cpdb.molgen.mpg.de/ (gene-set analysis – over-representation analysis)
-      #     - enrichr https://amp.pharm.mssm.edu/Enrichr/ (it alows gene-set analysis, but also disease
-      #       enrichment and enrichemnt for transcription factors)
-
-
 
       ## -- Molecular Enrichmnet
       ## -----------------------
@@ -185,80 +182,136 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype[i], BN, FDR, pvalue, allCpGs)
 
 
-      ## --  FER - with Online tools ==> A veure si es pot fer l'enriquiment automàtic amb les eines web.....
-      ##### TO DO  : Fer-ho amb script automàtic??? --> Descarregar la informació associada als gens des de les webs utilitzant
-      #####          els scripts que proporciona la web?? , mirar com s'han d'utilitzar i amb quin llenguatge.
-
-
-
-      if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+      if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data))
       {
 
          ## -- Prepare data
          ## ---------------
 
-         # Add column bFDR to data for that CpGs that accomplish with FDR
-         data$bFDR <- getBinaryClassificationYesNo(data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
-
          # Classify by Hyper and Hypo methylated
          data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
 
-         # CpGs FDR and Hyper and Hypo respectively
-         FDR_Hyper <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hyper', "yes", "no")
-         FDR_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "yes", "no")
 
-         # CpGs Bonferroni and Hyper and Hypo respectively
-         BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
-         BN_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "yes", "no")
+         if("FDR" %in% colnames(data) )
+         {
+            # Add column bFDR to data for that CpGs that accomplish with FDR
+            data$bFDR <- getBinaryClassificationYesNo(data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
 
-
-         ## --  CpG Gene position
-         ## ---------------------
-
-         # Get descriptives
-         get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$Bonferroni, "Bonferroni", outputdir = "GenePosition/Fisher_BN_Desc", outputfile = FilesToEnrich[i])
-         get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$bFDR , "FDR", outputdir = "GenePosition/Fisher_FDR_Desc", outputfile = FilesToEnrich[i])
-
-
-         if( tolower(testdata) =='fisher') {
-            ## --  Fisher Test - Gene position - FDR, FDR_hyper and FDR_hypo
-            GenePosition_fdr <- getAllFisherTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
-            GenePosition_fdr_hyper <- getAllFisherTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
-            GenePosition_fdr_hypo <- getAllFisherTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
-         }
-         else if ( tolower(testdata) =='hypergeometric') {
-            ## --  HyperGeometric Test - Island relative position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
-            GenePosition_fdr <- getAllHypergeometricTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDR", outputfile = FilesToEnrich[i])
-            GenePosition_fdr_hyper <- getAllHypergeometricTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
-            GenePosition_fdr_hypo <- getAllHypergeometricTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+            # CpGs FDR and Hyper and Hypo respectively
+            FDR_Hyper <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hyper', "yes", "no")
+            FDR_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "yes", "no")
          }
 
-         plot_TestResults_Collapsed(list(fdr = GenePosition_fdr, fdr_hypo = GenePosition_fdr_hypo, fdr_hyper = GenePosition_fdr_hyper),
-                                    outputdir = "GenePosition", outputfile = FilesToEnrich[i], main = )
-
-
-         ## --  CpG Island relative position
-         ## --------------------------------
-
-         # Get descriptives
-         get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland/Fisher_BN_RelativeToIsland", outputfile = FilesToEnrich[i])
-         get_descriptives_RelativetoIsland(data$Relation_to_Island, data$bFDR , "FDR", outputdir = "RelativeToIsland/Fisher_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
-
-
-         if( tolower(testdata) =='fisher') {
-            ## --  Fisher Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
-            relative_island_fdr <- getAllFisherTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
-            relative_island_fdr_hyper <- getAllFisherTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
-            relative_island_fdr_hypo <- getAllFisherTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+         if("Bonferroni" %in% colnames(data) )
+         {
+            # CpGs Bonferroni and Hyper and Hypo respectively
+            BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
+            BN_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "yes", "no")
          }
-         else if ( tolower(testdata) =='hypergeometric') {
-            ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
-            relative_island_fdr <- getAllHypergeometricTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDR", outputfile = FilesToEnrich[i])
-            relative_island_fdr_hyper <- getAllHypergeometricTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
-            relative_island_fdr_hypo <- getAllHypergeometricTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+
+
+         ## TODO: Simplify this code with only one function x option (fisher - Geometric // BN - FDR )
+
+         # For FDR
+         if("FDR" %in% colnames(data) )
+         {
+
+            ## --  CpG Gene position
+            ## ---------------------
+
+            # Get descriptives
+            get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$bFDR , "FDR", outputdir = "GenePosition/Fisher_FDR_Desc", outputfile = FilesToEnrich[i])
+
+            if( tolower(testdata) =='fisher') {
+               ## --  Fisher Test - Gene position - FDR, FDR_hyper and FDR_hypo
+               GenePosition <- getAllFisherTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hyper <- getAllFisherTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hypo <- getAllFisherTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+            }
+            else if ( tolower(testdata) =='hypergeometric') {
+               ## --  HyperGeometric Test - Island relative position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
+               GenePosition <- getAllHypergeometricTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDR", outputfile = FilesToEnrich[i])
+               GenePosition_hyper <- getAllHypergeometricTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
+               GenePosition_hypo <- getAllHypergeometricTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+            }
+
+            plot_TestResults_Collapsed(list(fdr = GenePosition, fdr_hypo = GenePosition_hypo, fdr_hyper = GenePosition_hyper),
+                                       outputdir = "GenePosition", outputfile = FilesToEnrich[i], main = )
+
+            ## --  CpG Island relative position
+            ## --------------------------------
+
+            # Get descriptives
+            get_descriptives_RelativetoIsland(data$Relation_to_Island, data$bFDR , "FDR", outputdir = "RelativeToIsland/Fisher_FDR_RelativeToIsland", outputfile = FilesToEnrich[i])
+
+            if( tolower(testdata) =='fisher') {
+               ## --  Fisher Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
+               relative_island <- getAllFisherTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hyper <- getAllFisherTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hypo <- getAllFisherTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+            }
+            else if ( tolower(testdata) =='hypergeometric') {
+               ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
+               relative_island <- getAllHypergeometricTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDR", outputfile = FilesToEnrich[i])
+               relative_island_hyper <- getAllHypergeometricTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
+               relative_island_hypo <- getAllHypergeometricTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+            }
+            plot_TestResults_Collapsed(list(bn = relative_island, bn_hypo = relative_island_hypo, bn_hyper = relative_island_hyper),
+                                       outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i], main = )
+
+
          }
-         plot_TestResults_Collapsed(list(fdr = relative_island_fdr, fdr_hypo = relative_island_fdr_hypo, fdr_hyper = relative_island_fdr_hyper),
-                                    outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i], main = )
+
+         # For Bonferroni
+         if("Bonferroni" %in% colnames(data) )
+         {
+
+            ## --  CpG Gene position
+            ## ---------------------
+
+            get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$Bonferroni, "Bonferroni", outputdir = "GenePosition/Fisher_BN_Desc", outputfile = FilesToEnrich[i])
+
+            # For BN
+            if( tolower(testdata) =='fisher') {
+               ## --  Fisher Test - Gene position - FDR, FDR_hyper and FDR_hypo
+               GenePosition <- getAllFisherTest(data$Bonferroni, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BN", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hyper <- getAllFisherTest(BN_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BNHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hypo <- getAllFisherTest(BN_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BNHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+            }
+            else if ( tolower(testdata) =='hypergeometric') {
+               ## --  HyperGeometric Test - Island relative position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
+               GenePosition <- getAllHypergeometricTest(data$Bonferroni, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_BN", outputfile = FilesToEnrich[i])
+               GenePosition_hyper <- getAllHypergeometricTest(BN_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_BNHyper", outputfile = FilesToEnrich[i])
+               GenePosition_hypo <- getAllHypergeometricTest(BN_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_BNHypo", outputfile = FilesToEnrich[i])
+            }
+
+            plot_TestResults_Collapsed(list(fdr = GenePosition, fdr_hypo = GenePosition_hypo, fdr_hyper = GenePosition_hyper),
+                                       outputdir = "GenePosition", outputfile = FilesToEnrich[i], main = )
+
+            ## --  CpG Island relative position
+            ## --------------------------------
+
+            # Get descriptives
+            get_descriptives_RelativetoIsland(data$Relation_to_Island, data$Bonferroni, "Bonferroni", outputdir = "RelativeToIsland/Fisher_BN_RelativeToIsland", outputfile = FilesToEnrich[i])
+
+            if( tolower(testdata) =='fisher') {
+               ## --  Fisher Test - Position Relative to Island - FDR, FDR_hyper and FDR_hypo
+               relative_island <- getAllFisherTest(data$Bonferroni, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BN", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hyper <- getAllFisherTest(BN_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BNHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hypo <- getAllFisherTest(BN_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BNHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+            }
+            else if ( tolower(testdata) =='hypergeometric') {
+               ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
+               relative_island <- getAllHypergeometricTest(data$Bonferroni, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_BN", outputfile = FilesToEnrich[i])
+               relative_island_hyper <- getAllHypergeometricTest(BN_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_BNHyper", outputfile = FilesToEnrich[i])
+               relative_island_hypo <- getAllHypergeometricTest(BN_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_BNHypo", outputfile = FilesToEnrich[i])
+            }
+            plot_TestResults_Collapsed(list(bn = relative_island, bn_hypo = relative_island_hypo, bn_hyper = relative_island_hyper),
+                                       outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i], main = )
+
+         }
+
+
       }
 
 

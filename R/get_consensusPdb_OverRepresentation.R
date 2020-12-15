@@ -7,6 +7,7 @@
 #' @param accNumbers Optional, filename to write results, if NULL no results are writed in a file
 #' @param accType bolean, Optional, if true, prints text "Before QC" , else, prints "After QC"
 #' @param outputfile, filename to write results, if NULL no results are writed in a file
+#' @importFrom brgeEnrich cpdbOverRepresentationAnalysis
 #'
 #' @return list with enrichment
 #'

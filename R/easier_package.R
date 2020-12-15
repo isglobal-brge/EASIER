@@ -13,4 +13,5 @@
 #' @import tools
 #' @importFrom reshape2 melt
 #' @importFrom  meta metagen
+#' @importFrom  brgeEnrich cpdbOverRepresentationAnalysis
 NULL
