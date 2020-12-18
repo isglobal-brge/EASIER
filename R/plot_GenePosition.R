@@ -1,8 +1,8 @@
-#' Plot OR
+#' Gene Pisition Plots
 #'
-#' Plot OR
+#' Gene Pisition plot
 #'
-#' @param x Dataframe with OR data
+#' @param x Dataframe with Gene Position data
 #' @param outputdir string with relative path
 #' @param main optional, string with title
 #' @param xlab optional, string with xlab text
@@ -10,11 +10,10 @@
 #' @return distribution plot
 #'
 #' @export
-plot_OR <- function(x, outputdir = '.', outputfile = NULL, main='', xlab='',...)
+plot_GenePosition <- function(x, outputdir = '.', outputfile = NULL, main='', xlab='',...)
 {
 
-   # x$RelIsland <- factor(x[,1], levels = (as.character(x[,1])))
-   x$desc <- factor(x[,1], levels = (as.character(x[,1])))
+   x$RelIsland <- factor(x[,1], levels = (as.character(x[,1])))
    x[c("OR", "OR.inf","OR.sup","p-val")] <- lapply(x[c("OR", "OR.inf","OR.sup","p-val")], function(xf) as.numeric(levels(xf))[xf])
 
    nms <- names(x)

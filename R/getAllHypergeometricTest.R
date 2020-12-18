@@ -6,11 +6,12 @@
 #' @param criteria dataframe with all relative positions to island values or chromatin status 15 or 18 Fetal Placenta
 #' @param outputdir string. Output path to store file with results, by default results are written in current dir
 #' @param outputfile string. File name to store results if no name is provided results are not written.
+#' @param plots boolean. If plot is TRUE, plot results
 #'
 #' @return Dataframe with hypergeometric test results for all criteria values
 #'
 #' @export
-getAllHypergeometricTest <- function(significative, criteria, outputdir = ".", outputfile = NULL)
+getAllHypergeometricTest <- function(significative, criteria, outputdir = ".", outputfile = NULL, plots = TRUE )
 {
    #..# positions <- unique(criteria)
    positions <- getUniqueValues(criteria)
@@ -28,6 +29,10 @@ getAllHypergeometricTest <- function(significative, criteria, outputdir = ".", o
       filename <- tools::file_path_sans_ext(basename(outputfile))
 
       write.csv(ans, paste0(file.path( outputdir),"/Hypergeomtest_",filename,".csv"))
+   }
+
+   if(plots == TRUE){
+      plot_Depletion_Enrichment(ans, outputdir = outputdir ,outputfile = outputfile)
    }
 
    return(ans)

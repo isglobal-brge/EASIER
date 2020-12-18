@@ -16,7 +16,7 @@ The EASIER package performs epigenetic wide-association study (EWAS) downstream 
    - Link to GWAMA
    - Format QCed EWAS results file
    - Run GWAMA -> EWAS meta-analysis results file
-   - Meta-analysis with summaries -> xxxxxxx
+   - Meta-analysis with summaries 
    - Meta-analysis with plots -> Heterogeneity plot, distribution plots, QQ-plots, Volcano plots, Manhattan plots andForest plots,
 * **Functional enrichment (pathway and molecular enrichments)**
    - GO and KEGG and MolSig

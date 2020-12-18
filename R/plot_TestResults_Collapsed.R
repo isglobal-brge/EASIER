@@ -14,9 +14,9 @@ plot_TestResults_Collapsed <- function(x, outputdir = '.', outputfile = NULL, ma
 {
 
    x.df <- bind_rows(x, .id = "test")
-   x.df[3:6] <- lapply(x.df[3:6], function(xf) as.numeric(as.character(xf)))
+   x.df[3:6] <- lapply(x.df[3:6], function(xf) as.numeric(levels(xf))[xf])
 
-   p <- ggplot(x.df, aes(x = Data, y = OR, fill = test)) +
+   p <- ggplot(x.df, aes(x = colnames(x.df[2]), y = OR, fill = test)) +
       geom_bar(stat="identity",   position=position_dodge(), width = 0.5) +
       geom_errorbar(aes(ymin=OR.inf, ymax=OR.sup), width=0.2, position=position_dodge(.5)) +
       theme_classic(base_size = 20) +

@@ -1,5 +1,24 @@
 Changes history :
 
+2020/12/18 : 
+-------------
+
+   Added and modified plots : 
+	* Plot depletion and enrichment (added)
+	* Plot gene position (added)
+	* Plot Relative Island position (modified)
+
+   Modified enrichment script for a CpG list (without other data)
+	* Partially Methylated Domains - PMD (Placenta)
+	* Imprinting regions - DMR (Placenta)
+	* ROADMAP -  Fetal Placenta 15 and 18 (Placenta)
+	* ROADMAP - Chromatin States (Blood)
+
+2020/12/15 : 
+-------------
+
+   Vignette update
+
 2020/12/11 :
 -------------
 

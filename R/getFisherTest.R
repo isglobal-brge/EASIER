@@ -11,7 +11,27 @@
 #' @export
 getFisherTest <- function(significative, criteria, varname)
 {
-   rp <- as.data.frame.matrix(table(significative, criteria))[,c("yes","no")]
+   rp <- as.data.frame.matrix(table(significative, criteria))
+
+
+   if(dim(rp)[1]<2) {
+      rp <- rbind(rp,c(0,0))
+      if(!'yes' %in% rownames(rp)) {
+         rownames(rp) <- c('no', 'yes')
+      }else {
+         rownames(rp) <- c('yes', 'no')
+      }
+   }
+
+   if(dim(rp)[2]<2) {
+      if(!'yes' %in% colnames(rp)) {
+         rp$yes <- rep(0,2)
+      }else {
+         rp$no <- rep(0,2)
+      }
+   }
+
+   rp <- rp[,c("yes","no")]
 
    rp1 <- rbind(nosig = rp[1, ], sig = colSums(rp[-1, ]))[c(2,1),]
    xt <- chisq.test(rp1)

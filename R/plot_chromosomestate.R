@@ -14,6 +14,8 @@ plot_chromosomestate <- function(x, outputdir = '.', outputfile = NULL, main='',
 {
 
    x$ChromStates <- factor(x$ChromStates, levels = (as.character(x$ChromStates)))
+   x[c("OR", "OR.inf","OR.sup","p-val")] <- lapply(x[c("OR", "OR.inf","OR.sup","p-val")], function(xf) as.numeric(levels(xf))[xf])
+
    p <- ggplot(x, aes(x = ChromStates, y = OR)) +
       geom_bar(stat="identity", fill = "steelblue1", width = 0.5) +
       geom_errorbar(aes(ymin=OR.inf, ymax=OR.sup), width=0.2) +

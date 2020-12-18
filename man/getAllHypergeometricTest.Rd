@@ -8,7 +8,8 @@ getAllHypergeometricTest(
   significative,
   criteria,
   outputdir = ".",
-  outputfile = NULL
+  outputfile = NULL,
+  plots = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ getAllHypergeometricTest(
 \item{outputdir}{string. Output path to store file with results, by default results are written in current dir}
 
 \item{outputfile}{string. File name to store results if no name is provided results are not written.}
+
+\item{plots}{boolean. If plot is TRUE, plot results}
 }
 \value{
 Dataframe with hypergeometric test results for all criteria values

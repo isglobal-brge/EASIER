@@ -312,7 +312,62 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          }
 
 
+      } else {
+
+         ## -- Prepare data
+         ## ---------------
+
+         # * Create dataframe with non significative CpGs attending to artype ('EPIC' or '450K')
+         #     - Get gene position tests
+         #     - Get CpG Island relative position ests
+
+         # Get
+         unsignif_df <- get_annotation_unlisted_CpGs(data$rs_number, artype[i])
+
+         data$signif <- 'yes'
+         unsignif_df$signif <- 'no'
+
+         data <- rbind(data[,c(2:47, 50)], as.data.frame(unsignif_df) )
+         data$rs_number <- data$Name
+
+
+         ## TODO: Simplify this code with only one function x option (fisher - Geometric // BN - FDR )
+
+         ## --  CpG Gene position
+         ## ---------------------
+
+         # Get descriptives
+         get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$signif , "CpGlist", outputdir = "GenePosition/Fisher_CpGlist_Desc", outputfile = FilesToEnrich[i])
+
+         if( tolower(testdata) =='fisher') {
+            GenePosition <- getAllFisherTest(data$signif, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_CpGlist", outputfile = FilesToEnrich[i], plots = TRUE )
+         }else if ( tolower(testdata) =='hypergeometric') {
+            GenePosition <- getAllHypergeometricTest(data$signif, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+         }
+
+         #..# plot_RelativetoIsland(GenePosition, outputdir = "GenePosition", outputfile = paste0("CpGlist_",FilesToEnrich[i]), main = )
+         plot_GenePosition(GenePosition, outputdir = "GenePosition", outputfile = paste0("CpGlist_",FilesToEnrich[i]), main = )
+
+         ## --  CpG Island relative position
+         ## --------------------------------
+
+         # Get descriptives
+         get_descriptives_RelativetoIsland(data$Relation_to_Island, data$signif , "CpGlist", outputdir = "RelativeToIsland/Fisher_CpGlist_RelativeToIsland", outputfile = FilesToEnrich[i])
+
+         if( tolower(testdata) =='fisher') {
+            relative_island <- getAllFisherTest(data$signif, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_CpGlist", outputfile = FilesToEnrich[i], plots = TRUE )
+         } else {
+            relative_island <- getAllHypergeometricTest(data$signif, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+         }
+
+         plot_OR(relative_island, outputdir = "RelativeToIsland", outputfile = paste0("CpGlist_",FilesToEnrich[i]), main = )
+
+         #..# plot_TestResults_Collapsed(list(relat = relative_island),
+         #..#                            outputdir = "RelativeToIsland", outputfile = paste0("CpGlist_",FilesToEnrich[i]), main = )
+
       }
+
+
 
 
 
@@ -329,11 +384,11 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          # Prepare data
          crom_data <- addCrom15Columns(data, "rs_number") # Adds chromatine state columns
 
-         if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
-         {
+         # Columns with chromatin status information :
+         ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
 
-            # Columns with chromatin status information :
-            ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
+         if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data))
+         {
 
             if( !is.na(FDR) ) {
                chrom_states_fdr <- getAllChromStateOR( crom_data$bFDR, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
@@ -351,6 +406,10 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                plot_TestResults_Collapsed(list(bn = chrom_states_bn, bn_hypo = chrom_states_bn_hypo, bn_hyper = chrom_states_bn_hyper),
                                           outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
             }
+         } else {
+
+            chrom_states <- getAllChromStateOR( crom_data$signif, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_CpGlist", outputfile = FilesToEnrich[i], plots = TRUE )
+            #..# plot_chromosomestate(chrom_states, outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
          }
       }
 
@@ -365,12 +424,16 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          ## -- ROADMAP  -  Regulatory feature enrichment analysis - PLACENTA
          ## -----------------------------------------------------------------
 
+         # Adds rs_number column if not in dataframe
+         if(! "rs_number" %in% colnames(data)){
+            data$rs_number <- data$CpGs}
+
          # Convert to Genomic Ranges
          data.GRange <- GRanges(
             seqnames = Rle(data$chr),
             ranges=IRanges(data$pos, end=data$pos),
-            name=data$CpGs,
-            chr=data$chromosome,
+            name=data$rs_number,
+            chr=data$chr,
             pos=data$pos
          )
          names(data.GRange) <- data.GRange$name
@@ -390,7 +453,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          }
 
          # Merge annotated data with chromatine states with states with data
-         crom_data <- merge(data, data.chrstates, by.x = "CpGs", by.y = "name" )
+         crom_data <- merge(data, data.chrstates, by.x = "rs_number", by.y = "name" )
 
          fname <- paste0("ChrSates_Pla_data/List_CpGs_",
                          tools::file_path_sans_ext(basename(FilesToEnrich[i])),
@@ -514,6 +577,30 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                }
 
             }
+         }else {
+
+            if( tolower(testdata) =='fisher') {
+               States15FP <- getAllFisherTest(crom_data$signif , crom_data$States15_FP, outputdir = "ChrSates_15_Pla/Fisher_CpGlist", outputfile = FilesToEnrich[i])
+            } else if ( tolower(testdata) =='hypergeometric') {
+               States15FP <- getAllHypergeometricTest(crom_data$signif, crom_data$States15_FP, outputdir = "ChrSates_15_Pla/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+            }
+
+            ## --  Plot collapsed data HyperGeometric Test - States15_FP - FDR
+            #....CREC QUE NO ES NECESSARI.... # plot_OR(signif = States15FP, outputdir = "ChrSates_15_Pla", outputfile = FilesToEnrich[i])
+
+
+            if(enrichFP18 == TRUE)
+            {
+               if( tolower(testdata) =='fisher') {
+                  States18FP <- getAllFisherTest(crom_data$signif , crom_data$States18_FP, outputdir = "ChrSates_18_Pla/Fisher_CpGlist", outputfile = FilesToEnrich[i])
+               } else if ( tolower(testdata) =='hypergeometric') {
+                  States18FP <- getAllHypergeometricTest(crom_data$signif, crom_data$States18_FP, outputdir = "ChrSates_18_Pla/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+               }
+
+               ## --  Plot collapsed data HyperGeometric Test - States15_FP - FDR
+               #....CREC QUE NO ES NECESSARI.... # plot_TestResults_Collapsed(list(signif = States18FP), outputdir = "ChrSates_18_Pla", outputfile = FilesToEnrich[i])
+            }
+
          }
 
 
@@ -530,7 +617,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overPMD$qhits]), DataFrame(PMD = PMD.GRange$name[overPMD$shits])))
 
          # Merge with results from meta-analysis (A2)
-         crom_data <- merge(crom_data, mdata, by.x="CpGs", by.y="CpG",all=T)
+         crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
          # crom_data <- crom_data[order(crom_data$p.value),]
 
          # CpGs with PMD as NA
@@ -586,6 +673,14 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                plot_TestResults_Collapsed(list(bn = PMD_bn, bn_hypo = PMD_bnhypo, bn_hyper = PMD_bnhyper),
                                           outputdir = "PMD_Pla", outputfile = FilesToEnrich[i])
             }
+         } else {
+
+            if( tolower(testdata) =='fisher') {
+                  PMD <- getAllFisherTest(crom_data$signif, PMD_NaN, outputdir = "PMD_Pla/Fisher_CpGlist", outputfile = FilesToEnrich[i])
+            } else if ( tolower(testdata) =='hypergeometric') {
+                  PMD <- getAllHypergeometricTest(crom_data$signif, PMD_NaN, outputdir = "PMD_Pla/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+            }
+
          }
 
 
@@ -603,7 +698,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overDMR$qhits]), DataFrame(DMR = DMR.GRange$name[overDMR$shits])))
 
          # Merge with results from meta-analysis (A2)
-         crom_data <- merge(crom_data, mdata, by.x="CpGs", by.y="CpG",all=T)
+         crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
 
          # CpGs with DMR as NA
          DMR_NaN <- ifelse(is.na(crom_data$DMR.y),'IsNA','NotNA' )
@@ -659,6 +754,13 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                                           outputdir = "DMR_Pla", outputfile = FilesToEnrich[i])
             }
 
+         } else {
+
+            if( tolower(testdata) =='fisher') {
+                  DMR <- getAllFisherTest(crom_data$signif, DMR_NaN, outputdir = "DMR_Pla/Fisher_CpGlist", outputfile = FilesToEnrich[i])
+            } else if ( tolower(testdata) =='hypergeometric') {
+                  DMR <- getAllHypergeometricTest(crom_data$signif, DMR_NaN, outputdir = "DMR_Pla/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+            }
          }
       }
 
