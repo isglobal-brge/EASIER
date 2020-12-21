@@ -1,9 +1,14 @@
 Changes history :
 
-2020/12/18 : 
+2020/12/21 :
 -------------
 
-   Added and modified plots : 
+   Vignette update.
+
+2020/12/18 :
+-------------
+
+   Added and modified plots :
 	* Plot depletion and enrichment (added)
 	* Plot gene position (added)
 	* Plot Relative Island position (modified)
@@ -14,7 +19,10 @@ Changes history :
 	* ROADMAP -  Fetal Placenta 15 and 18 (Placenta)
 	* ROADMAP - Chromatin States (Blood)
 
-2020/12/15 : 
+   Added new functions to perform enrichment for a CpG list
+
+
+2020/12/15 :
 -------------
 
    Vignette update

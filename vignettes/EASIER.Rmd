@@ -19,11 +19,11 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
+   BiocStyle::pdf_document:
+    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
-   BiocStyle::pdf_document:
-    toc_float: true
 bibliography: bibliography.bib
 abstract: |
   The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results (using GWAMA) and 3) Functional enrichment (pathway and molecular enrichments)
@@ -61,43 +61,43 @@ To perform meta-analyses we use GWAMA, a Software tool for meta analysis develop
 
 The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis:
 
-* Quality control of EWAS results
+* **Quality control** of EWAS results
    + Folders: input and ouput
-   + Configuration: array type, sample, ethnic, exclusion CpGs criteria
+   + Configuration: array type, sample size, ethnicity, exclusion CpGs criteria
    + CpG filtering selection -> list of CpGs filtered and reason
    + QC with summaries -> summary SE, Beta, lambda, significatives...
-   + QC with plots -> QQplot, Distribution plot, precision plot, ...
+   + QC with plots -> QQ-plots, Distribution plot, precision plot, ...
    + CpG annotation and adjustment -> QCed EWAS results file
 
-* Meta-analysis of EWAS results (using GWAMA)
+* **Meta-analysis** of EWAS results (using GWAMA)
    + Folders: input and output
    + Link to GWAMA
    + Format QCed EWAS results file
    + Run GWAMA -> EWAS meta-analysis results file
-   + Meta-analysis with summaries -> xxxxxxx
-   + Meta-analysis with plots -> Heterogeneity plot, distribution plots, QQ-plots, Volcano plots, Manhattan plots andForest plots, 
+   + Meta-analysis with summaries 
+   + Meta-analysis with plots -> Heterogeneity plot, distribution plots, QQ-plots, Volcano plots, Manhattan plots and Forest-plots
 
-* Functional enrichment (pathway and molecular enrichments)
+* **Functional enrichment** (pathway and molecular enrichments)
    + GO and KEGG and MolSig
    + Pathways with Molecular Signatures Database (MSigDB)
    + ConsensusPath Data Base
    + Gene relative position
    + CpG island relative position
    + Specific for Blood : 
-      - 15 ROADMAP chromatine states
+      - 15 ROADMAP chromatine states ( N = 15 )
    + Specific for Placenta : 
-      - ROADMAP chromatine states Fetal Placenta 15 and 18  
-      - Partially methylated domains (PMDs)
-      - Impreinted regions
+      - ROADMAP fetal placenta chromatin states ( N = 15 and N = 18 )
+      - Placenta partially methylated domains (PMDs)
+      - Placenta Impreinted regions
 
 
-In this vignette we will show how to apply EASIER con the EWAS results from  three cohorts and two distinct models for each cohort.
+In this vignette we will show how to apply **EASIER R package** with the EWAS results from three cohorts and two distinct models for each cohort.
 
 
 
 # Getting started
 
-To install the required packages input the following commands to the R console:
+To install the required packages run the following commands in R:
 
 ```{r installDependences, eval=FALSE}
 # Install devtools
@@ -106,11 +106,11 @@ install.packages("devtools")
 # Install required packages 
 devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
-# Install EASIER package
+# Install EASIER R package
 devtools::install_github("isglobal-brge/EASIER@HEAD")
 ```
 
-The previous commands will install a library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run EASIER, finally the package EASIER is installed.
+The previous commands will install a the library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run **EASIER R package**. Lastly, the package **EASIER** is installed.
 
 ```{r loadMethyTools, eval=TRUE}
 library(EASIER)
@@ -121,24 +121,24 @@ library(readtext)
 # Quality control
 
 
-## Quality Control Flowchart
+## **Quality Control** Flowchart
 
 
 ```{r qcworkflow, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:qcworkflow}Quality control flowchart. This flowchart is used in the script under test folder to perform the quality control (QualityControl.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
 include_graphics("imgs/workflows/QCWorkflow.png") 
 ```
 
-We have programmed the script [QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R) using the library functions to carry out the *quality control process* automatically only by defining the previous variables. The script follows the **Figure\@ref(fig:qcworkflow)** workflow. In this vignette we will explain how the script works to allow you to modify if necessary.
+We have created a script named **[QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R)** to carry out the **quality control** of EWAS results automatically. This script needs very few initial editing steps to indicate information specific to the study. The script follows the **Figure\@ref(fig:qcworkflow)** workflow. Briefly, after reading the EWAS results file/s, it starts by detecting missings and duplicated CpGs, and generates the initial descriptive for Beta, SE and p-values.  Then a list of CpGs that meet exclusion conditions (indicated by the user) are excluded from the file, and the adjusted p-values and lambda are calculated. A new QCed results file is created, together with the new descriptive for Beta, SE and p-values, and several graphical analyses (distribution plot, QQ-plot, Volcano plot). Finally, if working with more than one EWAS results file, a beta’s box plot and a precision plot is created comparing the different EWAS results.  
 
 
-## Initial Variables definition
+## Initial definition of variables specific to the study
 
 
-We need to define the variables to work in all Quality control process, and the files containing the results of the EWAS to perform the downstream analysis.
+We need to define certain variables specific to each study in order to run the **Quality Control module**. `r colorize("(this is the only part of the code that requires editing!).", 'red')`
 
 ### Input data
 
-As we commented before, we will perform an EWAS with three different cohorts and two distinct models for each cohort, so we need to define where the data is stored for each model and each cohort (six files). We do that in a character vector, and the variable is called files:
+We need to indicate where the data is stored for each model and cohort by defining a character vector called ‘files’ as in the following example (the example involves three different cohorts and two distinct models for each cohort): 
 
 ```{r QC_varfiles}
 
@@ -162,16 +162,16 @@ cg15560884 | 0.00156725345562218 | 0.0063878467810596 | 0.845523221223523
 
 ### Where to store output
 
-We can also define the folder where we will save the results, for example in a variable called `result_folder`, in this case the results will be stored stored in a folder named *QC_Results*.
+We need to define the folder where we want to save the results indicating it in a character vector called `result_folder`. In the example the results will be stored in a folder named *`QC_Results`*.
 
 ```{r QCVarres}
 # Result folder
 results_folder <- 'QC_Results'
 ```
 
-### Make results understandable
+### Define abbreviations for input files
 
-To make the analysis more understandable and do not have very complex file names we have to define an abbreviated form for each of the files defined above. For example, PROJ1_Cohort3_Model1_date_v2 will be treated as PROJ1_Cohort3_A1 or PROJ1_Cohort2_Plate_ModelA1_20170309 as PROJ1_Cohort2_A2 The length of the prefix vector must be equal to that of the files indicated above:
+To make the analysis more understandable and do not have very complex file names we use an abbreviated name for each of the files used as input in this module. For example, PROJ1_Cohort3_Model1_date_v2 will be treated as PROJ1_Cohort3_A1, or PROJ1_Cohort2_Plate_ModelA1_20170309 as PROJ1_Cohort2_A2. The length of the prefix vector must be equal to the number of files used as input:
 
 ```{r QCVarPrefix}
 # Prefixes for each file
@@ -183,52 +183,59 @@ prefixes <- c('PROJ1_Cohort3_A1', 'PROJ1_Cohort3_A2',
 
 ### Illumina Array type and filter conditions
 
-The Illumina array type has to be indicated with one of these two possible values: 450K and EPIC. Filter CpGs is dependent on the Illumina array, thus this field has to be completed. 
+We need to indicate the type of Illumina array used to measure DNA methylation in each of the EWAS that we are QCing. Two different array types are possible: *450K* or *EPIC* and should be listed following the same order as in the character vector `file` or `prefixes` (see example). Filtering of CpGs will depend on the Illumina array, thus this field has to be completed. 
+
 
 ```{r QCVarartype}
 # Array type, used : EPIC or 450K
-artype <- '450K'
+artype <- c('450K', 'EPIC', '450K', 'EPIC', '450K', 'EPIC')
 ```
 
-In the quality control (QC) process, we exclude those CpGs that do not accomplish the defined parameters (based on *Zhou et al. 2017, Solomon et al. 2018, Fernandez-Jimenez et al. 2019*). These parameters are defined in a character vector and are the following:
 
-#### Perform CpG exclusions –> non CpG probes and sexual CpGs:
+In the **Quality Control module**, we need to exclude those CpGs that do not accomplish certain criteria. These criteria are flexible, and must be defined by the user. In this package we have included several parameters to designate these criteria based on [@zhou2017comprehensive], [@solomon2018comparison], [@fernandez2019comparison]. These parameters can be defined in a character vector as below:  
+
+
+#### Perform CpG exclusions –> control and non-CpG probes, and probes targeting CpGs in sexual chromosomes:
 
   * **Control probes ("control_probes")**: technical control probes that do not correspond to CpGs, such as bisulfite conversion I, bisulfite conversion II, extension, hybridization and negative. Classified as "rs" in the filtering variable named "probeType";
-  * **Non-cpg probes ("noncpg_probes")**: non-cpg probes classified as "ch" in the filtering variable named "probeType";
-  * **Sex chromosomes ("Sex")**: to avoid misleading results due to differences in sex-chromosome dosage on the human methylome. Filtering variable "Sex"; #
+  * **Non-cpg probes ("noncpg_probes")**: probes targeting non-cpg sites classified as "ch" in the filtering variable named "probeType";
+  * **Sex chromosomes ("Sex")**: probes targeting sex chromosomes. Select this to avoid misleading results due to differences in sex-chromosome dosage on the human methylome. Filtering variable "Sex";
 
-#### Perform CpG exclusions –> hybridizing problems:
+#### Perform CpG exclusions –> probes with hybridizing problems
 
   * **Poor mapping probes ("MASK_mapping")**: Probes that have poor quality mapping to the target genomic location as indicated in the array’s manifest file based on genome build GRCh37 and GRCh38 (for example due to the presence of INDELs (Insertion–deletion mutations present in the genome); 
-  * **Cross-hybridising probes ("MASK_sub30")**: The sequence of the last 30bp at the 3’ end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites); Zhou et al. recommend 30bp, but in the code we prepared there is the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3’-subsequences (**"MASK_sub25", "MASK_sub40", "MASK_sub45"**).
+  * **Cross-hybridising probes ("MASK_sub30")**: The sequence of the last 30bp at the 3' end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites); [@zhou2017comprehensive] recommend 30bp, but in this script there is the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3'-subsequences (**"MASK_sub25", "MASK_sub40", "MASK_sub45"**).
 
-#### Perform CpG exclusions -> presence of SNPs:
+#### Perform CpG exclusions -> probes affected by the presence of SNPs
 
   * **"MASK_extBase"**: Probes with a SNP altering the CpG dinucleotide sequence context and hence the ability of target cytosines to be methylated (regardless of the MAF); 
-  * **"MASK_typeINextBaseSwitch"**: Probes with a SNP in the extension base that causes a color channel switch from the official annotation (regardless of the MAF); 
-  * **"MASK_snp5.GMAF1p"**: probes with SNPs at the last 5bp of the 3’ end of the probe, with an average minor allele frequency (MAF) >1%, by ethnic group; 
-  * **"MASK_snp5.common"**: probes with SNPs at the last 5bp of the 3’ end of the probe, with any average minor allele frequency (MAF) (can be <1%), by ethnic group;
+  * **"MASK_typeINextBaseSwitch"**: Probes with a SNP in the extension base that causes a colour channel switch from the official annotation (regardless of the MAF); 
+  * **"MASK_snp5.GMAF1p"**: probes with SNPs at the last 5bp of the 3' end of the probe, with an average minor allele frequency (MAF) >1%, by ethnic group; 
+  * **"MASK_snp5.common"**: probes with SNPs at the last 5bp of the 3' end of the probe, with any average minor allele frequency (MAF) (can be <1%), by ethnic group;
 
-#### Perform CpG exclusions -> array consistency:
+#### Perform CpG exclusions -> probes giving inconsistent results between arrays
 
-  * **"Unrel_450_EPIC_blood"**: These are probes that are known to yield different results for the 450K and EPIC array in BLOOD, suggesting that results are unreliable for at least one of these arrays. CpGs based on Solomon et al. (2018).
-  * **"Unrel_450_EPIC_pla_restrict"** or **"Unrel_450_EPIC_pla"**: These are probes that are known to yield different results for the 450K and EPIC array in PLACENTA, suggesting that results are unreliable for at least one of these arrays. CpGs based on Fernandez-Gutierrez et al. (2019).
+  * **"Unrel_450_EPIC_blood"**: These are probes that are known to yield different results for the 450K and EPIC array in BLOOD, suggesting that results are unreliable for at least one of these arrays. CpGs based on [@solomon2018comparison].
+  * **"Unrel_450_EPIC_pla_restrict"** or **"Unrel_450_EPIC_pla"**: These are probes that are known to yield different results for the 450K and EPIC array in PLACENTA, suggesting that results are unreliable for at least one of these arrays. CpGs based on[@fernandez2019comparison] .
  
-In this example we filter CpGs that meet the following conditions: MASK_sub35_copy, MASK_typeINextBaseSwitch, noncpg_probes, control_probes, Unreliable_450_EPIC and Sex.
+In this example we filter CpGs that meet the following conditions: MASK_sub30_copy, MASK_extBase, MASK_mapping, MASK_typeINextBaseSwitch, control_probes, Unrel_450_EPIC_blood and Sex. This is the **recommended configuration for blood + 450K + EUR**
 
 
 ```{r QCVarexclude}
 # Parameters to exclude CpGs
-exclude <- c( 'MASK_sub35_copy', 
-              'MASK_typeINextBaseSwitch', 
-              'noncpg_probes', 
-              'control_probes', 
-              'Unrel_450_EPIC_blood', 
-              'Sex')
+exclude <-  c( 'MASK_sub30_copy', 
+               'MASK_extBase', 
+               'MASK_mapping', 
+               'MASK_typeINextBaseSwitch', 
+               'control_probes', 
+               'Unrel_450_EPIC_blood', 
+               'Sex')
 ```
 
-We also need to define the ethnic origin of the study population. Ethnic origins can be one of the table or *GMAF1p* if population is very diverse.
+
+#### Ethnicity
+
+We need to define the ethnic origin of the study population for each of the EWAS results files used as input in the **Quality Control module**. Ethnic origins can be indicated according to the corresponding code from the table below. If the population is very diverse then indicate ethnic as `GMAF1p`.
 
 | **Population Code** | **Population Description                                            ** | **Super Population Code** |
 | :-------------------: | :---------------------------------------------------------------------- | :-------: |
@@ -268,13 +275,13 @@ We also need to define the ethnic origin of the study population. Ethnic origins
 
 
 ```{r QCVarethnic}
-ethnic <- 'EUR'
+ethnic <- c('EUR', 'EUR', 'SAS', 'SAS', 'EUR', 'EUR')
 ```
 
 
 ### Other variables :
 
-To obtain the precision plot and to perform the GWAMA meta-analysis we need to know the number of samples in the EWAS results, so we store this information in ”N”for each of the files. In addition, for case-control EWAS, we need to know the sample size of exposed or diseased individuals. This informaiotn is storaed as “n” for each of the files
+To obtain the precision plot and to later perform the GWAMA meta-analysis we need to know the number of samples in each of the EWAS results files. We indicate this information in the vector called ”N”. In addition, for case-control EWAS, we need to know the sample size of exposed or diseased individuals in each of the EWAS results files. This information is indicated in the vector called "n".
 
 
 ```{r QCVarN}
@@ -282,9 +289,13 @@ N <- c(100, 100, 166, 166, 240, 240 )
 n <- c(NA)
 ```
 
-## Quality Control - general code
+## Overview of the QualityControl.R code
 
-As we show in the quality control flowchart, this code can be executed for each file defined in previous variable `files` but in this example we only show the analysis workflow for one of them. The complete code can be found in [QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R) .
+`r colorize("Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify it to adapt to their needs.", 'red')`
+
+This code can be executed for each file defined in previous variable `files` but in this example we only show the analysis workflow for one of them. 
+
+AThe complete code can be found in [QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R) .
 
 ```{r QCCode1}
 
@@ -312,7 +323,14 @@ if(!dir.exists(file.path(getwd(), results_folder )))
    # we force i <- 1 to execute the analysis only for the first variable
    # for real data we have to remove this line
    i <- 1
-
+   
+   # Creates an empty file to resume all data if an old file exist  removes
+   # the file and creates a new one
+   fResumeName <- paste0( file.path(getwd(), results_folder, prefixes[i]),"/",prefixes[i], "_descriptives.txt")
+   if ( file.exists(fResumeName) ) {
+      file.remove(fResumeName)
+   }
+   file.create(fResumeName)
 ```
 
 First, we need to read the content of a file with EWAS results,
@@ -324,49 +342,84 @@ cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
 print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
-and store the content of the file in a `cohort` variable.  After that, we perform a simple descriptive analysis, using the function `descriptives_CpGs`. This function needs the EWAS results to be analyzed (`cohort`), the fields for which we are interested to get descriptives, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. For the first file it would be: *QC_Results/PROJ1_Cohort3_A1_descriptives.txt*, at the end of each iteration we get the complete resume with before and after remove CpGs, the excluded CpGs, and the significative CpGs after p-value adjust by FDR and Bonferroni.
+and store the content of the file in a `cohort` variable.  
 
-```{r QCCodeDescriptives}
-# Descriptives - Before CpGs deletion
-descriptives_CpGs(cohort, seq(2,4), paste0(results_folder,'/',prefixes[i],
-                                           '_descriptives_init.txt') )
+
+After that, we are ready to execute the quality control following the steps indicated in the workflow (Figure\@ref(fig:qcworkflow)). These are the functions that will be used: 
+
+1.  `descriptives_CpGs` function: This function performs a simple descriptive analysis. It  needs the EWAS results to be analysed (`cohort`), the fields for which we are interested to get descriptive, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. The name of the first file would be: *QC_Results/PROJ1_Cohort3_A1_descriptives.txt*.  At the end of each iteration we get the complete resume with descriptive before and after removing CpGs, the list of excluded CpGs, and the list of statistically significant CpGs after adjusting p-value by FDR and Bonferroni.
+
+```{r QCCodeDescriptives2, echo=FALSE, eval=TRUE}
+# Creates an empty file to resume all data if an old file exist  removes
+# the file and creates a new one
+fResumeName <- paste0( file.path(getwd(), results_folder, prefixes[i]),"/",prefixes[i], "_descriptives.txt")
+if ( file.exists(fResumeName) ) {
+   file.remove(fResumeName)
+}
+file.create(fResumeName)
+```
+```{r QCCodeDescriptives, eval=FALSE}
+# Descriptives - Before CpGs deletion #
+descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = TRUE)
 
 ```
 
-Then, we test if there are any duplicate CpGs. If there are duplicated CpGs, these are removed using the function `remove_duplicate_CpGs`. In this function we must indicate what data have to be reviewed and the field that contains the CpG IDs. Optionally, we can write the duplicates and descriptives related to this duplicates in a file.
+2.  `test_duplicate_CpGs` function: This function tests whether there are any duplicate CpGs. If there are, the script execution stops and writes the duplicates and descriptive related to these duplicates in a file.
 
 ```{r QCCodeRemovedupli}
 # Remove duplicates
-cohort <- remove_duplicate_CpGs(cohort, "probeID", 
-                                paste0(results_folder,'/',prefixes[i],
-                                       '_descriptives_duplic.txt'), 
-                                paste0(results_folder,'/',prefixes[i],
-                                       '_duplicates.txt') )
+test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
 
 ```
 
-To exclude CpGs that we are not interested in, we use the function `exclude_CpGs`. Here we use the parameters defined before in the `exclude` variable, which are the data, cohort, the CpG id field (can be the column number or the field name "probeId"), the filters to apply defined in `exclude` variable, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name will be  *QC_Results/PROJ1_Cohort3_A1_excluded.txt*).
+3.  `filterLowRepresentedCpGsinCohort` function: This function remove low represented CpGs in a cohort with a missing pcentage indicated in `pcMissingSamples`. This data is updated in descriptive resume.
+
+```{r QCCodefilterLR}
+# Remove cpGs with low representation
+   # first, we test if colname_NforProbe and pcMissingSampes are defined
+   if( !exists("colname_NforProbe") ) { colname_NforProbe <- NULL }
+   if( !exists("pcMissingSamples") ) { pcMissingSamples <- NULL }
+
+# Remove cpGs with low representation
+cohort <- filterLowRepresentedCpGsinCohort(cohort, 
+                                           colname_NforProbe, 
+                                           pcMissingSamples, N[i], 
+                                           fileresume = fResumeName )
+```
+
+4.  `exclude_CpGs` function: This function excludes the list of CpGs that we previously selected (section 4.2.4). Here we use the parameters defined before in the `exclude` variable, which are the data, cohort, the CpG id field (can be the column number or the field name "probeId"), the filters to apply, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name would be *QC_Results/PROJ1_Cohort3_A1_excluded.txt*).
+
 \ 
 
 
 ```{r QCCodeexclCpGs}
 # Exclude CpGs not meet conditions
-cohort <- exclude_CpGs(cohort, "probeID", exclude, 
-                       filename = paste0(results_folder,'/',prefixes[i],
-                                         '_excluded.txt') )
+   cohort <- exclude_CpGs(cohort, "probeID", 
+                          exclude, 
+                          ethnic = ethnic[i], 
+                          filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), 
+                          fileresume = fResumeName, artype = artype[i] )
 ```
 
-After eliminating the inconsistent CpGs, we proceed to carry out another descriptive analysis,
+\ 
+
+5.  `descriptives_CpGs` function (bis): After eliminating the indicated CpGs, we proceed to carry out another descriptive analysis with the same function as initially,
+
+\ 
 
 ```{r QCcodedesclast, eval=FALSE}
 # Descriptives - After CpGs deletion #
-descriptives_CpGs(cohort, seq(2,4), 
-                  paste0(results_folder,'/',prefixes[i],
-                         '_descriptives_last.txt') )
+ descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), 
+                   fResumeName, before = FALSE )
 ```
 
-Now, we can get adjusted p-values by Bonferroni and False Discovery Rate (FDR). The function to get adjusted p-values is `adjust_data`, and we have to indicate in which column the p-value is and what adjustment we want. By default the function adjust data by Bonferroni (`bn`) and FDR (`fdr`).
-This function, returns the input data with two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of significative values with bn, fdr, ....  in a text file, (the generated file in the example is called *QC_Results/PROJ1_Cohort3_A1_ResumeSignificatives.txt* ).
+\ 
+
+6.  `adjust_data` function: This function obtains the adjusted p-values by Bonferroni and FDR. We need to indicate in which column the p-value is and what adjustment we want. By default, the function adjusts data by Bonferroni (`bn`) and FDR (`fdr`).
+
+This function returns the input data adding two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of statistically significant p-values by Bonferroni or FDR, in a text file (the generated file in the example is called *QC_Results/PROJ1_Cohort3_A1_ResumeSignificatives.txt* ).
+
+\ 
 
 ```{r QCCodeAdjust}
 
@@ -374,24 +427,39 @@ This function, returns the input data with two new columns corresponding to thes
 head(cohort)
 
 # Adjust data by Bonferroni and FDR
-cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, 
-                      filename =  paste0(results_folder,'/',prefixes[i],
-                                         '_ResumeSignificatives.txt')  )
+# Adjust data by Bonferroni and FDR
+   cohort <- adjust_data(cohort, "P_VAL", 
+                         bn=TRUE, 
+                         fdr=TRUE, fResumeName, N[i] )
 
 # data after adjustment
 head(cohort)
 ```
 
-Then EWAS results are annotated with the corresondign 450K or EPIC annotations and saved with the `write_QCData` function. The file generated by this function is the input for the meta-analysis with GWAMA. This data is stored with *_QC_Data.txt* sufix. In this function data is annotated before being written to the file,
+\ 
+
+7.	 `write_QCData` function: This function annotates the new QCed EWAS results according to the 450K or EPIC array annotations and saves it. The file generated by this function is the input for the meta-analysis with GWAMA. This data is stored with the *_QC_Data.txt* sufix. 
+
+\ 
 
 ```{r QCCodeWriteQData}
-   # Write QC complete data to external file
-   write_QCData(cohort, paste0(results_folder,'/',prefixes[i]))
+# Write QC complete data to external file
+write_QCData(cohort, paste0(results_folder, '/',prefixes[i], '/',prefixes[i]))
 ```
 
-## Quality Control - code for plots
+\ 
 
-To perform a graphical analysis we have different functions. We can easily generate a SE or p-value distribution plots with  `plot_distribution` function
+## **Quality Control** - code for plots
+
+\ 
+
+To perform a graphical analysis we have different functions. 
+
+\ 
+
+1.  `plot_distribution` function: We can generate a SE or p-value distribution plot, a QQ-plot, or a Volcano plot with this function. 
+
+\ 
 
 ```{r QCcodedistrplotse, echo=TRUE, fig.align='center',  fig.cap="\\label{fig:QCcodedistrplotse}SE distribution plot", fig.pos='ht'}
    ## Visualization - Plots
@@ -402,6 +470,8 @@ To perform a graphical analysis we have different functions. We can easily gener
                      xlab = 'SE')
 ```
 
+\ 
+
 ```{r QCcodedistrplotpval, echo=TRUE,  fig.align='center',  fig.cap="\\label{fig:QCcodedistrplotpval}p-value distribution plot", fig.pos='ht'}
    ## Visualization - Plots
 
@@ -410,12 +480,20 @@ To perform a graphical analysis we have different functions. We can easily gener
                      xlab = 'p-value')
 ```
 
-```{r QCcodeqqplot, echo=TRUE,   fig.align='center',  fig.cap="\\label{fig:QCcodeqqplot}QQplot", fig.pos='ht'}
-   # QQ plot.
+\ 
+
+```{r QCcodeqqplot, echo=TRUE,   fig.align='center',  fig.cap="\\label{fig:QCcodeqqplot}QQ-plots", fig.pos='ht'}
+   # QQ-plot.
    qqman::qq(cohort$P_VAL,
-             main = sprintf('QQ plot of %s (lambda = %f)', prefixes[i], 
+             main = sprintf('QQ-plot of %s (lambda = %f)', prefixes[i], 
                             lambda = get_lambda(cohort,"P_VAL")))
 ```
+
+\ 
+
+2.  `plot_volcano` function: We can generate a Volcano plot with this function.
+
+\ 
 
 ```{r QCCodeVolcanoplot, echo=TRUE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:QCCodeVolcanoplot}Volcano Plot", fig.pos='ht'}
    # Volcano plot.
@@ -424,7 +502,11 @@ To perform a graphical analysis we have different functions. We can easily gener
 
 ```
 
-When we have the results for all models and cohorts, we can perform a Precision plot with `plot_precisionp` function,
+\ 
+
+3.  `plot_precisionp` function: We can perform a Precision plot to compare all cohorts and models with this function ,
+
+\ 
 
 ```{r QCCodePrecisionP, echo=TRUE, eval=FALSE}
 plot_precisionp(precplot.data.n, 
@@ -432,18 +514,28 @@ plot_precisionp(precplot.data.n,
                 main = "Subgroup Precision Plot -  1/median(SE) vs sqrt(n)")
 ```
 
-this plot only makes sense if we have analyzed different models and cohorts. Here we show an plot example obtained with `EASIER` .
+\  
+
+this plot only makes sense if we have analysed different models and cohorts. Here we show an example obtained with **EASIER R package**.
+
+\  
 
 ```{r invchr17, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:invchr17}Precision plot for 7 different datasets ", fig.pos='ht'}
 include_graphics("imgs/QC/precision_SE_N.png") 
 ```
 
-With all analysed data we can also plot the *betas boxplot* with `plot_betas_boxplot` function
+\ 
+
+4.  `plot_betas_boxplot` function: We can also obtain the betas boxplot comparing the betas of all cohorts and models with this function.
+
+\ 
 
 ```{r QCCodeBetasBox, echo=TRUE, eval=FALSE}
 plot_betas_boxplot(betas.data, 
                    paste(results_folder, 'BETAS_BoxPlot.pdf', sep="/"))
 ```
+
+\ 
 
 ```{r QCPlotBetasBox, echo=FALSE, out.width='85%',  fig.align='center',  fig.cap="\\label{fig:QCPlotBetasBox}Betas Boxplot plot for 10 different datasets ", fig.pos='ht'}
 include_graphics("imgs/QC/BETAS_BoxPlot.png") 
@@ -462,7 +554,7 @@ Venn diagrams are obtained with function `plot_venndiagram`,. We need to define 
 To perform the meta-analyses, we use GWAMA, a Software tool for meta-analysis developed by the Institute of Genomics from University of Tartu. This software is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). It is already installed in ISGlobal servers.
 
 Like the previous **Quality Control module** of the **EASIER R package**, we have created a script named **MetaAnalysis.R** to carry out the meta-analysis. This script just need some minor editing to indicate information specific to the study. 
-The script follows the workflow indicated in the Figure 8. Briefly, it starts formatting the QCed EWAS results and preparing configuration files to run GWAMA. Then it runs the meta-analysis, annotates the results and performs some quality control checks (lamda, QQ plot, heterogeneity, etc). Finally, it performs forest-plots of the top CpGs and Venn diagrams to compare results between meta-analysis.
+The script follows the workflow indicated in the Figure 8. Briefly, it starts formatting the QCed EWAS results and preparing configuration files to run GWAMA. Then it runs the meta-analysis, annotates the results and performs some quality control checks (lamda, QQ-plot, heterogeneity, etc). Finally, it performs forest-plots of the top CpGs and Venn diagrams to compare results between meta-analysis.
 
 
 ```{r metaworkflow, echo=FALSE, out.width='100%', fig.align='center', fig.cap="\\label{fig:metaworkflow}Meta-analysis flowchart. The script MetaAnalysis.R, contains the code to perform the steps indicated in the flowchart.The only editing required by the researcher is defining the initial variables, which are specific to each study. The rest of the script is automatic and does not need any editing.", fig.pos='ht'}
@@ -656,10 +748,10 @@ To modify EWAS QCed results to GWAMA format and create GWAMA configuration files
 
 \ 
 
-To run both fixed and random effects meta-analsyis with GWAMA. This function needs to know:
+To run both fixed-effects and random-effects meta-analsyis with GWAMA. This function needs to know:
 
 -	the folder with data to be analysed, (this is the GWAMA folder),
--	where to store the meta-analysis results (by default this function creates a subfolder with the meta-analysis name). The following files are stored there: meta-analysis results, Manhattan plots and QQ plots, both for fixed effects and random effects,
+-	where to store the meta-analysis results (by default this function creates a subfolder with the meta-analysis name). The following files are stored there: meta-analysis results, Manhattan plots and QQ-plots, both for fixed-effects and random-effects,
 -	the meta-analysis name,
 -	where is the GWAMA binary installed
 
