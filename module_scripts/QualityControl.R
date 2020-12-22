@@ -64,9 +64,11 @@ artype <- c('450K', '450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPI
 
 # Parameters to exclude CpGs
 exclude <- c( 'MASK_sub30_copy', 'MASK_extBase', 'MASK_mapping', 'MASK_typeINextBaseSwitch', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
+exclude <- c( '')
 
 # Ethnic group
 ethnic <- c('EUR','GMAF1p', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
+ethnic <- c('','','','','','','','','','','','')
 
 N <- c(100, 100, 100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
 n <- c(NA)

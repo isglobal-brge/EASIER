@@ -19,11 +19,11 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
-   BiocStyle::pdf_document:
-    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
+   BiocStyle::pdf_document:
+    toc_float: true
 bibliography: bibliography.bib
 abstract: |
   The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results (using GWAMA) and 3) Functional enrichment (pathway and molecular enrichments)
@@ -107,15 +107,18 @@ install.packages("devtools")
 devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
 # Install EASIER R package
-devtools::install_github("isglobal-brge/EASIER@HEAD")
+devtools::install_github("isglobal-brge/EASIER@HEAD",  build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
 ```
 
-The previous commands will install a the library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run **EASIER R package**. Lastly, the package **EASIER** is installed.
+The previous commands will install a the library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run **EASIER R package**. Lastly, the package **EASIER** and the corresponding vignettes are installed.
 
 ```{r loadMethyTools, eval=TRUE}
 library(EASIER)
 library(readtext)
 ```
+
+
+To access to vignette documents you only have to use `vignette("EASIER")`
 
 
 # Quality control
@@ -324,6 +327,10 @@ if(!dir.exists(file.path(getwd(), results_folder )))
    # for real data we have to remove this line
    i <- 1
    
+   # Prepare output subfolder for cohort-model results (create if not exists)
+   if(!dir.exists(file.path(getwd(), results_folder, prefixes[i] )))
+      suppressWarnings(dir.create(file.path(getwd(), results_folder, prefixes[i])))
+
    # Creates an empty file to resume all data if an old file exist  removes
    # the file and creates a new one
    fResumeName <- paste0( file.path(getwd(), results_folder, prefixes[i]),"/",prefixes[i], "_descriptives.txt")
@@ -331,6 +338,10 @@ if(!dir.exists(file.path(getwd(), results_folder )))
       file.remove(fResumeName)
    }
    file.create(fResumeName)
+
+   # Read data.
+   cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
+   print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
 First, we need to read the content of a file with EWAS results,
@@ -347,24 +358,35 @@ and store the content of the file in a `cohort` variable.
 
 After that, we are ready to execute the quality control following the steps indicated in the workflow (Figure\@ref(fig:qcworkflow)). These are the functions that will be used: 
 
-1.  `descriptives_CpGs` function: This function performs a simple descriptive analysis. It  needs the EWAS results to be analysed (`cohort`), the fields for which we are interested to get descriptive, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. The name of the first file would be: *QC_Results/PROJ1_Cohort3_A1_descriptives.txt*.  At the end of each iteration we get the complete resume with descriptive before and after removing CpGs, the list of excluded CpGs, and the list of statistically significant CpGs after adjusting p-value by FDR and Bonferroni.
+1. `clean_NA_from_data` function: This function remove the rows with NA and return only complete cases.
 
-```{r QCCodeDescriptives2, echo=FALSE, eval=TRUE}
-# Creates an empty file to resume all data if an old file exist  removes
-# the file and creates a new one
-fResumeName <- paste0( file.path(getwd(), results_folder, prefixes[i]),"/",prefixes[i], "_descriptives.txt")
-if ( file.exists(fResumeName) ) {
-   file.remove(fResumeName)
-}
-file.create(fResumeName)
+```{r QCCodeRemoveNA, eval=TRUE}
+# Remove rows with NA from data
+cohort <- clean_NA_from_data(cohort)
 ```
-```{r QCCodeDescriptives, eval=FALSE}
+
+2.  `descriptives_CpGs` function: This function performs a simple descriptive analysis. It  needs the EWAS results to be analysed (`cohort`), the fields for which we are interested to get descriptive, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. The name of the first file would be: *QC_Results/PROJ1_Cohort3_A1_descriptives.txt*.  At the end of each iteration we get the complete resume with descriptive before and after removing CpGs, the list of excluded CpGs, and the list of statistically significant CpGs after adjusting p-value by FDR and Bonferroni.
+
+
+<!-- ```{r QCCodeDescriptives2, echo=FALSE, eval=TRUE} -->
+<!-- # Creates an empty file to resume all data if an old file exist  removes -->
+<!-- # the file and creates a new one -->
+<!-- fResumeName <- paste0( file.path(getwd(), results_folder, prefixes[i]),"/",prefixes[i], "_descriptives.txt") -->
+<!-- if ( file.exists(fResumeName) ) { -->
+<!--    file.remove(fResumeName) -->
+<!-- } -->
+<!-- file.create(fResumeName) -->
+<!-- ``` -->
+
+
+
+```{r QCCodeDescriptives, eval=TRUE}
 # Descriptives - Before CpGs deletion #
 descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = TRUE)
 
 ```
 
-2.  `test_duplicate_CpGs` function: This function tests whether there are any duplicate CpGs. If there are, the script execution stops and writes the duplicates and descriptive related to these duplicates in a file.
+3.  `test_duplicate_CpGs` function: This function tests whether there are any duplicate CpGs. If there are, the script execution stops and writes the duplicates and descriptive related to these duplicates in a file.
 
 ```{r QCCodeRemovedupli}
 # Remove duplicates
@@ -372,7 +394,7 @@ test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_d
 
 ```
 
-3.  `filterLowRepresentedCpGsinCohort` function: This function remove low represented CpGs in a cohort with a missing pcentage indicated in `pcMissingSamples`. This data is updated in descriptive resume.
+4.  `filterLowRepresentedCpGsinCohort` function: This function remove low represented CpGs in a cohort with a missing pcentage indicated in `pcMissingSamples`. This data is updated in descriptive resume.
 
 ```{r QCCodefilterLR}
 # Remove cpGs with low representation
@@ -387,7 +409,7 @@ cohort <- filterLowRepresentedCpGsinCohort(cohort,
                                            fileresume = fResumeName )
 ```
 
-4.  `exclude_CpGs` function: This function excludes the list of CpGs that we previously selected (section 4.2.4). Here we use the parameters defined before in the `exclude` variable, which are the data, cohort, the CpG id field (can be the column number or the field name "probeId"), the filters to apply, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name would be *QC_Results/PROJ1_Cohort3_A1_excluded.txt*).
+5.  `exclude_CpGs` function: This function excludes the list of CpGs that we previously selected (section 4.2.4). Here we use the parameters defined before in the `exclude` variable, which are the data, cohort, the CpG id field (can be the column number or the field name "probeId"), the filters to apply, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name would be *QC_Results/PROJ1_Cohort3_A1_excluded.txt*).
 
 \ 
 
@@ -403,7 +425,7 @@ cohort <- filterLowRepresentedCpGsinCohort(cohort,
 
 \ 
 
-5.  `descriptives_CpGs` function (bis): After eliminating the indicated CpGs, we proceed to carry out another descriptive analysis with the same function as initially,
+6.  `descriptives_CpGs` function (bis): After eliminating the indicated CpGs, we proceed to carry out another descriptive analysis with the same function as initially,
 
 \ 
 
@@ -415,7 +437,7 @@ cohort <- filterLowRepresentedCpGsinCohort(cohort,
 
 \ 
 
-6.  `adjust_data` function: This function obtains the adjusted p-values by Bonferroni and FDR. We need to indicate in which column the p-value is and what adjustment we want. By default, the function adjusts data by Bonferroni (`bn`) and FDR (`fdr`).
+7.  `adjust_data` function: This function obtains the adjusted p-values by Bonferroni and FDR. We need to indicate in which column the p-value is and what adjustment we want. By default, the function adjusts data by Bonferroni (`bn`) and FDR (`fdr`).
 
 This function returns the input data adding two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of statistically significant p-values by Bonferroni or FDR, in a text file (the generated file in the example is called *QC_Results/PROJ1_Cohort3_A1_ResumeSignificatives.txt* ).
 
@@ -438,7 +460,7 @@ head(cohort)
 
 \ 
 
-7.	 `write_QCData` function: This function annotates the new QCed EWAS results according to the 450K or EPIC array annotations and saves it. The file generated by this function is the input for the meta-analysis with GWAMA. This data is stored with the *_QC_Data.txt* sufix. 
+8.	 `write_QCData` function: This function annotates the new QCed EWAS results according to the 450K or EPIC array annotations and saves it. The file generated by this function is the input for the meta-analysis with GWAMA. This data is stored with the *_QC_Data.txt* sufix. 
 
 \ 
 
@@ -584,7 +606,7 @@ Note: if you are combining data from 450K and EPIC arrays and you selected ‘EP
 \ 
 
 
-```{r meta_variables, eval=FALSE}
+```{r meta_variables, eval=TRUE}
 
 ## -- Variable definition for Meta-Analysis -- ##
 
@@ -638,7 +660,7 @@ First, we must create the needed folders. In this example we create a `GWAMA` fo
 
 \ 
 
-```{r metaFolders, eval=FALSE}
+```{r metaFolders, eval=TRUE}
 
 ## Create directory for GWAMA configuration files and GWAMA_Results 
 ## inside the defined results_gwama variable defined before.

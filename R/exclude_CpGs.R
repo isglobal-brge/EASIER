@@ -49,11 +49,19 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
 
    # In order to minimize data size we merge only the selected ethnic column
 
+
    # Get first ethnic column position in filters
    firstEthnicPosition <-  min(grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE))-1
 
-   # Select ethnic columns not related with our data from filters
-   fieldstodelete <- grep(paste0("MASK_snp5_.*[^",ethnic,"]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+   # Select ethnic columns not related with our data from filters (ONLY IF ethnic != '' or NA)
+   if(ethnic!='' & !is.na(ethnic)) {
+      # Get first ethnic column position in filters
+      fieldstodelete <- grep(paste0("MASK_snp5_.*[^",ethnic,"]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+   } else {
+      fieldstodelete <- grep(paste0("MASK_snp5_.*[^EUR]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+   }
+
+   #..# fieldstodelete <- grep(paste0("MASK_snp5_.*[^",ethnic,"]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
    fieldstomerge <- which(!seq(1:dim(filters)[2]) %in% fieldstodelete)
 
    # Merge cohort with CpGs filters
@@ -104,57 +112,71 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
 getCritera <- function(exclude, ethnic)
 {
 
+   criter = ''
    possible_crit <- c( 'MASK_sub25_copy', 'MASK_sub30_copy', 'MASK_sub35_copy', 'MASK_sub40_copy',
                        'MASK_mapping', 'MASK_extBase', 'MASK_typeINextBaseSwitch', 'MASK_snp5_common', 'MASK.snp5.GMAF1p',
                        'MASK_general', 'cpg_probes', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'MASK_rmsk15',
                        'Sex', 'Unrel_450_EPIC_pla_restrict', 'Unrel_450_EPIC_pla')
 
-   # Test if all parameters are allowed
-   if(length(which(! exclude %in% possible_crit))>=1)
-      stop(paste0('Parameter(s) : ',paste(exclude[which(! exclude %in% possible_crit)], sep = ','),' not valid. Possible values are ',possible_crit ))
-
-   # Get all exclude variables
-   ##.. Works with lists -> convert list to matrix ..## exclusion.crit <- do.call(cbind, lapply( ls(patt="exclude"), get) )
-
-   # Create formula with exclusion criteria
-   ##.. Works with lists -> gets only parameters with value 'Exclude'..## criter <- paste(paste("cohort$",attributes(exclusion.crit)$dimnames[[1]][which(exclusion.crit=='Exclude')], sep = ""),"TRUE | ",sep=" == ", collapse = '')
-   criter <- paste(paste("cohort$",exclude, sep = ""),"TRUE | ",sep=" == ", collapse = '')
-
-   # If  MASK_general = 'Exclude' --> Change to :  ("MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p") == TRUE
-   if( length(grep("cohort$MASK_general == TRUE",criter, fixed = TRUE))>0 )
-      criter <- sub("cohort$MASK_general == TRUE", " cohort$MASK_sub30_copy == TRUE | cohort$MASK_mapping == TRUE | cohort$MASK_extBase == TRUE | cohort$MASK_typeINextBaseSwitch == TRUE | cohort$MASK_snp5_GMAF1p == TRUE " , criter, fixed = TRUE)
-
-   # If Sex = 'Exclude' --> Change to : ( CpG_chrm %in% "chrX" | CpG_chrm %in% "chrY" )
-   if( length(grep("cohort$Sex == TRUE",criter, fixed = TRUE))>0 )
-      criter <- sub("cohort$Sex == TRUE", " cohort$CpG_chrm %in% 'chrX' | cohort$CpG_chrm %in% 'chrY' " , criter, fixed = TRUE)
-
-   newCpGcond <- vector()
-   if( length( grep("| cohort$cpg_probes == TRUE",criter, fixed = TRUE)) >0 )
-      newCpGcond <- append(newCpGcond, c('cg'))
-   if( length(grep("| cohort$noncpg_probes == TRUE",criter, fixed = TRUE))>0 )
-      newCpGcond <- append(newCpGcond, c('ch'))
-   if( length(grep("| cohort$control_probes == TRUE",criter, fixed = TRUE))>0 )
-      newCpGcond <- append(newCpGcond, c('rs'))
-
-   if(!is.null(vector()))
+   if( !is.na(exclude[1]) & exclude[1] != '')
    {
-      # Remove invalid criteria
-      criter <- sub("| cohort$cpg_probes == TRUE ", "", criter, fixed = TRUE)
-      criter <- sub("| cohort$noncpg_probes == TRUE ", "", criter, fixed = TRUE)
-      criter <- sub("| cohort$control_probes == TRUE ", "", criter, fixed = TRUE)
+      # Test if all parameters are allowed
+      if(length(which(! exclude %in% possible_crit))>=1)
+         stop(paste0('Parameter(s) : ',paste(exclude[which(! exclude %in% possible_crit)], sep = ','),' not valid. Possible values are ',possible_crit ))
 
-      # Add new criteria
+      # Get all exclude variables
+      ##.. Works with lists -> convert list to matrix ..## exclusion.crit <- do.call(cbind, lapply( ls(patt="exclude"), get) )
+
+      # Create formula with exclusion criteria
+      ##.. Works with lists -> gets only parameters with value 'Exclude'..## criter <- paste(paste("cohort$",attributes(exclusion.crit)$dimnames[[1]][which(exclusion.crit=='Exclude')], sep = ""),"TRUE | ",sep=" == ", collapse = '')
+      criter <- paste(paste("cohort$",exclude, sep = ""),"TRUE | ",sep=" == ", collapse = '')
+
+      # If  MASK_general = 'Exclude' --> Change to :  ("MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p") == TRUE
+      if( length(grep("cohort$MASK_general == TRUE",criter, fixed = TRUE))>0 )
+         criter <- sub("cohort$MASK_general == TRUE", " cohort$MASK_sub30_copy == TRUE | cohort$MASK_mapping == TRUE | cohort$MASK_extBase == TRUE | cohort$MASK_typeINextBaseSwitch == TRUE | cohort$MASK_snp5_GMAF1p == TRUE " , criter, fixed = TRUE)
+
+      # If Sex = 'Exclude' --> Change to : ( CpG_chrm %in% "chrX" | CpG_chrm %in% "chrY" )
+      if( length(grep("cohort$Sex == TRUE",criter, fixed = TRUE))>0 )
+         criter <- sub("cohort$Sex == TRUE", " cohort$CpG_chrm %in% 'chrX' | cohort$CpG_chrm %in% 'chrY' " , criter, fixed = TRUE)
+
+      newCpGcond <- vector()
+      if( length( grep("| cohort$cpg_probes == TRUE",criter, fixed = TRUE)) >0 )
+         newCpGcond <- append(newCpGcond, c('cg'))
+      if( length(grep("| cohort$noncpg_probes == TRUE",criter, fixed = TRUE))>0 )
+         newCpGcond <- append(newCpGcond, c('ch'))
+      if( length(grep("| cohort$control_probes == TRUE",criter, fixed = TRUE))>0 )
+         newCpGcond <- append(newCpGcond, c('rs'))
+
+      if(!is.null(vector()))
+      {
+         # Remove invalid criteria
+         criter <- sub("| cohort$cpg_probes == TRUE ", "", criter, fixed = TRUE)
+         criter <- sub("| cohort$noncpg_probes == TRUE ", "", criter, fixed = TRUE)
+         criter <- sub("| cohort$control_probes == TRUE ", "", criter, fixed = TRUE)
+
+         # Add new criteria
+         criter <- paste0(criter, paste0(" cohort$probeType %in% '",newCpGcond,"' | ", collapse = ''))
+      }
+
+      # # Adds ethnicity exclusion criteria
+      # criter <- paste0(criter, " cohort$MASK_snp5_",ethnic," == TRUE |")
+
       criter <- paste0(criter, paste0(" cohort$probeType %in% '",newCpGcond,"' | ", collapse = ''))
+
+      if( is.na(ethnic) | ethnic==''){
+         # Remove extra '|' and add which function to exclusion criteria
+         criter <- paste("which(",substr(criter, 0, nchar(criter)-3),")",sep="")
+      }
    }
 
-   # Adds ethnicity exclusion criteria
-   criter <- paste0(criter, " cohort$MASK_snp5_",ethnic," == TRUE |")
+   if(!is.na(ethnic) & ethnic!=''){
+      # Adds ethnicity exclusion criteria
+      criter <- paste0(criter, " cohort$MASK_snp5_",ethnic," == TRUE |")
 
-   criter <- paste0(criter, paste0(" cohort$probeType %in% '",newCpGcond,"' | ", collapse = ''))
+      # Remove extra '|' and add which function to exclusion criteria
+      criter <- paste("which(",substr(criter, 0, nchar(criter)-2),")",sep="")
+   }
 
-
-   # Remove extra '|' and add which function to exclusion criteria
-   criter <- paste("which(",substr(criter, 0, nchar(criter)-3),")",sep="")
    criter
 }
 
