@@ -1,4 +1,5 @@
 # Install requirede libraries
+if (!require('qqman')){ install.packages("qqman") }
 if (!require('rasterpdf')){ devtools::install_github("ilarischeinin/rasterpdf") }
 if (!require('meta')){ devtools::install_github("guido-s/meta") }
 if (!require('tidyverse')){ devtools::install_version('tidyverse', version = '1.3.0') }
@@ -10,7 +11,6 @@ if (!require('RColorBrewer')){ devtools::install_version('RColorBrewer', version
 if (!require('reshape2')){ devtools::install_version('reshape2', version = '1.4.4') }
 if (!require('ggsignif')){ devtools::install_version('ggsignif', version = '0.6.0') }
 if (!require('readtext')){ devtools::install_version('readtext', version = '0.80') }
-if (!require('qqman')){ install.packages("qqman") }
 if (!require('tools')){ install.packages("tools") }
 
 # Install brgeEnrich package from github-brge repositorie for enrichment :
