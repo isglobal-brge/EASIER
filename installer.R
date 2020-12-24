@@ -9,6 +9,7 @@ devtools::install_version('VennDiagram', version = '1.6.20')
 devtools::install_version('RColorBrewer', version = '1.1-2')
 devtools::install_version('reshape2', version = '1.4.4')
 devtools::install_version('ggsignif', version = '0.6.0')
+install.packages('readtext', version = '0.8.0')
 install.packages("tools")
 
 # Install brgeEnrich package from github-brge repositorie for enrichment :
