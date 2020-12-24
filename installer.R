@@ -9,7 +9,7 @@ if (!require('VennDiagram')){ devtools::install_version('VennDiagram', version =
 if (!require('RColorBrewer')){ devtools::install_version('RColorBrewer', version = '1.1-2') }
 if (!require('reshape2')){ devtools::install_version('reshape2', version = '1.4.4') }
 if (!require('ggsignif')){ devtools::install_version('ggsignif', version = '0.6.0') }
-if (!require('readtext')){ install.packages('readtext', version = '0.80') }
+if (!require('readtext')){ install.packages('readtext') }
 if (!require('tools')){ install.packages("tools") }
 
 # Install brgeEnrich package from github-brge repositorie for enrichment :
