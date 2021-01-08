@@ -104,10 +104,20 @@ To install the required packages run the following commands in R:
 install.packages("devtools")
 
 # Install required packages 
+devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/brgeEnrich/HEAD/installer.R")
+
+# Install EASIER R package
+devtools::install_github("isglobal-brge/brgeEnrich@HEAD")
+
+# Install required packages 
 devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
 # Install EASIER R package
-devtools::install_github("isglobal-brge/EASIER@HEAD",  build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
+devtools::install_github("isglobal-brge/EASIER@HEAD")
+```
+
+```{r, echo=FALSE}
+#..# devtools::install_github("isglobal-brge/EASIER@HEAD",  build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
 ```
 
 The previous commands will install a the library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run **EASIER R package**. Lastly, the package **EASIER** and the corresponding vignettes are installed.
