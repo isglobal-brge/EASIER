@@ -19,11 +19,11 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
+   BiocStyle::pdf_document:
+    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
-   BiocStyle::pdf_document:
-    toc_float: true
 bibliography: bibliography.bib
 abstract: |
   The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results (using GWAMA) and 3) Functional enrichment (pathway and molecular enrichments)
@@ -103,13 +103,13 @@ To install the required packages run the following commands in R:
 # Install devtools
 install.packages("devtools")
 
-# Install required packages 
+# Install required packages for brgeEnrich package
 devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/brgeEnrich/HEAD/installer.R")
 
-# Install EASIER R package
+# Install brgeEnrich R package
 devtools::install_github("isglobal-brge/brgeEnrich@HEAD")
 
-# Install required packages 
+# Install required packages for EASIER package
 devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
 
 # Install EASIER R package
@@ -223,8 +223,8 @@ In the **Quality Control module**, we need to exclude those CpGs that do not acc
 
   * **"MASK_extBase"**: Probes with a SNP altering the CpG dinucleotide sequence context and hence the ability of target cytosines to be methylated (regardless of the MAF); 
   * **"MASK_typeINextBaseSwitch"**: Probes with a SNP in the extension base that causes a colour channel switch from the official annotation (regardless of the MAF); 
-  * **"MASK_snp5.GMAF1p"**: probes with SNPs at the last 5bp of the 3' end of the probe, with an average minor allele frequency (MAF) >1%, by ethnic group; 
-  * **"MASK_snp5.common"**: probes with SNPs at the last 5bp of the 3' end of the probe, with any average minor allele frequency (MAF) (can be <1%), by ethnic group;
+  * **"MASK_snp5_GMAF1p"**: probes with SNPs at the last 5bp of the 3' end of the probe, with an average minor allele frequency (MAF) >1%, by ethnic group; 
+  * **"MASK_snp5_common"**: probes with SNPs at the last 5bp of the 3' end of the probe, with any average minor allele frequency (MAF) (can be <1%), by ethnic group;
 
 #### Perform CpG exclusions -> probes giving inconsistent results between arrays
 

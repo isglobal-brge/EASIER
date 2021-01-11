@@ -13,8 +13,8 @@
 #'   \item{MASK_mapping}{"hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs . }
 #'   \item{MASK_extBase }{Probes masked for extension base inconsistent with specified color channel (type-I) or CpG (type-II) based on mapping. }
 #'   \item{MASK_typeINextBaseSwitch }{Whether the probe has a SNP in the extension base that causes a color channel switch from the official annotation (described as color-channel-switching, or CCS SNP in the reference). These probes should be processed differently than designed (by summing up both color channels instead of just the annotated color channel).}
-#'   \item{MASK_snp5.common }{Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). }
-#'   \item{MASK_snp5.GMAF1p }{Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1% . }
+#'   \item{MASK_snp5_common }{Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1%). }
+#'   \item{MASK_snp5_GMAF1p }{Whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1% . }
 #'   \item{MASK_general}{ Recommended general purpose masking merged from "MASK.sub30.copy", "MASK.mapping", "MASK.extBase", "MASK.typeINextBaseSwitch" and "MASK.snp5.GMAF1p" . }
 #'   \item{cpg_probes}{ cpg probes classified as "cg" in the variable named "probeType". }
 #'   \item{noncpg_probes}{ non-cpg probes classified as "ch" in the variable named "probeType". }
@@ -114,7 +114,7 @@ getCritera <- function(exclude, ethnic)
 
    criter = ''
    possible_crit <- c( 'MASK_sub25_copy', 'MASK_sub30_copy', 'MASK_sub35_copy', 'MASK_sub40_copy',
-                       'MASK_mapping', 'MASK_extBase', 'MASK_typeINextBaseSwitch', 'MASK_snp5_common', 'MASK.snp5.GMAF1p',
+                       'MASK_mapping', 'MASK_extBase', 'MASK_typeINextBaseSwitch', 'MASK_snp5_common', 'MASK_snp5_GMAF1p',
                        'MASK_general', 'cpg_probes', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'MASK_rmsk15',
                        'Sex', 'Unrel_450_EPIC_pla_restrict', 'Unrel_450_EPIC_pla')
 
