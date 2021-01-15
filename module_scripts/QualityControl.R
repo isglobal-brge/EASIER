@@ -103,6 +103,10 @@ venn_diagrams <- list(
 # Variable declaration to perform precision plot
 medianSE <- numeric(length(files))
 value_N <- numeric(length(files))
+
+if(length(n) == length(N))
+   value_n <- numeric(length(files))
+
 cohort_label <- character(length(files))
 
 # Prepare output folder for results (create if not exists)
