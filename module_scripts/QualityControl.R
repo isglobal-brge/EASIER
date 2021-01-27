@@ -163,9 +163,9 @@ for ( i in 1:length(files) )
    # Write QC complete data to external file
    write_QCData(cohort, paste0(results_folder, '/',prefixes[i], '/',prefixes[i]))
 
-
    ## Visualization - Plots
-   rasterpdf::raster_pdf(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QCplots.pdf'), res = 300)
+   #. Problems in some workstations and servers.# rasterpdf::raster_pdf(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QCplots.pdf'), res = 300)
+   pdf(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QCplots.pdf'))
 
    # Distribution plot
    plot_distribution(cohort$SE, main = paste('Standard Errors of', prefixes[i]), xlab = 'SE')
