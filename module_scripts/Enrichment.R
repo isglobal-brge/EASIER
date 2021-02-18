@@ -131,6 +131,16 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          allCpGs <- TRUE
          data$chromosome <- substr(data$chr,4,length(data$chr))
          data$rs_number <- data$CpGs
+      }else {
+         if(! "rs_number" %in% colnames(data)) {
+            if("CpGs" %in% colnames(data)) {
+               data$rs_number = data$CpGs
+            }else if("CpGId" %in% colnames(data)) {
+               data$rs_number = data$CpGId
+            }else {
+               stop("Data must contain rs_number, CpGs or CpGId column with CpGs Ids")
+            }
+         }
       }
 
       ## -- Functional Enrichmnet
@@ -192,7 +202,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          data$meth_state <- getHyperHypo(data$beta) # Classify methylation into Hyper and Hypo
 
 
-         if("FDR" %in% colnames(data) )
+         if("FDR" %in% colnames(data) & !is.na(FDR) )
          {
             # Add column bFDR to data for that CpGs that accomplish with FDR
             data$bFDR <- getBinaryClassificationYesNo(data$FDR, "<", FDR) # Classify fdr into "yes" and no taking into account FDR significance level
@@ -202,7 +212,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
             FDR_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "yes", "no")
          }
 
-         if("Bonferroni" %in% colnames(data) )
+         if("Bonferroni" %in% colnames(data) & BN==TRUE)
          {
             # CpGs Bonferroni and Hyper and Hypo respectively
             BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
@@ -213,7 +223,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          ## TODO: Simplify this code with only one function x option (fisher - Geometric // BN - FDR )
 
          # For FDR
-         if("FDR" %in% colnames(data) )
+         if("FDR" %in% colnames(data) & !is.na(FDR) )
          {
 
             ## --  CpG Gene position
@@ -263,7 +273,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          }
 
          # For Bonferroni
-         if("Bonferroni" %in% colnames(data) )
+         if("Bonferroni" %in% colnames(data) & BN==TRUE)
          {
 
             ## --  CpG Gene position

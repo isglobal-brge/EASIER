@@ -29,7 +29,9 @@ get_descriptives_GenePosition <- function(position, criteria, namecriteria, outp
 
 
    ctable <- as.data.frame.matrix(table(sposition, criteria))
-   ptable <- as.data.frame.matrix(prop.table(ctable))
+   if(dim(ctable)[2]>0) {
+      ptable <- as.data.frame.matrix(prop.table(ctable))
+   }
 
    desc.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_DescGene.txt")
 
@@ -37,20 +39,30 @@ get_descriptives_GenePosition <- function(position, criteria, namecriteria, outp
    write(sprintf('-------------------\n Model : %s\n-------------------\n',filename), file = desc.fname, append = TRUE)
    write(sprintf('\nCount table : \n '), file = desc.fname, append = TRUE)
    suppressWarnings(write.table(ctable, file = desc.fname, append = TRUE))
-   write(sprintf('\nProportion table : \n'), file = desc.fname, append = TRUE)
-   suppressWarnings(write.table(ptable, file = desc.fname, append = TRUE))
-   write(sprintf('\nChi-Square Test : \n'), file = desc.fname, append = TRUE)
-   write(sprintf('\tX-squared : %f',chisq.test(ctable)[1]), file = desc.fname, append = TRUE)
-   write(sprintf('\tdf : %f',chisq.test(ctable)[2]), file = desc.fname, append = TRUE)
-   write(sprintf('\tp-value : %f',chisq.test(ctable)[3]), file = desc.fname, append = TRUE)
 
-   pt <- as.data.frame(cbind(sposition, criteria))
-   colnames(pt) <- c('position', namecriteria)
-   ptc <- ggplot(pt, aes(sposition)) +
-      geom_bar(aes(fill = criteria)) +
-      scale_x_discrete(guide = guide_axis(angle = 90))
+   if( exists("ptable")){
+      write(sprintf('\nProportion table : \n'), file = desc.fname, append = TRUE)
+      suppressWarnings(write.table(ptable, file = desc.fname, append = TRUE))
+   }
 
-   plot.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_PlotGene.pdf")
-   ggplot2::ggsave(plot.fname, ptc, device = pdf)
+   if(dim(ctable)[2]>0)
+   {
+      write(sprintf('\nChi-Square Test : \n'), file = desc.fname, append = TRUE)
+      write(sprintf('\tX-squared : %f',chisq.test(ctable)[1]), file = desc.fname, append = TRUE)
+      write(sprintf('\tdf : %f',chisq.test(ctable)[2]), file = desc.fname, append = TRUE)
+      write(sprintf('\tp-value : %f',chisq.test(ctable)[3]), file = desc.fname, append = TRUE)
+      pt <- as.data.frame(cbind(sposition, criteria))
+      colnames(pt) <- c('position', namecriteria)
+      ptc <- ggplot(pt, aes(sposition)) +
+         geom_bar(aes(fill = criteria)) +
+         scale_x_discrete(guide = guide_axis(angle = 90))
+
+      plot.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_PlotGene.pdf")
+      ggplot2::ggsave(plot.fname, ptc, device = pdf)
+   } else {
+      write(sprintf('\nChi-Square Test : \n'), file = desc.fname, append = TRUE)
+      write(sprintf('\tNo test to perform '), file = desc.fname, append = TRUE)
+   }
+
 
 }
