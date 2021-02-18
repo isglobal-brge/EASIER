@@ -7,7 +7,7 @@
 #' @usage data(filter_450K)
 #'
 #' @format A data frame with 485577 rows and 50 variables
-#' @references Chen et al. \\(2013\\)
+#' @references Chen et al. 2013
 #' \describe{
 #'   \item{MASK.sub25.copy, MASK.sub30.copy, MASK.sub35.copy, MASK.sub40.copy}{indicate whether the 25bp, 30bp, 35bp and 40bp 3'-subsequence of the probe is non-unique (TRUE/FALSE)}
 #'   \item{MASK.mapping}{"hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs (TRUE/FALSE). }
@@ -35,7 +35,7 @@
 #' @usage data(filter_EPIC)
 #'
 #' @format A data frame with 865918 rows and 50 variables
-#' @references Chen et al. (2013)
+#' @references Chen et al. 2013
 #' \describe{
 #'   \item{MASK.sub25.copy, MASK.sub30.copy, MASK.sub35.copy, MASK.sub40.copy}{indicate whether the 25bp, 30bp, 35bp and 40bp 3'-subsequence of the probe is non-unique (TRUE/FALSE)}
 #'   \item{MASK.mapping}{"hether the probe is masked for mapping reason. Probes retained should have high quality (>=40 on 0-60 scale) consistent (with designed MAPINFO) mapping (for both in the case of type I) without INDELs (TRUE/FALSE). }
@@ -72,8 +72,31 @@
 #' @docType data
 #'
 #' @usage data(crom15)
-#'
 #' @format A data frame with 482421 CpGs and 21 variables related to Chromatine states
+#' \describe{
+#'		\item{X}{X}
+#'		\item{HT12v4.ArrayAddress}{HT12v4.ArrayAddress}
+#'		\item{Gene}{Gene}
+#'		\item{Chr}{Chr}
+#'		\item{ChrStart}{ChrStart}
+#'		\item{ChrEnd}{ChrEnd}
+#'		\item{Probe}{Probe}
+#'		\item{TssA}{TssA}
+#'		\item{TssAFlnk}{TssAFlnk}
+#'		\item{TxFlnk}{TxFlnk}
+#'		\item{TxWk}{TxWk}
+#'		\item{Tx}{Tx}
+#'		\item{EnhG}{EnhG}
+#'		\item{Enh}{Enh}
+#'		\item{ZNF.Rpts}{ZNF.Rpts}
+#'		\item{Het}{Het}
+#'		\item{TssBiv}{TssBiv}
+#'		\item{BivFlnk}{BivFlnk}
+#'		\item{EnhBiv}{EnhBiv}
+#'		\item{ReprPC}{ReprPC}
+#'		\item{ReprPCWk}{ReprPCWk}
+#'		\item{Quies}{Quies}
+#' }
 "crom15"
 
 #' dhs data
@@ -83,7 +106,6 @@
 #' @docType data
 #'
 #' @usage data(dhs)
-#'
 #' @format A data frame with 482421 CpGs and 19 variables
 "dhs"
 
@@ -94,7 +116,6 @@
 #' @docType data
 #'
 #' @usage data(FP_E091)
-#'
 #' @format Genomic Ranges
 "FP_15_E091"
 

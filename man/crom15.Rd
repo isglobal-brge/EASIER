@@ -6,6 +6,30 @@
 \title{Chromatine states data}
 \format{
 A data frame with 482421 CpGs and 21 variables related to Chromatine states
+\describe{
+	\item{X}{X}
+	\item{HT12v4.ArrayAddress}{HT12v4.ArrayAddress}
+	\item{Gene}{Gene}
+	\item{Chr}{Chr}
+	\item{ChrStart}{ChrStart}
+	\item{ChrEnd}{ChrEnd}
+	\item{Probe}{Probe}
+	\item{TssA}{TssA}
+	\item{TssAFlnk}{TssAFlnk}
+	\item{TxFlnk}{TxFlnk}
+	\item{TxWk}{TxWk}
+	\item{Tx}{Tx}
+	\item{EnhG}{EnhG}
+	\item{Enh}{Enh}
+	\item{ZNF.Rpts}{ZNF.Rpts}
+	\item{Het}{Het}
+	\item{TssBiv}{TssBiv}
+	\item{BivFlnk}{BivFlnk}
+	\item{EnhBiv}{EnhBiv}
+	\item{ReprPC}{ReprPC}
+	\item{ReprPCWk}{ReprPCWk}
+	\item{Quies}{Quies}
+}
 }
 \usage{
 data(crom15)
