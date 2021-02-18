@@ -6,6 +6,15 @@
 \title{Chromatine states data}
 \format{
 A data frame with 482421 CpGs and 21 variables related to Chromatine states
+}
+\usage{
+data(crom15)
+}
+\description{
+Chromatine states data
+}
+\references{
+BRGE
 \describe{
 	\item{X}{X}
 	\item{HT12v4.ArrayAddress}{HT12v4.ArrayAddress}
@@ -30,11 +39,5 @@ A data frame with 482421 CpGs and 21 variables related to Chromatine states
 	\item{ReprPCWk}{ReprPCWk}
 	\item{Quies}{Quies}
 }
-}
-\usage{
-data(crom15)
-}
-\description{
-Chromatine states data
 }
 \keyword{datasets}

@@ -65,6 +65,7 @@
 #' @references \url{http://bioinf.wehi.edu.au/MSigDB/v7.1/}
 "Hs.c2"
 
+
 #' Chromatine states data
 #'
 #' Chromatine states data
@@ -73,6 +74,7 @@
 #'
 #' @usage data(crom15)
 #' @format A data frame with 482421 CpGs and 21 variables related to Chromatine states
+#' @references BRGE
 #' \describe{
 #'		\item{X}{X}
 #'		\item{HT12v4.ArrayAddress}{HT12v4.ArrayAddress}
@@ -115,7 +117,7 @@
 #'
 #' @docType data
 #'
-#' @usage data(FP_E091)
+#' @usage data(FP_15_E091)
 #' @format Genomic Ranges
 "FP_15_E091"
 
@@ -125,7 +127,7 @@
 #'
 #' @docType data
 #'
-#' @usage data(FP_E091)
+#' @usage data(FP_18_E091)
 #'
 #' @format Genomic Ranges
 "FP_18_E091"
