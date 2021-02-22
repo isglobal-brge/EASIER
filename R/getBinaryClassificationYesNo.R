@@ -20,7 +20,7 @@ getBinaryClassificationYesNo <- function(value, condition = "<", limit=0)
 
    # Get methylation level
    #..# binclass <- ifelse( eval(parse(text = paste(value,cond,limit))), 'yes', 'no')
-   binclass <- sapply(value,function(cfdr) eval(parse(text = paste("ifelse( ",cfdr,"<", FDR,", 'yes', 'no' )"))))
+   binclass <- sapply(value,function(cfdr) eval(parse(text = paste("ifelse( ",cfdr,"<", limit,", 'yes', 'no' )"))))
 
    return(binclass)
 }

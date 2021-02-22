@@ -99,7 +99,7 @@
 #'		\item{ReprPCWk}{ReprPCWk}
 #'		\item{Quies}{Quies}
 #' }
-"cromatine15"
+"crom15"
 
 #' dhs data
 #'

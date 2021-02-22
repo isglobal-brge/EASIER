@@ -8,7 +8,7 @@
 Genomic Ranges
 }
 \usage{
-data(FP_E091)
+data(FP_15_E091)
 }
 \description{
 Fetal placentat 15 states (E091)
