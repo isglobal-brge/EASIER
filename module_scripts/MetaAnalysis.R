@@ -3,10 +3,6 @@
 ## ######################################### ##
 
 
-#..# setwd("~/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER")
-#..# setwd("/Users/mailos/tmp/proves")
-
-
 ## -------------------------------------
 ##  Install EASIER Package Code
 ## -------------------------------------
@@ -85,8 +81,7 @@ venn_diagrams <- list(
 
 
 # GWAMA binary path  (GWAMA IsGlobal Server installation)
-gwama.dir <- paste0(Sys.getenv("HOME"), "/data/EWAS_metaanalysis/1_QC_results_cohorts/GWAMA/")
-#..# gwama.dir <- "/Users/mailos/tmp/GWAMA_v2/"
+gwama.dir <- paste0(Sys.getenv("HOME"), "/data/software/GWAMA/")
 
 ## Create directory for GWAMA configuration files and GWAMA_Results
 if(!dir.exists(file.path(paste(results_gwama, "GWAMA", sep="/") )))
