@@ -160,3 +160,20 @@
 #'   \item{Known_gDMR }{Known DMR associated gene }
 #' }
 "IR_Placenta"
+
+
+#' eQTM filter
+#'
+#' Data for eQTM enrichment
+#'
+#' @docType data
+#'
+#' @usage data(eQTM_autosome_unadj_filtered.cells)
+#' @format A data frame with 104716 CpGs and 4 variables
+#' \describe{
+#'   \item{CpG}{CpG id}
+#'   \item{p.value}{p-value}
+#'   \item{sigPair}{is a significant Pair}
+#'   \item{TC_gene}{Gene related to CpG}
+#' }
+"eQTM"
