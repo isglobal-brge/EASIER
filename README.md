@@ -26,6 +26,7 @@ The EASIER package performs epigenetic wide-association study (EWAS) downstream 
    - CpG island relative position
    - Specific for Blood : 
       - 15 ROADMAP chromatine states
+      - eQTM enrichment with data from Helix : [Identification of blood autosomal cis-expression quantitative trait methylation (cis-eQTMs) in children](https://helixomics.isglobal.org/)
    - Specific for Placenta : 
       - ROADMAP chromatine states Fetal Placenta 15 and 18  
       - Partially methylated domains (PMDs)
