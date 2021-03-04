@@ -13,5 +13,6 @@
 #' @import tools
 #' @importFrom reshape2 melt
 #' @importFrom  meta metagen
+#' @importFrom AnnotationDbi select
 #' @importFrom  brgeEnrich cpdbOverRepresentationAnalysis
 NULL
