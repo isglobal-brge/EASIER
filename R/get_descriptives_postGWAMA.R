@@ -92,29 +92,7 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       }
 
 
-
-
-      # Distribution plot
-      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_SE_plot.png'))
-      plot_distribution(cohort$SE, main = paste('Standard Errors of', prefixes[i]), xlab = 'SE')
-      dev.off()
-      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_pvals_plot.png'))
-      plot_distribution(cohort$P_VAL, main = paste('p-values of', prefixes[i]), xlab = 'p-value')
-      dev.off()
-
-      # QQ plot
-      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_QQ_plot.png'))
-      qqman::qq(cohort$P_VAL, main = sprintf('QQ plot of %s (lambda = %f)', prefixes[i], lambda=get_lambda(cohort,"P_VAL")))
-      dev.off()
-
-      # Volcano plot.
-      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_Volcano_plot.png'))
-      plot_volcano(cohort, "BETA", "P_VAL", main =paste('Volcano plot of', prefixes[i]) )
-      dev.off()
-
-
-
-      rasterpdf::raster_pdf(paste0(analyzedata[f], '_QCplots.pdf'), res = 600)
+      # rasterpdf::raster_pdf(paste0(analyzedata[f], '_QCplots.pdf'), res = 600)
 
       # Plot distributions.
       plot.distr <- function(x, main, xlab) {
