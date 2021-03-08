@@ -40,15 +40,19 @@ files <- c('data/Cohort1_Model1_20170713.txt',
            'data/PROJ1_Cohort2_Plate_ModelB1_20170320.txt',
            'data/PROJ1_Cohort2_Plate_ModelB2_20170320.txt',
            'data/PROJ1_Cohort2_Plate_ModelC1_20170818.txt',
-           'data/PROJ1_Cohort2_Plate_ModelC2_20170818.txt')
+           'data/PROJ1_Cohort2_Plate_ModelC2_20170818.txt',
+           'data/PROJ1_Cohort2_Plate_ModelA2_20170309.txt',
+           'data/PROJ1_Cohort2_Plate_ModelB1_20170320.txt')
 
 # Prefixes for each file
-prefixes <- c('Cohort1_A1', 'Cohort1_A2',
+# Prefixes for each file
+prefixes <- c('PACE_GENR_C_EUR','PACE_GENR_C_GMAF1p',
+              'Cohort1_A1', 'Cohort1_A2',
               'PROJ1_Cohort2_A1','PROJ1_Cohort2_A2', 'PROJ1_Cohort2_B1', 'PROJ1_Cohort2_B2', 'PROJ1_Cohort2_C1', 'PROJ1_Cohort2_C2',
               'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
 # Samples in original files used in QC
-N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
+N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240, 240, 240)
 
 # Define data for each meta-analysis
 metafiles <- list(

@@ -14,5 +14,6 @@
 #' @importFrom reshape2 melt
 #' @importFrom  meta metagen
 #' @importFrom AnnotationDbi select
+#' @importFrom enrichplot emapplot
 #' @importFrom  brgeEnrich cpdbOverRepresentationAnalysis
 NULL

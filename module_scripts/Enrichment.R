@@ -72,6 +72,9 @@ enrichFP18 <- FALSE
 # Test to be used : 'Fisher' or 'Hypergeometric' if testdata is different no test will be performed
 testdata <- 'Fisher'
 
+# Perform eQTM enrichment
+bEQTM <- TRUE
+
 ########## ----------  END VARIABLES DEFINED BY USER  ----------  ##########
 
 
@@ -192,7 +195,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       msd_enrich <- MSigDB_enrichment(data, outputfolder, FilesToEnrich[i], artype[i], BN, FDR, pvalue, allCpGs)
 
 
-      if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data))
+      if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) |  "p.val" %in% colnames(data))
       {
 
          ## -- Prepare data
@@ -217,6 +220,18 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
             # CpGs Bonferroni and Hyper and Hypo respectively
             BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
             BN_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "yes", "no")
+         }
+
+
+         if("p.val" %in% colnames(data) & !is.na(pvalue) )
+         {
+
+            # Add column bpval to data for that CpGs that accomplish with FDR
+            data$bpval <- getBinaryClassificationYesNo(data$p.value, "<", pval) # Classify fdr into "yes" and no taking into account FDR significance level
+
+            # CpGs FDR and Hyper and Hypo respectively
+            pval_Hyper <- ifelse(data$bpval == 'yes' & data$meth_state=='Hyper', "yes", "no")
+            pval_Hypo <- ifelse(data$bpval == 'yes' & data$meth_state=='Hypo', "yes", "no")
          }
 
 
@@ -321,6 +336,56 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
          }
 
+         # For pvalue
+         if("p.val" %in% colnames(data) & !is.na(pvalue) )
+         {
+
+            ## --  CpG Gene position
+            ## ---------------------
+
+            # Get descriptives
+            get_descriptives_GenePosition(data$UCSC_RefGene_Group, data$bpval , "p.value", outputdir = "GenePosition/Fisher_pval_Desc", outputfile = FilesToEnrich[i])
+
+            if( tolower(testdata) =='fisher') {
+               ## --  Fisher Test - Gene position - pval, pval_hyper and pval_hypo
+               GenePosition <- getAllFisherTest(data$bpval, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pval", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hyper <- getAllFisherTest(pval_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hypo <- getAllFisherTest(pval_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+            }
+            else if ( tolower(testdata) =='hypergeometric') {
+               ## --  HyperGeometric Test - Island relative position - pval, pval_hyper and pval_hypo (for Depletion and Enrichment)
+               GenePosition <- getAllHypergeometricTest(data$bpval, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_pval", outputfile = FilesToEnrich[i])
+               GenePosition_hyper <- getAllHypergeometricTest(pval_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_pvalHyper", outputfile = FilesToEnrich[i])
+               GenePosition_hypo <- getAllHypergeometricTest(pval_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/HyperG_pvalHypo", outputfile = FilesToEnrich[i])
+            }
+
+            plot_TestResults_Collapsed(list(pval = GenePosition, pval_hypo = GenePosition_hypo, pval_hyper = GenePosition_hyper),
+                                       outputdir = "GenePosition", outputfile = FilesToEnrich[i], main = )
+
+            ## --  CpG Island relative position
+            ## --------------------------------
+
+            # Get descriptives
+            get_descriptives_RelativetoIsland(data$Relation_to_Island, data$bpval , "p.value", outputdir = "RelativeToIsland/Fisher_pval_RelativeToIsland", outputfile = FilesToEnrich[i])
+
+            if( tolower(testdata) =='fisher') {
+               ## --  Fisher Test - Position Relative to Island - pval, pval_hyper and pval_hypo
+               relative_island <- getAllFisherTest(data$bpval, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pval", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hyper <- getAllFisherTest(pval_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hypo <- getAllFisherTest(pval_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+            }
+            else if ( tolower(testdata) =='hypergeometric') {
+               ## --  HyperGeometric Test - Gene position - pval, pval_hyper and pval_hypo (for Depletion and Enrichment)
+               relative_island <- getAllHypergeometricTest(data$bpval, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_pval", outputfile = FilesToEnrich[i])
+               relative_island_hyper <- getAllHypergeometricTest(pval_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_pvalHyper", outputfile = FilesToEnrich[i])
+               relative_island_hypo <- getAllHypergeometricTest(pval_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/HyperG_pvalHypo", outputfile = FilesToEnrich[i])
+            }
+            plot_TestResults_Collapsed(list(bn = relative_island, bn_hypo = relative_island_hypo, bn_hyper = relative_island_hyper),
+                                       outputdir = "RelativeToIsland", outputfile = FilesToEnrich[i], main = )
+
+
+         }
+
 
       } else {
 
@@ -397,7 +462,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          # Columns with chromatin status information :
          ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
 
-         if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data))
+         if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) | "p.val" %in% colnames(data) & (BN==TRUE | !is.na(FDR) | !is.na(pvalue)))
          {
 
             if( !is.na(FDR) ) {
@@ -416,11 +481,31 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                plot_TestResults_Collapsed(list(bn = chrom_states_bn, bn_hypo = chrom_states_bn_hypo, bn_hyper = chrom_states_bn_hyper),
                                           outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
             }
+            if( !is.na(pvalue) ) {
+               chrom_states_pval <- getAllChromStateOR( crom_data$bpval, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pval", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_pval_hyper <- getAllChromStateOR( pval_Hyper, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_pval_hypo <- getAllChromStateOR( pval_Hypo, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+
+               plot_TestResults_Collapsed(list(pval = chrom_states_pval, pval_hypo = chrom_states_pval_hypo, pval_hyper = chrom_states_pval_hyper),
+                                          outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
+            }
          } else {
 
             chrom_states <- getAllChromStateOR( crom_data$signif, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_CpGlist", outputfile = FilesToEnrich[i], plots = TRUE )
             #..# plot_chromosomestate(chrom_states, outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
          }
+
+
+         # Add bEQTM enrichment
+         if(bEQTM == TRUE)
+         {
+            geteQTMEnrichment(crom_data)
+            ## Obtenir el llistat de gnes
+            ## fer l'enriquiment d'aquests gens amb GO ¿¿?? per indentificar paths??
+         }
+
+
+
       }
 
 
@@ -471,7 +556,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          dir.create("ChrSates_Pla_data", showWarnings = FALSE)
          write.table( crom_data, fname, quote=F, row.names=F, sep="\t")
 
-         if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+         if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) & (BN==TRUE | !is.na(FDR) ))
          {
 
             if( tolower(testdata) =='fisher') {
@@ -633,7 +718,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          # CpGs with PMD as NA
          PMD_NaN <- ifelse(is.na(crom_data$PMD),'IsNA','NotNA' )
 
-         if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+         if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) & (BN==TRUE | !is.na(FDR) ))
          {
 
             if( tolower(testdata) =='fisher') {
@@ -713,7 +798,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          # CpGs with DMR as NA
          DMR_NaN <- ifelse(is.na(crom_data$DMR.y),'IsNA','NotNA' )
 
-         if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
+         if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) & (BN==TRUE | !is.na(FDR) ))
          {
 
             if( tolower(testdata) =='fisher') {

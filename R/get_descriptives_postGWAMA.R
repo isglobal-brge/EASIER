@@ -48,7 +48,7 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       colnames(data)[grep("X[0-9]",names(data)) ] <- modelfiles   # effects colnames
 
       write(sprintf('# Effect from each file in model (relative freq.)\n'), file = qc.fname, append = TRUE)
-      presence.pcent <- prop.table(do.call(cbind, lapply(data[effectpositions], summary)), margin = 2)
+      presence.pcent <- prop.table(do.call(cbind, lapply(data[effectpositions], table)), margin = 2)
       suppressWarnings(write.table(presence.pcent, qc.fname, sep="\t",row.names=TRUE, append = TRUE))
 
       # Descriptives
@@ -92,6 +92,28 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       }
 
 
+
+
+      # Distribution plot
+      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_SE_plot.png'))
+      plot_distribution(cohort$SE, main = paste('Standard Errors of', prefixes[i]), xlab = 'SE')
+      dev.off()
+      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_pvals_plot.png'))
+      plot_distribution(cohort$P_VAL, main = paste('p-values of', prefixes[i]), xlab = 'p-value')
+      dev.off()
+
+      # QQ plot
+      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_QQ_plot.png'))
+      qqman::qq(cohort$P_VAL, main = sprintf('QQ plot of %s (lambda = %f)', prefixes[i], lambda=get_lambda(cohort,"P_VAL")))
+      dev.off()
+
+      # Volcano plot.
+      png(paste0(results_folder, '/',prefixes[i], '/',prefixes[i], '_QC_Volcano_plot.png'))
+      plot_volcano(cohort, "BETA", "P_VAL", main =paste('Volcano plot of', prefixes[i]) )
+      dev.off()
+
+
+
       rasterpdf::raster_pdf(paste0(analyzedata[f], '_QCplots.pdf'), res = 600)
 
       # Plot distributions.
@@ -103,13 +125,27 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
          lines(d, col = gg_colors(2)[1], lwd = 2)
       }
 
-      plot.distr(na.omit(data$i2), main = paste('Heterogeneity (i2) histogram -', metaname,type[f]), xlab = 'i2')
-      plot.distr(data$se, main = paste('Standard Errors -', metaname,type[f]), xlab = 'SE')
-      plot.distr(data$`p.value`, main = paste('p-values -', metaname,type[f]), xlab = 'p-value')
+      png(paste0(analyzedata[f], '_QC_distr_i2_plot.png'))
+         plot.distr(na.omit(data$i2), main = paste('Heterogeneity (i2) histogram -', metaname,type[f]), xlab = 'i2')
+      dev.off()
+
+      png(paste0(analyzedata[f], '_QC_distr_SE_plot.png'))
+         plot.distr(data$se, main = paste('Standard Errors -', metaname,type[f]), xlab = 'SE')
+      dev.off()
+
+      png(paste0(analyzedata[f], '_QC_distr_pvalue_plot.png'))
+         plot.distr(data$`p.value`, main = paste('p-values -', metaname,type[f]), xlab = 'p-value')
+      dev.off()
 
       # QQ plot.
-      lambda <- qchisq(median(data$`p.value`), df = 1, lower.tail = FALSE) / qchisq(0.5, 1)
-      qqman::qq(data$`p.value`, main = sprintf('QQ plot of %s %s (lambda = %f)', metaname, type[f], lambda))
+
+      png(paste0(analyzedata[f], '_QC_Chi_lambda.png'))
+         lambda <- qchisq(median(data$`p.value`), df = 1, lower.tail = FALSE) / qchisq(0.5, 1)
+      dev.off()
+
+      png(paste0(analyzedata[f], '_QC_QQplot_plot.png'))
+         qqman::qq(data$`p.value`, main = sprintf('QQ plot of %s %s (lambda = %f)', metaname, type[f], lambda))
+      dev.off()
 
       # Volcano plot.
       bt <- 0.01
@@ -117,10 +153,11 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       colors <- rep(gray(0.75, 0.25), nCpG)
       colors[data$beta >  bt & -log10(data$`p.value`) > 3] <- gg_colors(2, 0.5)[1] # Red
       colors[data$beta < -bt & -log10(data$`p.value`) > 3] <- gg_colors(2, 0.5)[2] # Blue
-      plot(data$beta, -log10(data$`p.value`), col = colors,
-           main = paste('Volcano plot of', metaname), xlab = 'Beta', ylab = '-log10 p-value')
-      abline(h = pt, v = c(-bt, bt), lty = 'dotted')
 
+      png(paste0(analyzedata[f], '_QC_Volcano.png'))
+         plot(data$beta, -log10(data$`p.value`), col = colors,
+              main = paste('Volcano plot of', metaname), xlab = 'Beta', ylab = '-log10 p-value')
+         abline(h = pt, v = c(-bt, bt), lty = 'dotted')
       dev.off()
 
       modeldata[[f]] <- data
