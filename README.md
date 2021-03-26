@@ -32,3 +32,19 @@ The EASIER package performs epigenetic wide-association study (EWAS) downstream 
       - Partially methylated domains (PMDs)
       - Impreinted regions
 
+
+## Install : 
+
+Install in R as : 
+
+```r
+# Install devtools
+install.packages("devtools")
+library(devtools)
+
+# Install required packages 
+devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/EASIER/HEAD/installer.R")
+
+# Install EASIER R package
+devtools::install_github("isglobal-brge/EASIER@HEAD")
+```
