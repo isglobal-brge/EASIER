@@ -52,7 +52,10 @@ prefixes <- c('PACE_GENR_C_EUR','PACE_GENR_C_GMAF1p',
               'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
 # Samples in original files used in QC
-N <- c(100, 100, 166, 166, 166, 166, 166, 166, 240, 240, 240, 240)
+N <- c(100, 100,
+       166, 166,
+       166, 166, 166, 166, 240, 240,
+       240, 240)
 
 # Define data for each meta-analysis
 metafiles <- list(
@@ -142,12 +145,12 @@ for( metf in 1:length(metafiles))
 
       # Create GWAMA files for each file in meta-analysis and execute GWAMA
       for ( i in 1:length(modelfiles) )
-         create_GWAMA_files(file.path(results_folder,modelfiles[i]),  modelfiles[i], inputfolder, N[i], list.lowCpGs )
+         create_GWAMA_files(file.path(results_folder,modelfiles[i]),  modelfiles[i], inputfolder, N[which(prefixes==modelfiles[i])], list.lowCpGs )
 
 
       # Get hapmapfile attending to current metaanalysis artype
       hapmapfile <- hapmapfile_450K
-      if(artype[i]=='EPIC'){
+      if(artype[metf]=='EPIC'){
          hapmapfile <- hapmapfile_450K
       }
 
@@ -155,7 +158,7 @@ for( metf in 1:length(metafiles))
       outputfiles[[runs[j]]] <- run_GWAMA_MetaAnalysis(inputfolder, outputgwama, names(metafiles)[metf], gwama.dir, hapmapfile)
 
       # Post-metha-analysis QC --- >>> adds BN and FDR adjustment
-      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype[i], N[which(prefixes %in% modelfiles)] )
+      dataPost <- get_descriptives_postGWAMA(outputgwama, outputfiles[[runs[j]]], modelfiles, names(metafiles)[metf], artype[metf], N[which(prefixes %in% modelfiles)] )
 
       # Forest-Plot
       plot_ForestPlot( dataPost, metafiles[[metf]], runs[j], inputfolder, names(metafiles)[metf], files, outputgwama, nsignificatives = 30  )

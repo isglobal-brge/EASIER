@@ -20,7 +20,7 @@ create_GWAMA_files <- function(qcpath, file, gwmodelpath, N, llowCpGs=NULL)
 
    # If we have lowCpGs list, we filter this CpGs in the new file
    if( !is.null(llowCpGs) ){
-      # Rmove CpGs with exclusion parameters
+      # Remove CpGs with exclusion parameters
       cohort <- cohort[ !cohort$probeID %in% llowCpGs,]
    }
 
