@@ -12,8 +12,8 @@
 #'    \item {_chrom15_PVAL}{if we are enriching CpGs that meet the p-value condition}
 #' }
 #' @param cpgcol numeric or string. Column index or column name with CpGs id
-#' @param bn boolean. optional. If data is a dataframe with bonferroni adjustmnet, makes enrichment with CpGs that pass Bonferroni
-#' @param fdr numeric optiona. If data is a dataframe with FDR adjustmnet and fdr!=NA or NULL, makes enrichment with CpGs with fdr lower than indicated value
+#' @param bn boolean. optional. If data is a dataframe with bonferroni adjustment, makes enrichment with CpGs that pass Bonferroni
+#' @param fdr numeric optiona. If data is a dataframe with FDR adjustment and fdr!=NA or NULL, makes enrichment with CpGs with fdr lower than indicated value
 #' @param pval numeric optional. If data is a dataframe with p-value and pval!=NA or NULL, makes enrichment with CpGs with pval lower than indicated value
 #' @param all boolean, optional. enrich all CpGs
 #'

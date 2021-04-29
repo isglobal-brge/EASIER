@@ -45,3 +45,5 @@ vignettes/.DS_Store
 vignettes/EASIER 2.pdf
 .DS_Store
 module_scripts/Enrichment.R.backup.R
+.DS_Store
+module_scripts/Enrichment.R_old.R

@@ -64,7 +64,7 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       write(sprintf('\n# Significative CpGs : \n'), file = qc.fname, append = TRUE)
       write(sprintf('\t# p-val<0.05 : %d\n', length(which(data$p.value<0.05)) ), file = qc.fname, append = TRUE)
       write(sprintf('\t# After Bonferroni Correction :  %d\n', length(which(data$Bonferroni == 'yes'))), file = qc.fname, append = TRUE)
-      write(sprintf('\t# After FDR adjustmnet : %d\n', length(which(data$FDR<0.05)) ), file = qc.fname, append = TRUE)
+      write(sprintf('\t# After FDR adjustment : %d\n', length(which(data$FDR<0.05)) ), file = qc.fname, append = TRUE)
 
       # Annotate CpGs
       data.annot <- annotate_CpGs(data[,"rs_number"], artype)

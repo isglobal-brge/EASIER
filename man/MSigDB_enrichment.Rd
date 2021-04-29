@@ -30,9 +30,9 @@ MSigDB_enrichment(
 
 \item{artype}{string, Illumina array type, 450K or EPIC, by default array type is 450K}
 
-\item{bn}{boolean. optional. If data is a dataframe with bonferroni adjustmnet, makes enrichment with CpGs that pass Bonferroni}
+\item{bn}{boolean. optional. If data is a dataframe with bonferroni adjustment, makes enrichment with CpGs that pass Bonferroni}
 
-\item{fdr}{numeric optiona. If data is a dataframe with FDR adjustmnet and fdr!=NA or NULL, makes enrichment with CpGs with fdr lower than indicated value}
+\item{fdr}{numeric optiona. If data is a dataframe with FDR adjustment and fdr!=NA or NULL, makes enrichment with CpGs with fdr lower than indicated value}
 
 \item{pval}{numeric optional. If data is a dataframe with p-value and pval!=NA or NULL, makes enrichment with CpGs with pval lower than indicated value}
 
