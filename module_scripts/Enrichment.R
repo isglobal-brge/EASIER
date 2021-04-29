@@ -467,24 +467,24 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
             if( !is.na(FDR) ) {
                chrom_states_fdr <- getAllChromStateOR( crom_data$bFDR, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
-               chrom_states_fdr_hyper <- getAllChromStateOR( FDR_Hyper, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
-               chrom_states_fdr_hypo <- getAllChromStateOR( FDR_Hypo, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_fdr_hyper <- getAllChromStateOR( FDR_Hyper[which(data$rs_number %in% crom_data$rs_number)], crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_fdr_hypo <- getAllChromStateOR( FDR_Hypo[which(data$rs_number %in% crom_data$rs_number)], crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
 
                plot_TestResults_Collapsed(list(fdr = chrom_states_fdr, fdr_hypo = chrom_states_fdr_hypo, fdr_hyper = chrom_states_fdr_hyper),
                                           outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
             }
             if ( BN == TRUE) {
                chrom_states_bn <- getAllChromStateOR( crom_data$Bonferroni, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_BN", outputfile = FilesToEnrich[i], plots = TRUE )
-               chrom_states_bn_hyper <- getAllChromStateOR( BN_Hyper, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_BNHyper", outputfile = FilesToEnrich[i], plots = TRUE )
-               chrom_states_bn_hypo <- getAllChromStateOR( BN_Hypo, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_BNHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_bn_hyper <- getAllChromStateOR( BN_Hyper[which(data$rs_number %in% crom_data$rs_number)], crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_BNHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_bn_hypo <- getAllChromStateOR( BN_Hypo[which(data$rs_number %in% crom_data$rs_number)], crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_BNHypo", outputfile = FilesToEnrich[i], plots = TRUE )
 
                plot_TestResults_Collapsed(list(bn = chrom_states_bn, bn_hypo = chrom_states_bn_hypo, bn_hyper = chrom_states_bn_hyper),
                                           outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )
             }
             if( !is.na(pvalue) ) {
                chrom_states_pval <- getAllChromStateOR( crom_data$bpval, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pval", outputfile = FilesToEnrich[i], plots = TRUE )
-               chrom_states_pval_hyper <- getAllChromStateOR( pval_Hyper, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
-               chrom_states_pval_hypo <- getAllChromStateOR( pval_Hypo, crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_pval_hyper <- getAllChromStateOR( pval_Hyper[which(data$rs_number %in% crom_data$rs_number)], crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
+               chrom_states_pval_hypo <- getAllChromStateOR( pval_Hypo[which(data$rs_number %in% crom_data$rs_number)], crom_data[,ChrStatCols], outputdir = "ChrSates_15_Blood/OR_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
 
                plot_TestResults_Collapsed(list(pval = chrom_states_pval, pval_hypo = chrom_states_pval_hypo, pval_hyper = chrom_states_pval_hyper),
                                           outputdir = "ChrSates_15_Blood", outputfile = FilesToEnrich[i], main = )

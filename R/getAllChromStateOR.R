@@ -31,7 +31,7 @@ getAllChromStateOR <- function(significative, chromstate, outputdir = ".", outpu
    }
 
    if( plots )
-      plot_OR(ans, outputdir = outputdir ,outputfile = outputfile)
+      plot_ChromStates(ans, outputdir = outputdir ,outputfile = outputfile)
 
 
    return(ans)

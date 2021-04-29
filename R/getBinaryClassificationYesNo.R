@@ -15,8 +15,14 @@ getBinaryClassificationYesNo <- function(value, condition = "<", limit=0)
    if (! condition %in% c("<", ">", "<=", ">="))
       stop("Condition must be a logical operator '<', '>', '<=' or '>=' ")
 
-   if (!is.numeric(value))
-      stop("Value must be a numeric vector")
+   if (!is.numeric(value)) {
+      if(str_detect(value[1], ',')) {
+         value <- as.numeric(sub(",", ".", value, fixed = TRUE))
+      } else {
+         stop("Value must be a numeric vector")
+      }
+   }
+
 
    # Get methylation level
    #..# binclass <- ifelse( eval(parse(text = paste(value,cond,limit))), 'yes', 'no')

@@ -11,7 +11,29 @@
 #' @export
 getChromStateOR <- function(significative, chromstate, varname)
 {
-   rp <- as.data.frame.matrix(table(significative, chromstate))[,c("TRUE","FALSE")]
+
+   tmp_tbl <- table(significative, chromstate)
+   if(dim(tmp_tbl)[2]==1) {
+      fields <- c(0,0)
+      if(colnames(tmp_tbl)==TRUE){
+         tmp_tbl <- cbind(tmp_tbl,fields)
+      } else {
+         tmp_tbl <- cbind(fields, tmp_tbl)
+      }
+      colnames(tmp_tbl) <- c("TRUE","FALSE")
+   }
+
+   if(dim(tmp_tbl)[1]==1) {
+      fields <- c(0,0)
+      if(rownames(tmp_tbl)=='no'){
+         tmp_tbl <- rbind(tmp_tbl,fields)
+      } else {
+         tmp_tbl <- cbind(fields, tmp_tbl)
+      }
+      rownames(tmp_tbl) <- c("no","yes")
+   }
+
+   rp <- as.data.frame.matrix(tmp_tbl)[,c("TRUE","FALSE")]
 
    rp1 <- rbind(nosig = rp[1, ], sig = colSums(rp[-1, ]))[c(2,1),]
    xt <- chisq.test(rp1)
