@@ -34,8 +34,8 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
 
       write(sprintf('\t\t\t\t======================\n\t\t\t\t  Descriptive Resume\n\t\t\t\t======================\n'), file = qc.fname)
       write(sprintf('-----------------------------\n Model : %s\n-----------------------------\n',metaname), file = qc.fname, append = TRUE)
-      write(sprintf('n models : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
-      write(sprintf('Models analysed :'), file = qc.fname, append = TRUE)
+      write(sprintf('N cohorts : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
+      write(sprintf('Cohorts analysed :'), file = qc.fname, append = TRUE)
       write(sprintf('\t\t %s', unname(modelfiles)) , file = qc.fname, append = TRUE)
       write(sprintf('N Samples : %d ', sum(Ns) ), file = qc.fname, append = TRUE)
       write(sprintf('N CpGs : %d ',nCpG), file = qc.fname, append = TRUE)
@@ -54,8 +54,11 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       # Descriptives
       descfields <- c(7,8,11,12,13,14,15,16)
       write(sprintf('\n# Descriptives for  Beta, SE, z, p-value, log10(p.value) ... , \n'), file = qc.fname, append = TRUE)
-      desc <- prop.table(do.call(cbind, lapply(data[descfields], summary)), margin = 2)
-      suppressWarnings(write.table( round(desc,5), qc.fname, sep="      \t",row.names=TRUE, append = TRUE))
+      #..# desc <- prop.table(do.call(cbind, lapply(data[descfields], summary)), margin = 2)
+      desc <- lapply(data[descfields], summary)
+      desc_w <-  t(bind_rows(desc))
+      colnames(desc_w) <- names(desc)
+      suppressWarnings(write.table( round(desc_w,5), qc.fname, sep="      \t",row.names=TRUE, append = TRUE))
 
       # Significative CpGs before and after Bonferroni Correction and FDR
       data$Bonferroni<-ifelse((data$p.value<0.05/dim(data)[1] ),"yes","no")   # Add Bonferroni correction addjustment
@@ -65,6 +68,8 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       write(sprintf('\t# p-val<0.05 : %d\n', length(which(data$p.value<0.05)) ), file = qc.fname, append = TRUE)
       write(sprintf('\t# After Bonferroni Correction :  %d\n', length(which(data$Bonferroni == 'yes'))), file = qc.fname, append = TRUE)
       write(sprintf('\t# After FDR adjustment : %d\n', length(which(data$FDR<0.05)) ), file = qc.fname, append = TRUE)
+      write(sprintf('\t# Lambda : %f\n', qchisq(median(data$`p.value`), df = 1, lower.tail = FALSE) / qchisq(0.5, 1) ), file = qc.fname, append = TRUE)
+
 
       # Annotate CpGs
       data.annot <- annotate_CpGs(data[,"rs_number"], artype)
