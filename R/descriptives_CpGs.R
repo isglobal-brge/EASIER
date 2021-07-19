@@ -5,6 +5,7 @@
 #' @param cohort Dataframe with CpGs data
 #' @param columns Integer vector with column position that we are interested in
 #' @param filename Optional, filename to write results, if NULL no results are writed in a file
+#' @param nsamples numeric, Optional, samples in cohort
 #' @param before bolean, Optional, if true, prints text "Before QC" , else, prints "After QC"
 #'
 #' @return list with descriptive values
@@ -17,7 +18,7 @@
 #'
 #'
 #' @export
-descriptives_CpGs <- function(cohort, columns, filename = NULL, before = TRUE)
+descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL, before = TRUE)
 {
    # Number of CpGs.
    nCpG <- nrow(cohort)
@@ -28,14 +29,17 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, before = TRUE)
    if(!is.null(filename)){
       write(sprintf('\n# %s', strrep("-",29)), file = filename, append = TRUE)
       if(before == TRUE){
-         write(sprintf('# Summary for CpGs Before QC : '), file = filename, append = TRUE)
+         write(sprintf('# Summary before QC : '), file = filename, append = TRUE)
       }else{
-         write(sprintf('Summary for CpGs After QC : '), file = filename, append = TRUE)
+         write(sprintf('Summary after QC : '), file = filename, append = TRUE)
       }
       write(sprintf('# %s \n', strrep("-",29)), file = filename, append = TRUE)
 
       write(sprintf('# Number of CpGs: %d \n', nCpG), file = filename, append = TRUE)
-      write(sprintf('# Data summary : \n'), file = filename, append = TRUE)
+      is(!is.null(nsamples)){
+         write(sprintf('# Number of samples: %d \n', nsamples), file = filename, append = TRUE)
+      }
+      write(sprintf('# Descriptive : \n'), file = filename, append = TRUE)
       suppressWarnings( write.table(summary, file = filename, append = TRUE, quote = TRUE, sep = '\t', dec='.') )
    }
 

@@ -4,7 +4,13 @@
 \alias{descriptives_CpGs}
 \title{CpGs descriptive data}
 \usage{
-descriptives_CpGs(cohort, columns, filename = NULL, before = TRUE)
+descriptives_CpGs(
+  cohort,
+  columns,
+  filename = NULL,
+  nsamples = NULL,
+  before = TRUE
+)
 }
 \arguments{
 \item{cohort}{Dataframe with CpGs data}
@@ -12,6 +18,8 @@ descriptives_CpGs(cohort, columns, filename = NULL, before = TRUE)
 \item{columns}{Integer vector with column position that we are interested in}
 
 \item{filename}{Optional, filename to write results, if NULL no results are writed in a file}
+
+\item{nsamples}{numeric, Optional, samples in cohort}
 
 \item{before}{bolean, Optional, if true, prints text "Before QC" , else, prints "After QC"}
 }

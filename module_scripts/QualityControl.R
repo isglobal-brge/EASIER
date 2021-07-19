@@ -133,7 +133,7 @@ for ( i in 1:length(files) )
    cohort <- clean_NA_from_data(cohort)
 
    # Descriptives - Before CpGs deletion #
-   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = TRUE)
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], before = TRUE)
 
    # Remove duplicates
    # cohort <- remove_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i], '/',prefixes[i],'_descriptives_duplic.txt'), paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
@@ -151,7 +151,7 @@ for ( i in 1:length(files) )
    cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
 
    # Descriptives - After CpGs deletion #
-   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = FALSE )
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], before = FALSE )
 
    # Adjust data by Bonferroni and FDR
    cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, fResumeName, N[i]  )

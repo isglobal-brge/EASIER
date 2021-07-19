@@ -73,7 +73,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
    # Report descriptive exclussions to a descriptive file
    if(!is.null(fileresume)) {
       write(sprintf('\n# %s', strrep("-",16)), file = fileresume, append = TRUE)
-      write(sprintf('# Excluded CpGs : '), file = fileresume, append = TRUE)
+      write(sprintf('# Remove "problematic"  CpGs : '), file = fileresume, append = TRUE)
       write(sprintf('# %s\n', strrep("-",16)), file = fileresume, append = TRUE)
       write(sprintf('# Criteria : \n\tArray type : %s \n\tEthnia : %s \n', toupper(artype), toupper(ethnic)), file = fileresume, append = TRUE)
       write(sprintf('# Mask : %s', exclude), file = fileresume, append = TRUE)

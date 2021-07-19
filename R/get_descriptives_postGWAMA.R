@@ -32,28 +32,28 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
 
       print(paste0("Output file : ",qc.fname))
 
-      write(sprintf('\t\t\t\t======================\n\t\t\t\t  Descriptive Resume\n\t\t\t\t======================\n'), file = qc.fname)
+      write(sprintf('\t\t\t\t======================\n\t\t\t\t  Descriptive EWAS meta-analysis\n\t\t\t\t======================\n'), file = qc.fname)
       write(sprintf('-----------------------------\n Model : %s\n-----------------------------\n',metaname), file = qc.fname, append = TRUE)
-      write(sprintf('N cohorts : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
+      write(sprintf('cohorts : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
       write(sprintf('Cohorts analysed :'), file = qc.fname, append = TRUE)
       write(sprintf('\t\t %s', unname(modelfiles)) , file = qc.fname, append = TRUE)
       write(sprintf('N Samples : %d ', sum(Ns) ), file = qc.fname, append = TRUE)
       write(sprintf('N CpGs : %d ',nCpG), file = qc.fname, append = TRUE)
 
       # Effects
-      write(sprintf('\nEffects \n-------------\n'), file = qc.fname, append = TRUE)
+      write(sprintf('\nDescriptive \n-------------\n'), file = qc.fname, append = TRUE)
       lst <- strsplit(data$effects, "") # Split effects in columns
       data <- cbind(data, data.frame(matrix(unlist(lst), nrow=length(lst), byrow=T)))
       effectpositions <- grep("X[0-9]",names(data)) # Posicions
       colnames(data)[grep("X[0-9]",names(data)) ] <- modelfiles   # effects colnames
 
-      write(sprintf('# Effect from each file in model (relative freq.)\n'), file = qc.fname, append = TRUE)
+      write(sprintf('# Direction of the effect (relative freq.)\n'), file = qc.fname, append = TRUE)
       presence.pcent <- prop.table(do.call(cbind, lapply(data[effectpositions], table)), margin = 2)
       suppressWarnings(write.table(presence.pcent, qc.fname, sep="\t",row.names=TRUE, append = TRUE))
 
       # Descriptives
       descfields <- c(7,8,11,12,13,14,15,16)
-      write(sprintf('\n# Descriptives for  Beta, SE, z, p-value, log10(p.value) ... , \n'), file = qc.fname, append = TRUE)
+      write(sprintf('\n# Descriptive \n'), file = qc.fname, append = TRUE)
       #..# desc <- prop.table(do.call(cbind, lapply(data[descfields], summary)), margin = 2)
       desc <- lapply(data[descfields], summary)
       desc_w <-  t(bind_rows(desc))
@@ -64,10 +64,10 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       data$Bonferroni<-ifelse((data$p.value<0.05/dim(data)[1] ),"yes","no")   # Add Bonferroni correction addjustment
       data$FDR<-p.adjust(data$p.value, method="fdr")   # Add FDR adjustment
 
-      write(sprintf('\n# Significative CpGs : \n'), file = qc.fname, append = TRUE)
-      write(sprintf('\t# p-val<0.05 : %d\n', length(which(data$p.value<0.05)) ), file = qc.fname, append = TRUE)
-      write(sprintf('\t# After Bonferroni Correction :  %d\n', length(which(data$Bonferroni == 'yes'))), file = qc.fname, append = TRUE)
-      write(sprintf('\t# After FDR adjustment : %d\n', length(which(data$FDR<0.05)) ), file = qc.fname, append = TRUE)
+      write(sprintf('\n# SNumber of statistically significant CpGs : \n'), file = qc.fname, append = TRUE)
+      write(sprintf('\t# Nominal p-value<0.05 : %d\n', length(which(data$p.value<0.05)) ), file = qc.fname, append = TRUE)
+      write(sprintf('\t# After Bonferroni correction :  %d\n', length(which(data$Bonferroni == 'yes'))), file = qc.fname, append = TRUE)
+      write(sprintf('\t# After FDR correction : %d\n', length(which(data$FDR<0.05)) ), file = qc.fname, append = TRUE)
       write(sprintf('\t# Lambda : %f\n', qchisq(median(data$`p.value`), df = 1, lower.tail = FALSE) / qchisq(0.5, 1) ), file = qc.fname, append = TRUE)
 
 
