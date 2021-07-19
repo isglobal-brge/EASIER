@@ -4,7 +4,7 @@
 \alias{plot_betas_boxplot}
 \title{Betas Boxplot}
 \usage{
-plot_betas_boxplot(x, filename = NULL, main = NULL, ...)
+plot_betas_boxplot(x, filename = NULL, main = NULL, outliers = FALSE, ...)
 }
 \arguments{
 \item{x}{numeric list with data for each factor}
@@ -12,6 +12,9 @@ plot_betas_boxplot(x, filename = NULL, main = NULL, ...)
 \item{filename, }{file name to write the boxplot with png format}
 
 \item{main}{optional, string with plot title}
+
+\item{outliers}{optional, boolean by default = FALSE, if true,
+plot_betas_boxplot function plots outliers}
 }
 \value{
 Betas boxplot
