@@ -27,7 +27,7 @@ filterLowRepresentedCpGsinCohort <- function(data, colname, pcmissing, Ntotal, f
       }
 
       totCpgs <- dim(data)[1]
-      data$pecent <- data[colname]/Ntotal
+      data$pecent <- data[,colname]/Ntotal
       data <- data[which(data$pecent>=pcmissing),]
       remCpGs <- totCpgs - dim(data)[1]
 
