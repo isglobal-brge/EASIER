@@ -47,3 +47,7 @@ vignettes/EASIER 2.pdf
 module_scripts/Enrichment.R.backup.R
 .DS_Store
 module_scripts/Enrichment.R_old.R
+.Rbuildignore
+.DS_Store
+*.icloud
+.DS_Store

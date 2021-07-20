@@ -1,5 +1,5 @@
 ---
-title: "EASIER - EwAS: quality control, meta-analysIs and EnRichment"
+title: "EASIER - EwAS: quality control, meta-analysIs and functional EnRichment"
 author:
 - name: Dolors Pelegri
   affiliation: 
@@ -19,14 +19,14 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
-   BiocStyle::pdf_document:
-    toc_float: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
+   BiocStyle::pdf_document:
+      toc: true
 bibliography: bibliography.bib
 abstract: |
-  The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results (using GWAMA) and 3) Functional enrichment (pathway and molecular enrichments)
+  The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results and 3) Functional enrichment 
 vignette: |
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{"EASIER - EwAS: quality control, meta-analysIs and EnRichment"}
@@ -36,6 +36,11 @@ vignette: |
 ```{r setup_knitr, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE,
                       cache=TRUE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
 library(knitr)
 library(tools)
 ```
@@ -51,44 +56,58 @@ colorize <- function(x, color) {
 }
 ```
 
+
 # Prerequisites
 
-The package requires other packages to be installed. These include: `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf`, `tidyverse`, `reshape`, `ggsignif`, `tools` and `meta` all available in CRAN. The package also requires other packages from Bioconductor to perform annotations and enrichment : `IlluminaHumanMethylation450kanno.ilmn12.hg19`, `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`, `missMethyl`, `org.Hs.eg.db`, `GenomicRanges` and `rtracklayer`.
+The EASIIER package requires other packages to be installed. These include: `ggplot2`, `VennDiagram`, `RColorBrewer`, `tibble`, `dplyr`, `stringr`, `rasterpdf`, `tidyverse`, `reshape`, `ggsignif`, `tools` and `meta` all available in CRAN. The package also requires other packages from Bioconductor to perform annotations and enrichment : `IlluminaHumanMethylation450kanno.ilmn12.hg19`, `IlluminaHumanMethylationEPICanno.ilm10b4.hg19`, `missMethyl`, `org.Hs.eg.db`, `GenomicRanges` and `rtracklayer`.
 
-To perform meta-analyses we use GWAMA, a Software tool for meta analysis developed by Intitute of Genomics from University of Tartu, this software is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download), this software must be installed on the computer where we are running analysis (already installed in machines ws05 and ws06 from ISGlobal).
+To perform meta-analyses we use GWAMA, a software for meta analysis developed by the Intitute of Genomics from University of Tartu, GWAMA is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download) and must be installed on the computer where we are going to run EASIER.
+The EASIER R package has been developed run under version R >= 3.6.3 .
 
 # Overview
 
-The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis:
+The EASIER package performs downstream analyses of epigenenome-wide association studies (EWAS):
 
-* **Quality control** of EWAS results
-   + Folders: input and ouput
-   + Configuration: array type, sample size, ethnicity, exclusion CpGs criteria
-   + CpG filtering selection -> list of CpGs filtered and reason
-   + QC with summaries -> summary SE, Beta, lambda, significatives...
-   + QC with plots -> QQ-plots, Distribution plot, precision plot, ...
-   + CpG annotation and adjustment -> QCed EWAS results file
+* **Module 1: Quality control of EWAS results**
+   - Input: EWAS results of each cohort and model 
+   - Configuration: input and output folders, array type, sample size, ethnicity, CpG exclusion criteria, etc.
+   - Output, for each cohort and model:
+      * QCed EWAS results 
+      * List of filtered CpGs and reason
+      * Summary of QCed EWAS results 
+      * Plots of QCed EWAS results 
+   * Output, across cohorts and models:
+      * Boxplot of beta values 
+      * Precision plot
+      * Venn diagram of top CpGs 
+* **Module 2: Meta-analysis of EWAS results**
+   * Input: QCed EWAS results of each cohort and model
+   * Configuration: input and output folders, array type, models, etc. 
+   * GWAMA (inverse-variance weighted meta-analysis)*
+	* Output, for each model:
+	   * EWAS meta-analysis results (fixed and random)
+	   * Summary of EWAS meta-analysis results 
+	   * Plots of EWAS meta-analysis results 
 
-* **Meta-analysis** of EWAS results (using GWAMA)
-   + Folders: input and output
-   + Link to GWAMA
-   + Format QCed EWAS results file
-   + Run GWAMA -> EWAS meta-analysis results file
-   + Meta-analysis with summaries 
-   + Meta-analysis with plots -> Heterogeneity plot, distribution plots, QQ-plots, Volcano plots, Manhattan plots and Forest-plots
 
-* **Functional enrichment** (pathway and molecular enrichments)
-   + GO and KEGG and MolSig
-   + Pathways with Molecular Signatures Database (MSigDB)
-   + ConsensusPath Data Base
-   + Gene relative position
-   + CpG island relative position
-   + Specific for Blood : 
-      - 15 ROADMAP chromatine states ( N = 15 )
-   + Specific for Placenta : 
-      - ROADMAP fetal placenta chromatin states ( N = 15 and N = 18 )
-      - Placenta partially methylated domains (PMDs)
-      - Placenta Impreinted regions
+* **Module 3: Functional enrichment of EWAS results**
+   * Input
+      * EWAS meta-analysis results (CpG, p-value, beta)
+      * List of CpGs 
+   * Output: tables and plots with enrichments
+   * Gene-set enrichment (CpGs annotated to genes)
+      * missMethyl (GO, KEGG, MSigDB)
+      * ConsensusPath (several DB)
+   * Molecular enrichment
+      * Gene relative position
+      * CpG island relative position
+   * Specific for blood
+      * ROADMAP blood chromatin states
+      * eQTMs (https://helixomics.isglobal.org/)
+   * Specific for placenta
+      * ROADMAP fetal placenta chromatin states 
+      * Placenta prtially methylated domains (PMDs)
+      * Placenta imprinted regions
 
 
 In this vignette we will show how to apply **EASIER R package** with the EWAS results from three cohorts and two distinct models for each cohort.
@@ -120,13 +139,16 @@ devtools::install_github("isglobal-brge/EASIER@HEAD")
 #..# devtools::install_github("isglobal-brge/EASIER@HEAD",  build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
 ```
 
-The previous commands will install a the library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-cran and Bioconductor to run **EASIER R package**. Lastly, the package **EASIER** and the corresponding vignettes are installed.
+The first command installs a library called `devtools` that is needed to source online scripts and run them. The next line sources a file that installs all the required packages from R-CRAN and Bioconductor to run **EASIER R package**. Lastly, the **EASIER** R package and the corresponding vignettes are installed.
 
-```{r loadMethyTools, eval=TRUE}
+After package is installed, we can load it with command: 
+
+```{r loadEASIER, eval=T, echo = F}
 library(EASIER)
+```
+```{r loadMethyTools, eval=T, echo = F}
 library(readtext)
 ```
-
 
 To access to vignette documents you only have to use `vignette("EASIER")`
 
@@ -137,21 +159,22 @@ To access to vignette documents you only have to use `vignette("EASIER")`
 ## **Quality Control** Flowchart
 
 
-```{r qcworkflow, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:qcworkflow}Quality control flowchart. This flowchart is used in the script under test folder to perform the quality control (QualityControl.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
+```{r qcworkflow, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:qcworkflow}Quality control flowchart. This flowchart is used to coduct the quality control of EWAS results (QualityControl.R) ", fig.pos='ht'}
 include_graphics("imgs/workflows/QCWorkflow.png") 
 ```
 
-We have created a script named **[QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R)** to carry out the **quality control** of EWAS results automatically. This script needs very few initial editing steps to indicate information specific to the study. The script follows the **Figure\@ref(fig:qcworkflow)** workflow. Briefly, after reading the EWAS results file/s, it starts by detecting missings and duplicated CpGs, and generates the initial descriptive for Beta, SE and p-values.  Then a list of CpGs that meet exclusion conditions (indicated by the user) are excluded from the file, and the adjusted p-values and lambda are calculated. A new QCed results file is created, together with the new descriptive for Beta, SE and p-values, and several graphical analyses (distribution plot, QQ-plot, Volcano plot). Finally, if working with more than one EWAS results file, a beta’s box plot and a precision plot is created comparing the different EWAS results.  
+We have created a script named **[QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R)** to carry out the **quality control** of EWAS results automatically, as indicated in the workflow in **Figure\@ref(fig:qcworkflow)**. This script needs some initial editing to indicate information specific to the study. Briefly, after reading the EWAS results file of each cohort and model (study), it starts by detecting duplicated CpGs and CpGs with missing data (NAs), and generates the initial descriptive for Beta, SE and P-value. Then CpGs that meet exclusion criteria (indicated by the user) are excluded from the file, and adjusted p-values and lambda are calculated. A new file with QCed EWAS results for each cohort and model (each study) is created, together with the QCed descriptive for Beta, SE, p-value, and adjusted P-values. Moreover, several plots by cohort and model are generated (distribution plots for SE and P-value, QQ plot, and Volcano plot). Finally, plots comparing QCed EWAS results from different cohorts and models are created (Beta's boxplot and precision plot).
+
 
 
 ## Initial definition of variables specific to the study
 
 
-We need to define certain variables specific to each study in order to run the **Quality Control module**. `r colorize("(this is the only part of the code that requires editing!).", 'red')`
+We need to define certain parameters specific to each study in order to run Module 1 - **Quality Control of EWAS results**. `r colorize("(this is the only part of the code that requires editing!).", 'red')`
 
 ### Input data
 
-We need to indicate where the data is stored for each model and cohort by defining a character vector called ‘files’ as in the following example (the example involves three different cohorts and two distinct models for each cohort): 
+We need to indicate where the files with the EWAS results of each cohort and model (each study) are stored by defining a character vector called 'files'. The example below involves three different cohorts and two distinct models for each cohort:
 
 ```{r QC_varfiles}
 
@@ -163,7 +186,7 @@ files <- c('data/PROJ1_Cohort3_Model1_date_v2.txt',
            'data/Cohort1_Model2_20170713.txt')
 ```
 
-files must contain at least the following fields : 
+files must contain at least the following variables : 
 
 
 probeID   | BETA | SE | P_VAL
@@ -175,7 +198,7 @@ cg15560884 | 0.00156725345562218 | 0.0063878467810596 | 0.845523221223523
 
 ### Where to store output
 
-We need to define the folder where we want to save the results indicating it in a character vector called `result_folder`. In the example the results will be stored in a folder named *`QC_Results`*.
+We need to define the folder where we want to save the QCed EWAS results of each cohort and model, indicating it in a character vector called `result_folder`. In the example, the QCed files will be stored in a folder named *`QC_Results`*.
 
 ```{r QCVarres}
 # Result folder
@@ -184,7 +207,7 @@ results_folder <- 'QC_Results'
 
 ### Define abbreviations for input files
 
-To make the analysis more understandable and do not have very complex file names we use an abbreviated name for each of the files used as input in this module. For example, PROJ1_Cohort3_Model1_date_v2 will be treated as PROJ1_Cohort3_A1, or PROJ1_Cohort2_Plate_ModelA1_20170309 as PROJ1_Cohort2_A2. The length of the prefix vector must be equal to the number of files used as input:
+To avoid complex and long file names we can use an abbreviated/simplified name for each of the files used as input. For example, PROJ1_Cohort3_Model1_date_v2 will be treated as PROJ1_Cohort3_A1, or PROJ1_Cohort2_Plate_ModelA1_20170309 as PROJ1_Cohort2_A2. The length of the prefix vector must be equal to the number of files used as input:
 
 ```{r QCVarPrefix}
 # Prefixes for each file
@@ -196,7 +219,7 @@ prefixes <- c('PROJ1_Cohort3_A1', 'PROJ1_Cohort3_A2',
 
 ### Illumina Array type and filter conditions
 
-We need to indicate the type of Illumina array used to measure DNA methylation in each of the EWAS that we are QCing. Two different array types are possible: *450K* or *EPIC* and should be listed following the same order as in the character vector `file` or `prefixes` (see example). Filtering of CpGs will depend on the Illumina array, thus this field has to be completed. 
+We need to indicate the type of Illumina array used to measure DNA methylation in each of the EWAS results files that we are QCing. Two different array types are possible:  *450K* or *EPIC*. They should be listed following the same order as in the character vector `file` or `prefixes` (see example). Filtering of CpGs will depend on the Illumina array, thus this field has to be completed. 
 
 
 ```{r QCVarartype}
@@ -205,19 +228,19 @@ artype <- c('450K', 'EPIC', '450K', 'EPIC', '450K', 'EPIC')
 ```
 
 
-In the **Quality Control module**, we need to exclude those CpGs that do not accomplish certain criteria. These criteria are flexible, and must be defined by the user. In this package we have included several parameters to designate these criteria based on [@zhou2017comprehensive], [@solomon2018comparison], [@fernandez2019comparison]. These parameters can be defined in a character vector as below:  
+Module 1 - **Quality Control of EWAS results**, allows the exclusion of CpG probes that do not accomplish certain criteria. The criteria to designate "problematic" CpG probes are based on [@zhou2017comprehensive], [@solomon2018comparison], [@fernandez2019comparison], and can be defined by the user in a character vector as indicated in the example below:  
 
 
 #### Perform CpG exclusions –> control and non-CpG probes, and probes targeting CpGs in sexual chromosomes:
 
-  * **Control probes ("control_probes")**: technical control probes that do not correspond to CpGs, such as bisulfite conversion I, bisulfite conversion II, extension, hybridization and negative. Classified as "rs" in the filtering variable named "probeType";
-  * **Non-cpg probes ("noncpg_probes")**: probes targeting non-cpg sites classified as "ch" in the filtering variable named "probeType";
-  * **Sex chromosomes ("Sex")**: probes targeting sex chromosomes. Select this to avoid misleading results due to differences in sex-chromosome dosage on the human methylome. Filtering variable "Sex";
+  * **Control probes ("control_probes")**: Technical control probes that do not correspond to CpGs, such as bisulfite conversion I, bisulfite conversion II, extension, hybridization and negative.
+  * **Non-cpg probes ("noncpg_probes")**: ”): Probes targeting non-CpG sites classified as "ch".
+  * **Sex chromosomes ("Sex")**: Probes targeting CpGs in sex chromosomes .
 
 #### Perform CpG exclusions –> probes with hybridizing problems
 
-  * **Poor mapping probes ("MASK_mapping")**: Probes that have poor quality mapping to the target genomic location as indicated in the array’s manifest file based on genome build GRCh37 and GRCh38 (for example due to the presence of INDELs (Insertion–deletion mutations present in the genome); 
-  * **Cross-hybridising probes ("MASK_sub30")**: The sequence of the last 30bp at the 3' end of the probe is non-unique (problematic because the beta value of such probes is more likely to represent a combination of multiple sites and not the level of initially targeted CpG sites); [@zhou2017comprehensive] recommend 30bp, but in this script there is the possibility to adapt this to probes with non-unique 25bp, or 35bp, or 40bp, or 45bp 3'-subsequences (**"MASK_sub25", "MASK_sub40", "MASK_sub45"**).
+  * **Poor mapping probes ("MASK_mapping")**: Probes that have poor quality mapping to the target genomic location as indicated in the array’s manifest file based on genome build GRCh37 and GRCh38 (for example due to the presence of INDELs (Insertion–deletion mutations variants present in the genome); 
+  * **Cross-hybridising probes ("MASK_sub30")**:”): The sequence of the last 30 bp at the 3’ end of the probe is non-unique (problematic because the methylation level of such probes is more likely to represent a combination of multiple sites and not the level of the initially targeted CpG site). [@zhou2017comprehensive] recommend 30bp, but we also provide the option to considere other 3' lenghts: 25 bp, 35 bp, 40 bp or 45 bp (**"MASK_sub25", "MASK_sub40", "MASK_sub45"**).
 
 #### Perform CpG exclusions -> probes affected by the presence of SNPs
 
@@ -228,10 +251,11 @@ In the **Quality Control module**, we need to exclude those CpGs that do not acc
 
 #### Perform CpG exclusions -> probes giving inconsistent results between arrays
 
-  * **"Unrel_450_EPIC_blood"**: These are probes that are known to yield different results for the 450K and EPIC array in BLOOD, suggesting that results are unreliable for at least one of these arrays. CpGs based on [@solomon2018comparison].
-  * **"Unrel_450_EPIC_pla_restrict"** or **"Unrel_450_EPIC_pla"**: These are probes that are known to yield different results for the 450K and EPIC array in PLACENTA, suggesting that results are unreliable for at least one of these arrays. CpGs based on[@fernandez2019comparison] .
+  * **"Unrel_450_EPIC_blood"**: These are CpG probes that give inconsistent methylation levels between the 450K and EPIC arrays in blood, suggesting that measurements are unreliable for at least one of these arrays. CpG probes based on [@solomon2018comparison].
+  * **"Unrel_450_EPIC_pla_restrict"** or **"Unrel_450_EPIC_pla"**: These are probes that give inconsistent methylation levels between the 450K and EPIC arrays in placenta, suggesting that measurements are unreliable for at least one of these arrays. CpG probes based on [@fernandez2019comparison] .
  
-In this example we filter CpGs that meet the following conditions: MASK_sub30_copy, MASK_extBase, MASK_mapping, MASK_typeINextBaseSwitch, control_probes, Unrel_450_EPIC_blood and Sex. This is the **recommended configuration for blood + 450K + EUR**
+In this example we filter CpGs that meet the following conditions: MASK_sub30_copy, MASK_extBase, MASK_mapping, MASK_typeINextBaseSwitch, control_probes, Unrel_450_EPIC_blood and Sex.
+This is the **recommended configuration for studies conducted in blood from European ancestry individuals using the 450K array**
 
 
 ```{r QCVarexclude}
@@ -248,7 +272,8 @@ exclude <-  c( 'MASK_sub30_copy',
 
 #### Ethnicity
 
-We need to define the ethnic origin of the study population for each of the EWAS results files used as input in the **Quality Control module**. Ethnic origins can be indicated according to the corresponding code from the table below. If the population is very diverse then indicate ethnic as `GMAF1p`.
+We need to define the ethnic origin of the study population for each of the EWAS results files used as input in Module 1 - **Quality Control module**. . Ethnic origin can be
+indicated according to the code from the table below. If the population is very diverse then select  `GMAF1p`.
 
 | **Population Code** | **Population Description                                            ** | **Super Population Code** |
 | :-------------------: | :---------------------------------------------------------------------- | :-------: |
@@ -294,7 +319,7 @@ ethnic <- c('EUR', 'EUR', 'SAS', 'SAS', 'EUR', 'EUR')
 
 ### Other variables :
 
-To obtain the precision plot and to later perform the GWAMA meta-analysis we need to know the number of samples in each of the EWAS results files. We indicate this information in the vector called ”N”. In addition, for case-control EWAS, we need to know the sample size of exposed or diseased individuals in each of the EWAS results files. This information is indicated in the vector called "n".
+To create a precision plot and also to conduct the EWAS meta-analysis we need to indicate the number of samples included in each of the EWAS results files. We indicate this information in a vector called `N`. In addition, for case-control EWAS, we need to know the sample size of exposed or diseased individuals in each of the EWAS results files. This information is indicated in a vector called `n`.
 
 
 ```{r QCVarN}
@@ -304,11 +329,9 @@ n <- c(NA)
 
 ## Overview of the QualityControl.R code
 
-`r colorize("Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify it to adapt to their needs.", 'red')`
+`r colorize("Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify or to adapt it to their needs.", 'red')`
 
-This code can be executed for each file defined in previous variable `files` but in this example we only show the analysis workflow for one of them. 
-
-AThe complete code can be found in [QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R) .
+This code will be executed for each EWAS results file defined in the variable `files`. . However, in this example we only show the analysis workflow for one study (one cohort and model). The complete code can be found in  [QualityControl.R](https://github.com/isglobal-brge/EASIER/blob/main/test/QualityControl.R) .
 
 ```{r QCCode1}
 
@@ -354,7 +377,7 @@ if(!dir.exists(file.path(getwd(), results_folder )))
    print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
-First, we need to read the content of a file with EWAS results,
+First, the code reads the content of the file with EWAS results,
 
 ```{r QCCodeRead}
    
@@ -363,19 +386,20 @@ cohort <- read.table(files[i], header = TRUE, as.is = TRUE)
 print(paste0("Cohort file : ",files[i]," - readed OK", sep = " "))
 ```
 
-and store the content of the file in a `cohort` variable.  
+Then, it stores the content in a variable named `cohort`.
 
 
-After that, we are ready to execute the quality control following the steps indicated in the workflow (Figure\@ref(fig:qcworkflow)). These are the functions that will be used: 
+After that, the code executes the steps fo the quality control (Figure\@ref(fig:qcworkflow)). These are the functions that are used: 
 
-1. `clean_NA_from_data` function: This function remove the rows with NA and return only complete cases.
+1. `clean_NA_from_data` function: This function remove the rows (CpGs) with NA in any of the variables and return only complete cases.
+
 
 ```{r QCCodeRemoveNA, eval=TRUE}
 # Remove rows with NA from data
 cohort <- clean_NA_from_data(cohort)
 ```
 
-2.  `descriptives_CpGs` function: This function performs a simple descriptive analysis. It  needs the EWAS results to be analysed (`cohort`), the fields for which we are interested to get descriptive, ( BETA, SE and P_VAL (seq(2:4))), and a file name to write results. The name of the first file would be: *QC_Results/PROJ1_Cohort3_A1_descriptives.txt*.  At the end of each iteration we get the complete resume with descriptive before and after removing CpGs, the list of excluded CpGs, and the list of statistically significant CpGs after adjusting p-value by FDR and Bonferroni.
+2.  `descriptives_CpGs` function: This function performs a descriptive analysis of main variables ( Beta, SE and P-value) in the EWAS results file (*QC_Results/PROJ1_Cohort3_A1_descriptives.tx*). 
 
 
 <!-- ```{r QCCodeDescriptives2, echo=FALSE, eval=TRUE} -->
@@ -396,7 +420,7 @@ descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, before = TRUE)
 
 ```
 
-3.  `test_duplicate_CpGs` function: This function tests whether there are any duplicate CpGs. If there are, the script execution stops and writes the duplicates and descriptive related to these duplicates in a file.
+3.  `test_duplicate_CpGs` function: This function tests whether there are any duplicated CpGs in the EWAS results file. If there are, the script execution stops and writes the duplicates and descriptive related to these duplicates in a file.
 
 ```{r QCCodeRemovedupli}
 # Remove duplicates
@@ -404,7 +428,9 @@ test_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i],'_d
 
 ```
 
-4.  `filterLowRepresentedCpGsinCohort` function: This function remove low represented CpGs in a cohort with a missing pcentage indicated in `pcMissingSamples`. This data is updated in descriptive resume.
+4.  `filterLowRepresentedCpGsinCohort` function: This function removes low represented
+CpGs in a given cohort and model. Low represented CpGs are defined as those CpGs not assessed in a given % of the subjects of the study as indicated in the `pcMissingSamples` (by default 0.9) . This data is reported in descriptive resume. To apply this filtering, the EWAS results file has to have a column named as defined in `colname_NforProbe` parameter, ('N_for_probe'). This data is updated in descriptive resume.
+
 
 ```{r QCCodefilterLR}
 # Remove cpGs with low representation
@@ -419,7 +445,7 @@ cohort <- filterLowRepresentedCpGsinCohort(cohort,
                                            fileresume = fResumeName )
 ```
 
-5.  `exclude_CpGs` function: This function excludes the list of CpGs that we previously selected (section 4.2.4). Here we use the parameters defined before in the `exclude` variable, which are the data, cohort, the CpG id field (can be the column number or the field name "probeId"), the filters to apply, and, optionally, a file name if we want to save excluded CpGs and the exclusion reason (in this case the file name would be *QC_Results/PROJ1_Cohort3_A1_excluded.txt*).
+5.  `exclude_CpGs` function: This function excludes the list of CpGs that the user has selected (section 4.2.4). The function uses the parameters defined before in the `exclude` variable ,which are the data, cohort, the CpG id field (can be the column number or field name "probeId"), ”), the filters to apply, and, optionally, a file name where to save excluded CpGs and the exclusion reason (in this case the file name would be *QC_Results/PROJ1_Cohort3_A1_excluded.txt*).
 
 \ 
 
@@ -435,7 +461,7 @@ cohort <- filterLowRepresentedCpGsinCohort(cohort,
 
 \ 
 
-6.  `descriptives_CpGs` function (bis): After eliminating the indicated CpGs, we proceed to carry out another descriptive analysis with the same function as initially,
+6.  `descriptives_CpGs` function (bis):  After eliminating CpGs, we proceed to carry out another descriptive analysis with the same function as above.At the end of each iteration we get a file named xxx  with descriptive before and after quality control, the number of excluded CpGs, and the number of statistically significant CpGs at different p-value theresholds: nominal and after multiple testing correction with the False Discovery Rate (FDR) and Bonferroni methods.
 
 \ 
 
@@ -447,9 +473,9 @@ cohort <- filterLowRepresentedCpGsinCohort(cohort,
 
 \ 
 
-7.  `adjust_data` function: This function obtains the adjusted p-values by Bonferroni and FDR. We need to indicate in which column the p-value is and what adjustment we want. By default, the function adjusts data by Bonferroni (`bn`) and FDR (`fdr`).
+7.  `adjust_data` function: This function obtains the adjusted p-values after multiple testing correction applying the Bonferroni and FDR methods. We need to indicate in which column the p-value is found and what adjustment we want. By default, the function adjusts data by Bonferroni (`bn`) and FDR (`fdr`).
 
-This function returns the input data adding two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of statistically significant p-values by Bonferroni or FDR, in a text file (the generated file in the example is called *QC_Results/PROJ1_Cohort3_A1_ResumeSignificatives.txt* ).
+This function returns the input data adding two new columns corresponding to adjusted Bonferroni and FDR p-values. This function returns the input data adding two new columns corresponding to these adjustments. As in other functions seen before, optionally, we can get a data summary with the number of statistically significant p-values by Bonferroni or FDR, in a text file (the generated file in the example is called *QC_Results/PROJ1_Cohort3_A1_ResumeSignificatives.txt* ).
 
 \ 
 
@@ -470,7 +496,7 @@ head(cohort)
 
 \ 
 
-8.	 `write_QCData` function: This function annotates the new QCed EWAS results according to the 450K or EPIC array annotations and saves it. The file generated by this function is the input for the meta-analysis with GWAMA. This data is stored with the *_QC_Data.txt* sufix. 
+8.	 `write_QCData` function: TThis function annotates the QCed EWAS results using the the  Illumina annotations for 450K or EPIC arrays (as indicated by the user) and saves it. The file generated by this function is the input for Module 2 - Meta-analysis of EWAS results. This data is stored with the *_QC_Data.txt* sufix. 
 
 \ 
 
@@ -485,11 +511,12 @@ write_QCData(cohort, paste0(results_folder, '/',prefixes[i], '/',prefixes[i]))
 
 \ 
 
-To perform a graphical analysis we have different functions. 
+The quality control process is summarized in different plots.
 
 \ 
 
-1.  `plot_distribution` function: We can generate a SE or p-value distribution plot, a QQ-plot, or a Volcano plot with this function. 
+1.  `plot_distribution` function: It generates, for each cohort and model, several plots: a plot with the distribution of SEs, a plot with the distribritution of p-values, and a 
+QQ plot of expected versus observerd p-values.
 
 \ 
 
@@ -523,7 +550,7 @@ To perform a graphical analysis we have different functions.
 
 \ 
 
-2.  `plot_volcano` function: We can generate a Volcano plot with this function.
+2.  `plot_volcano` function: It generates a Volcano plot for each cohort and model.
 
 \ 
 
@@ -536,7 +563,7 @@ To perform a graphical analysis we have different functions.
 
 \ 
 
-3.  `plot_precisionp` function: We can perform a Precision plot to compare all cohorts and models with this function ,
+3.  `plot_precisionp` function:It performs a precision plot to compare SE (precision) vs study sample size (or sample size of cases) across cohorts and models.
 
 \ 
 
@@ -548,17 +575,13 @@ plot_precisionp(precplot.data.n,
 
 \  
 
-this plot only makes sense if we have analysed different models and cohorts. Here we show an example obtained with **EASIER R package**.
-
-\  
-
 ```{r invchr17, echo=FALSE, out.width='100%',  fig.align='center',  fig.cap="\\label{fig:invchr17}Precision plot for 7 different datasets ", fig.pos='ht'}
 include_graphics("imgs/QC/precision_SE_N.png") 
 ```
 
 \ 
 
-4.  `plot_betas_boxplot` function: We can also obtain the betas boxplot comparing the betas of all cohorts and models with this function.
+4.  `plot_betas_boxplot` function: It performs a box plot of Betas across cohorts and models
 
 \ 
 
@@ -573,20 +596,37 @@ plot_betas_boxplot(betas.data,
 include_graphics("imgs/QC/BETAS_BoxPlot.png") 
 ```
 
+\ 
 
-<!-- 
-Venn diagrams are obtained with function `plot_venndiagram`,. We need to define the venn diagram for a maximum of 5 datasets. Here we define which models and cohorts we want to be shown in the Venn diagram. In this example we define two different Venn diagrams, one with  "PROJ1_Cohort3_A1", "PROJ1_Cohort2_A1" and "Cohort1_A1" datasets and the other with three more datasets "PROJ1_Cohort3_A2", "PROJ1_Cohort2_A2" and "Cohort1_A2"
--->
+5.  `plot_venndiagram` function: We need to define the venn diagram for a maximum of 5 datasets. Here we define which models and cohorts we want to be shown in the Venn diagram. In this example we define two different Venn diagrams, one with  "Cohort1_A1", "PROJ1_Cohort2_A1", "PROJ1_Cohort2_B1", "PROJ1_Cohort2_C1" and "PROJ1_Cohort3_A1" datasets and the other with five more datasets "Cohort1_A2", "PROJ1_Cohort2_A2", "PROJ1_Cohort2_B2", "PROJ1_Cohort2_C2" and "P1_Cohort3_A2". We can plot VennDiagram with adjusted data by Bonferroni or FDR.
+
+```{r QCCodeVennDiagram, echo=TRUE, eval=FALSE}
+# Initiall we had defined the venn_diagrams variable to configure each venn diagram 
+# Venn diagrams
+venn_diagrams <- list(
+   c("Cohort1_A1", "PROJ1_Cohort2_A1", "PROJ1_Cohort2_B1", "PROJ1_Cohort2_C1", "PROJ1_Cohort3_A1" ),
+   c("Cohort1_A2", "PROJ1_Cohort2_A2", "PROJ1_Cohort2_B2", "PROJ1_Cohort2_C2", "P1_Cohort3_A2" )
+)
+
+# Venn_Diagrams()
+   for (i in 1:length(venn_diagrams))
+      plot_venndiagram(venn_diagrams[[i]], qcpath = results_folder, plotpath = results_folder, bn='padj.bonf', fdr='padj.fdr')
+
+```
+
+```{r QCPlotVennDiagram, echo=FALSE, out.width='85%',  fig.align='center',  fig.cap="\\label{fig:QCPlotVennDiagram}Venn Diagram ", fig.pos='ht'}
+include_graphics("imgs/QC/venn_diagramm.png") 
+```
 
 
 # Meta-Analysis with GWAMA
 
 ## Meta-Analysis flowchart
 
-To perform the meta-analyses, we use GWAMA, a Software tool for meta-analysis developed by the Institute of Genomics from University of Tartu. This software is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download). It is already installed in ISGlobal servers.
+To perform the meta-analyses, we use GWAMA, a Software tool for meta-analysis developed by the Institute of Genomics from University of Tartu. This software is available at [https://genomics.ut.ee/en/tools/gwama-download](https://genomics.ut.ee/en/tools/gwama-download).
 
-Like the previous **Quality Control module** of the **EASIER R package**, we have created a script named **MetaAnalysis.R** to carry out the meta-analysis. This script just need some minor editing to indicate information specific to the study. 
-The script follows the workflow indicated in the Figure 8. Briefly, it starts formatting the QCed EWAS results and preparing configuration files to run GWAMA. Then it runs the meta-analysis, annotates the results and performs some quality control checks (lamda, QQ-plot, heterogeneity, etc). Finally, it performs forest-plots of the top CpGs and Venn diagrams to compare results between meta-analysis.
+Like Module 1 of the **EASIER R package**, we have created a script named **MetaAnalysis.R** to carry out the Module 2 - Meta-analysis of EWAS results (workflow in Figure Figure\@ref(fig:metaworkflow)). This script needs some minor editing to indicate information specific to the study. Briefly, it starts formatting the QCed EWAS results and preparing configuration files to run GWAMA. Then, it runs the inverse-variance weighted meta-analysis (fixed- and random-effects are tested), annotates the results and performs some quality control checks (lamda, QQ plot, heterogeneity ($I^2$), etc). Finally, it performs forest plots of the top CpGs and Venn diagrams to compare results between meta-analyses
+
 
 
 ```{r metaworkflow, echo=FALSE, out.width='100%', fig.align='center', fig.cap="\\label{fig:metaworkflow}Meta-analysis flowchart. The script MetaAnalysis.R, contains the code to perform the steps indicated in the flowchart.The only editing required by the researcher is defining the initial variables, which are specific to each study. The rest of the script is automatic and does not need any editing.", fig.pos='ht'}
@@ -596,22 +636,26 @@ include_graphics("imgs/workflows/MetaAnalysisWorkflow.png")
 
 ## Initial definition of variables specific to the study
 
-Like in the Quality Control module of the EASIER R package, in the Meta-analysis module we need to define some initial variables, which are specific to each study `r colorize("(this is the only part of the code that requires editing!)", 'red')`. These variables are:
+Like in Module 1, in Module 2 - Meta-analysis of EWAS results, we need to define some initial parameters, which are specific to each study. `r colorize("(this is the only part of the code that requires editing!)", 'red')`. These variables are:
 
-1. **artype**: Type of array, either EPIC or 450K. If you are combining studies with data from the EPIC array and studies with data from the 450K array, remember to run the Quality Control module selecting ‘450K’ if you only want to consider CpG probes from the 450K array, or selecting ‘EPIC’ if you want to consider all the CpG probes from EPIC even though for some cohorts you will have more than 50\% missings.
+1. **artype**: Type of array, either EPIC or 450K. If you are combining studies with data from the EPIC array and studies with data from the 450K array, remember to run Module 1 - Quality control of EWAS results selecting '450K' if you only want to consider CpG probes from the 450K array, or selecting 'EPIC' if you want to consider all the CpG probes from
+EPIC even though for some cohorts you will have more than 50\% missing's.
 
-2. **metafiles**: list of files of QCed EWAS results that will be combined and analysed in each meta-analysis. In the example below we have defined two different meta-analyses, MetaA1 and MetaA2. In the first one, MetaA1, we will meta-analyse EWAS results from ‘PROJ1_Cohort3_A1’, ‘PROJ1_Cohort2_A1’ and ‘Cohort1_A1’. To make the study more understandable we refer to the meta-analyses with this files as MetaA1 or the name that we consider.
 
-3. **pcentMissing**: We can also exclude those CpGs not present in a % of the studies, by setting the minimum representation percentage. In this example, we have set up the percentage to 80%. This means the code will execute the meta-analysis twice, one with all CpGs and another with only CpGs present in 80% of the studies. 
-Note: if you are combining data from 450K and EPIC arrays and you selected ‘EPIC’ as the ‘artype’, with this setting you are able to choose running a meta-analysis in parallel only considering CpGs with high representation and therefore eliminating those CpGs only present in the EPIC array. 
+2. **metafiles**: List of files with QCed EWAS results that will be combined and analysed in each meta-analysis model. In the example below we have defined two different meta-analysis models, MetaA1 and MetaA2. In the first one, MetaA1, we will meta-analyse EWAS results from 'PROJ1_Cohort3_A1', 'PROJ1_Cohort2_A1' and 'Cohort1_A1'. 
 
-4. **results_folder**: To indicate the folder where to save the output of the meta-analysis. For ISGlobal researchers we recommend to set it to “QC_Results”.
 
-5. **venndiag_threshold**: To indicate the threshold to consider CpGs as significant. CpGs with p-value lower than this threshold will be considered as significant. By default this value is 0.05
+3. **pcentMissing**: We can also exclude from the meta-analysis those CpGs not present in a % of the studies, by setting the minimum representation percentage. By default, we have set up the percentage to 80%. This means the code will execute the meta-analysis twice, one with all CpGs and another with only CpGs present in 80% of the studies. Note: If you are combining data from 450K and EPIC arrays and you selected 'EPIC' as the `artype`, with this setting you are able to choose running a meta-analysis in parallel only considering CpGs with high representation and therefore eliminating those CpGs only present in the EPIC array.
 
-6. **venn_diagrams**: To compare the overlap of significant CpGs between meta-analysis. P-value significance threshold is configured in `venndiag_threshold` variable, by default this value is 0.05. In the example we are comparing the results of the meta-analysis 1 (MetaA1) and the meta-analysis 2 (MetaA2).
 
-7. **gwama.dir**: To define the GWAMA execution path. For ISGlobal researchers, this parameter does not have to be modified. 
+4. **results_folder**: To indicate the folder where to save the output of the meta-analysis, we recommend to set it to “QC_Results”.
+
+5. **venndiag_threshold**: To indicate the p-value threshold to consider CpGs as statistically significant (by default p-value <0.05). 
+
+6. **venn_diagrams**: To compare the overlap of significant CpGs between meta-analysis. P-value significance threshold is configured in `venndiag_threshold` variable, by default this value is 0.05. In the example we are comparing the results of meta-analysis 1 (MetaA1) and meta-analysis 2 (MetaA2).
+.
+
+7. **gwama.dir**: To define the GWAMA execution path.  
 
 \ 
 
@@ -660,13 +704,9 @@ gwama.dir <- paste0(Sys.getenv("HOME"),
 
 Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify it to adapt to their needs.
 
-The meta-analysis is performed two times: 
-1.	With all CpGs
-2.	With CpGs with missing data lower than a threshold configured in `pcentMissing` variable
+The meta-analysis is performed twice: first with all CpGs; and second with CpGs present in x% of the studies (as indicated in the `pcentMissing` variable). In this example, however, we only run the first meta-analysis but in a full run script both meta-analyses are performed.
 
-In this example we only run the first meta-analysis but in a full run script all meta-analyses are performed for both cases: complete and lowCpGs.
-
-First, we must create the needed folders. In this example we create a `GWAMA` folder where we will put the input files for GWAMA, and `GWAMA_Results` folder where we will store all the results, when we finish the code execution the `GWAMA` folder with temporal configuration files is removed.
+First, the code creates the needed folders. In this example we create a `GWAMA` folder where we will put the input files for GWAMA, and a `GWAMA_Results` folder where we will store the results. When we finish the code execution the `GWAMA` folder with temporal configuration files will be removed.
 
 \ 
 
@@ -692,7 +732,8 @@ generate_hapmap_file(artype, hapmapfile)
 
 ```
 
-We also create some folders to store configuration files inside GWAMA folder, one folder with configuration files for each meta-analysis, for example, for `MetaA1` meta-analysis we create the path `GWAMA\MetaA1` inside this path, we store all GWAMA configuration files.
+We also create some subfolders to store configuration files inside the `GWAMA` folder, one subfolder with configuration files for each meta-analysis model, for example, for MetaA1 meta-analysis we create the `path GWAMA\MetaA1`.
+
 
 \ 
 
@@ -739,7 +780,7 @@ outputgwama <- paste(outputfolder,names(metafiles)[metf],sep = '/')
 \pagebreak
 
 
-Now we are ready to execute the meta-analysis following the steps indicated in the workflow [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R). These are the functions that will be used: 
+Now we are ready to execute the meta-analysis of QCed EWAS results following the steps indicated in the workflow  [MetaAnalysis.R](https://github.com/isglobal-brge/EASIER/blob/main/test/MetaAnalysis.R). These are the functions that will be used: 
 
 \ 
 
@@ -747,13 +788,14 @@ Now we are ready to execute the meta-analysis following the steps indicated in t
 
 \ 
 
-To modify EWAS QCed results to GWAMA format and create GWAMA configuration files. In this function specify:
+To modify EWAS QCed results to GWAMA format and create GWAMA configuration files. This function specifies
 
 -	the GWAMA folder created before in the `qcpath` parameter
--	a character vector with all the models present in the meta-analysis (previously defined in the metafiles variable), 
--	the folder with the input data (these are the `QC_Dataoutput` files from the **Quality Control module**), 
+-	a character vector with all the meta-analysis models (previously defined in the `metafiles` variable)
+-	the folder with the input data (these are the `QC_Dataoutput` files from the Module 1 - **Quality Control of EWAS results**), 
 -	the number of samples in the study, 
--	we need to indicate if this is the execution with all CpGs or not. If not, we indicate the list with excluded CpGs, which can be obtained with `get_low_presence_CpGs` function. 
+-	we need to indicate if this is the execution with all CpGs or with a subset. If not, we indicate the list with excluded CpGs, which can be obtained with `get_low_presence_CpGs` function
+
 
 \ 
 
@@ -780,11 +822,12 @@ To modify EWAS QCed results to GWAMA format and create GWAMA configuration files
 
 \ 
 
-To run both fixed-effects and random-effects meta-analsyis with GWAMA. This function needs to know:
+To run both fixed-effects and random-effects inverse-variance weighted meta-analsyis with GWAMA. This function needs
 
 -	the folder with data to be analysed, (this is the GWAMA folder),
--	where to store the meta-analysis results (by default this function creates a subfolder with the meta-analysis name). The following files are stored there: meta-analysis results, Manhattan plots and QQ-plots, both for fixed-effects and random-effects,
--	the meta-analysis name,
+-	where to store the meta-analysis results (by default this function creates a subfolder with name of the meta-analysis). The following files are stored there: meta-analysis results,
+Manhattan plots and QQ plots, both for fixed-effects and random-effects,
+-	the name of the meta-analysis model
 -	where is the GWAMA binary installed
 
 
@@ -809,13 +852,12 @@ include_graphics("imgs/meta/manhattan.png")
 
 3.	**`get_descriptives_postGWAMA`**: 
 
-To make a quality control check of the meta-analyses. This function is similar to what was done in the **Quality Control module**, but not instead of being applied to cohort specific results, it is applied meta-analysis results. This function does:
-
--	adjusts p-values,
+To make a quality control check of the meta-analyses results. This function is similar to what was done in Module 1 - **Quality control of EWAS results**, but instead of being applied to the cohort specific EWAS results, it is applied to the meta-analysis EWAS results. This function does:
+-	calcutes adjusted p-values (FDR and Bonferroni),
 -	annotates CpGs,
--	generates a file with a description of the results, 
--	generates plots showing the distribution of the heterogeneity, SE, p-values,
--	generates QQ-plots with lambda and Volcano-plots.
+-	generates a file with a summary of the meta-analysis results, 
+-	generates plots showing the distribution of the heterogeneity, SE, and p-values,
+-	generates QQ-plots with lambda, Manhattan plots and Volcano-plots.
 
 \ 
 
@@ -839,7 +881,7 @@ include_graphics("imgs/Heteroi2.png")
 
 \ 
 
-To generate forest-plots for the top 30 significant CpGs.
+To generate forest plots for the top 30 statistically significant CpGs of the fixed- and random-effects models, 
 
 \ 
 
@@ -863,7 +905,7 @@ include_graphics("imgs/FP_cg22718050.png")
 
 \ 
 
-To generate Venn diagrams comparing the overlap of significant CpGs between meta-analyses. FDR or BN CpGs can be selected for this comparison.
+To generate Venn diagrams comparing the overlap of statistcially significant CpGs between meta-analysis models. CpGs with FDR or BN corrected p-values can be selected for this comparison.
 
 \ 
 
@@ -892,15 +934,17 @@ include_graphics("imgs/meta/venn.png")
 
 ## Enrichment Flowchart
 
-Like the other modules of the **EASIER R package (Quality Control and Meta-analysis)**, we have created a script named **Enrichment.R** to carry out the functional enrichment. This script just need some minor editing to indicate information specific to the study.
+Like the other EASIER modules, for Module 3 –  **Functional enrichment of EWAS results**, we have created a script named **Enrichment.R**. This script needs some minor editing to indicate information specific to the study
+
 
 \ 
 
-The script follows the workflow indicated in **Figure\@ref(fig:enrichworkflow)**. Briefly, the first step is to define initial variables, specific to the study. The only part that requires editing. Then we read the files with the list of CpGs for which we want to test for the enrichment. If the file only contains CpG names, we start annotating these CpGs to genes and to other molecular features. After that, the script performs gene-set enrichment (at the gene level), by applying missmethyl R package using the databases: GO terms, KEGG and Molecular Signatures DB (MSigDB) and enrichment with ConsensusPathDB using brgeEnrich package [https://github.com/isglobal-brge/brgeEnrich](https://github.com/isglobal-brge/brgeEnrich). Then, it performs enrichment for gene and CpG island relative positions. In this case, the enrichment is performed for all CpGs as well as for hypo and hyper-methylated CpGs, given that coefficients of the association are provided in the list of CpGs. Finally it performs molecular enrichment specific for these tissues: blood, placenta or other. For blood, it tests the enrichment for blood chromatin states. For placenta, it test the enrichment for placenta chromatin states, for placenta partially methylated domains (PMDs) and for placenta imprinted regions.
+The script follows the workflow indicated in **Figure\@ref(fig:enrichworkflow)**. Briefly, the first step the one that needs editing by the user, is to define initial
+parameter specific to the study. Then we read the files with the list of CpGs for which we want to test for the enrichment. If the file only contains CpG names, we start annotating these CpGs to genes and to other molecular features. After that, the script performs gene-set enrichment (at the gene level), by applying missmethyl R package using the databases: GO terms, KEGG and Molecular Signatures DB (MSigDB) and enrichment with ConsensusPathDB using brgeEnrich package [https://github.com/isglobal-brge/brgeEnrich](https://github.com/isglobal-brge/brgeEnrich). Then, it performs enrichment for gene and CpG island relative positions. In this case, the enrichment is performed for all CpGs as well as for hypo and hyper-methylated CpGs, given that coefficients of the association are provided in the list of CpGs. Finally it performs molecular enrichment specific for these tissues: blood, placenta or other. For blood, it tests the enrichment for blood chromatin states. For placenta, it test the enrichment for placenta chromatin states, for placenta partially methylated domains (PMDs) [@schroeder2013has] and for placenta imprinted regions [@hamada2016allele].
 
 \ 
 
-```{r enrichworkflow, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflow}Enrichment flowchart. This flowchart is used in the script under test folder to perform the enrichment (Enrichment.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
+```{r enrichworkflow, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflow}Functional enrichment flowchart. This flowchart is used in the script under test folder to perform the enrichment (Enrichment.R). The most important step in this workflow is the first step where we have to define the variables, if variables are well defined all the process is 'automatic' ", fig.pos='ht'}
 include_graphics("imgs/workflows/EnrichmentWorkflow.png") 
 ```
 
@@ -910,7 +954,7 @@ include_graphics("imgs/workflows/EnrichmentWorkflow.png")
 
 \ 
 
-Like in the other modules of the **EASIER R package**, in this **Functional Enrichment module** we need to define some initial variables, which are specific to the study (`r colorize('this is the only part of the code that has to be edited!', 'red')`). 
+Like in the other modules of the **EASIER R package**, in Module 3 - **Functional Enrichment if EWAS results** we need to define some initial variables, which are specific to the study (`r colorize('this is the only part of the code that has to be edited!', 'red')`). 
 
 These variables are:
 
@@ -920,7 +964,7 @@ These variables are:
 
 \ 
 
-First, we need to set up the working directory. For ISGlobal researchers, we set the working directory to the meta-analysis folder. 
+First, we need to set up the working directory. By default, we set the working directory to the meta-analysis folder. 
 
 \ 
 
@@ -935,7 +979,7 @@ setwd("<path to metaanalysis folder>/metaanalysis")
 
 \ 
 
-To indicate directory and files with the CpGs to be used for the enrichment. We need to indicate the route to the files with the list of CpGs to be tested for enrichment (`FilesToEnrich` variable). These files can contain, either a list of CpG names or the results from GWAMA meta-analysis including the association p-values and coefficients together with the CpG names
+To indicate directory and files with the CpGs to be used for the enrichment. We need to indicate the path to the files with the list of CpGs to be tested for the functional enrichment (`FilesToEnrich` variable). These files can contain, either a list of CpG names or the results from Module 2 - Meta-analysis of EWAS results including the associated p-values and Betas together with the CpG names
 
 \ 
 
@@ -952,11 +996,11 @@ FilesToEnrich <- c('toenrich/CpGstoEnrich.txt',
 
 \ 
 
-In the case of performing the enrichment using the results of GWAMA, we need to define the p-value threshold to select the CpGs to test for the enrichment. One of these options is possible:
+In the case of performing the functional enrichment using the results of meta-analysis results, we need to define the p-value threshold to select the CpGs to test for the enrichment. One of these options is possible:
 
-  * `BN` : CpGs that accomplish with Bonferroni criteria, possible values : TRUE or FALSE
-  * `FDR` : at what significance level based on FDR we want to take in to account CpGs, if FDR = NA, FDR is not taken in to a ccount
-  * `pvalue` : at what significance level based we want to take in to account CpGs, this value should be smaller or equal to 0.05, we recommend, however, lower pvalues in order not to increase the noise i nthe data. (ex. 1e-05), if pvalue = NA, FDR is not taken in to account.
+  * `BN`: CpGs that accomplish with Bonferroni criteria, possible values : TRUE or FALSE
+  * `FDR`: Indicate FDR adjusted p-value threshold to select the list of CpGs for which we want to perform the enrichment . If `FDR = NA`, FDR is not taken in to a ccount.
+  * `pvalue`: Indicated nominal p-value threshold to select the list of CpGs for which we want to perform the enrichment. If `p-value = NA`, pvalue is not taken in to account.
 
 \ 
 
@@ -988,7 +1032,7 @@ artype <- '450K'
 
 \ 
 
-We have to indicate the folders used to store results in quality control and meta-analysis (only needed if we are enriching GWAMA results) and the folder to store enrichment results.
+We have to indicate the folders with the CpGs to enrich (either the meta-analysis results from EASIER module 2 or a file with a list of CpG names), and the folder to store results fo the functional enrichment analyses.
 
 \ 
 
@@ -1007,9 +1051,10 @@ results_enrich <- 'Enrichment'
 
 To define the type of enrichment to be performed (`enrichtype` variabe). Two options are possible:
 
-* *Blood:* It performs the gene-set enrichment, the enrichment for gene and CpG island relative positions plus a molecular enrichment specific for blood ROADMAP chromatin states. 
+* *Blood:* It performs the gene-set enrichment, the enrichment for gene and CpG island relative positions plus a functional enrichment specific for blood (ROADMAP chromatin states and cis-eQTMs).
 
-* *Placenta:* It performs the gene-set enrichment, the enrichment for gene and CpG island relative positions plus molecular enrichments specific for placenta: for placenta ROADMAP chromatin states, for placenta partially methylated domains (PMDs), and for placenta imprinted regions. When performing this enrichment, we have to also define enrichFP18=TRUE if we want to use fetal placenta 19 chromatin states, or enrichFP18=FALSE if want to use fetal placenta 15 chromatin states. The difference between the two is the number of chromatin states considered (18 or 15).
+* *Placenta:* It performs the gene-set enrichment, the enrichment for gene and CpG island relative positions plus functional enrichments specific for placenta (ROADMAP fetal placenta chromatin states, placenta partially methylated domains (PMDs), and placenta imprinted regions). When performing this enrichment, we have to also define `enrichFP18 = TRUE` if we want to use fetal placenta 18 chromatin states, or `enrichFP18 = FALSE` if want to use fetal placenta 15 chromatin states. The difference between the two is the number of chromatin states considered (18 or 15).
+
 
 \ 
 
@@ -1037,7 +1082,7 @@ enrichFP18 <- FALSE
 
 \ 
 
-To indicate which statistical test we want to apply for the enrichment we define the variable `testdata`. It can be Fisher or Hypergeometric. By default: Fisher.
+To indicate which statistical test we want to apply for the enrichment we define the variable `testdata`. It can be Fisher or Hypergeometric (by default: Fisher).
 
 \ 
 
@@ -1097,11 +1142,11 @@ setwd( outputfolder)
 
 ## Overview of the Enrichment.R code 
 
-`r colorize('Note: all this part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify it to adapt to their needs.', 'red')`
+`r colorize('Note: This part of the code can be run without any editing from the researcher! We present it in case some researchers want to modify or adapt it to their needs.', 'red')`
 
 \ 
 
-```{r enrichworkflowcommon, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowcommon}Enrichment flowchart. Detailed common enrichment for blood, placenta and other", fig.pos='ht'}
+```{r enrichworkflowcommon, echo=FALSE, out.width='110%',  fig.align='center',  fig.cap="\\label{fig:enrichworkflowcommon}Functional enrichment flowchart. Detailed common enrichment for blood, placenta and other", fig.pos='ht'}
 include_graphics("imgs/enrich/common.png") 
 ```
 
@@ -1111,7 +1156,7 @@ include_graphics("imgs/enrich/common.png")
 
 \ 
 
-The procedure that we will detail here is executed for each one of the files entered in the variable `FilesToEnrich.` We show how it works with a CpG nude list (first file in `FilesToEnrich` variable) and with GWAMA output results (second file in `FilesToEnrich` variable). 
+The procedure that we will detail here is executed for each one of the files entered in the variable `FilesToEnrich.` We show how it works with a list of CpG names (first file in `FilesToEnrich` variable) and with meta-analysis output results  (second file in `FilesToEnrich` variable). 
 
 \ 
 
@@ -1131,8 +1176,7 @@ data <- read.table(FilesToEnrich[i], header = TRUE,
 
 ### Annotate CpGs (if working with lists of CpG names)
 
-After defining the variables specific to each study, we read the file content and test if data is a list of CpG names or an output file from GWAMA.
-If the input file is a list of CpG names we first annotate it with the `get_annotations` function (GWAMA files are already annotated in the Meta-analysis module). In `get_annotattions` we have as a parameter the array type, and the data to enrich.
+After defining the variables specific to each study, we read the file content and test if data is a list of CpG names or an output file from Module 2 – Meta-analysis of EWAS results. If the input file is a list of CpG names we first annotate it with the `get_annotations` function (meta-analysis results files are already annotated). In `get_annotattions` we need to define the `artype` (array type) parameter , and the data to be annotated.
 
 \ 
 
@@ -1158,7 +1202,7 @@ if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
 
 \ 
 
-The `getUniqueGenes` function retrieves the list of unique genes annotated to the significant CpGs and stores the result in `geneUniv` variable. This list of genes will be used to perform the gene-set enrichment.
+The `getUniqueGenes` function retrieves the list of unique genes annotated to the significant CpGs and stores the result in `geneUniv` variable. This list of genes will be used to perform the gene-set enrichment analyses.
 
 \ 
 
@@ -1179,7 +1223,7 @@ geneUniv
 
 \ 
 
-The gene-set enrichment with the `missMethyl_enrichment` function (which is based on the missmethyl R package (REF)). missmethyl performs the enrichment by taking into account the number of probes per gene on the array, as well as taking into account multi-gene associated probes. It uses two reference databases:
+The gene-set enrichment analysis is conducted with the `missMethyl_enrichment` function (which is based on the `missmethyl` R package [@missmeth1], [@missmeth2], [@missmeth3], [@missmeth4]). `missmethyl` performs the enrichment by taking into account the number of probes per gene on the array, as well as taking into account multi-gene associated probes. It uses two reference databases:
 
 *	Gene Ontology (GO) terms
 *	Kyoto Encyclopedia of Genes and Genomes (KEGG)
@@ -1232,12 +1276,10 @@ head(msd_enrich$MSigDB)
 \ 
 
 -  P     manually curated pathways from pathway databases
--  N     interaction network neighborhood-based functional sets
 -  G2    Gene Ontology-based sets, GO level 2
 -  G3    Gene Ontology-based sets, GO level 3
 -  G4    Gene Ontology-based sets, GO level 4
 -  G5    Gene Ontology-based sets, GO level 5
--  C     protein complex-based sets
 
 \ 
 
@@ -1251,14 +1293,12 @@ head(msd_enrich$MSigDB)
 
 # Available FSet types :
 # 1 P     manually curated pathways from pathway databases
-# 2 N     interaction network neighborhood-based functional sets
 # 3 G2    Gene Ontology-based sets, GO level 2
 # 4 G3    Gene Ontology-based sets, GO level 3
 # 5 G4    Gene Ontology-based sets, GO level 4
 # 6 G5    Gene Ontology-based sets, GO level 5
-# 7 C     protein complex-based sets
 
-acFSet <- c('C', 'P', 'G2', 'G3')
+acFSet <- c('P', 'G2', 'G3')
 acType <- 'entrez-gene'
 
 # Get Enrichment
@@ -1282,9 +1322,9 @@ names(CPDB_enrich) <- names(geneUniv)
 
 \ 
 
-In this section we will test the enrichment for gene relative positions (annotated with the Illumina annotation as: 1st Exon, 3’UTR, 5’UTR, Gene Body, TSS1500 (distal promoter), TSS200 (proximal promoter)). 
+In this section we will test the enrichment of statistically significant CpGs for gene relative positions (annotated with the Illumina annotation as: 1st Exon, 3’UTR, 5’UTR, Gene Body, TSS1500 (distal promoter), TSS200 (proximal promoter)).
 
-Given that we have provided the coefficients of the association, we can do the enrichment for all significant CpGs and also stratifying by hypo- and hyper-methylated CpGs. This is done with the `getHyperHypo` function which classifies CpGs in significant or not (for FDR, BN or the indicated p-value threshold) and in hypo- and hyper-methylated.
+Given that we have provided the coefficients of the association, we can do the enrichment for all statistically significant CpGs and also stratifying by hypo- and hyper-methylated CpGs. This is done with the getHyperHypo function which classifies CpGs in significant or not (for FDR, BN or the indicated nominal p-value threshold) and in hypo- and hyper-methylated.
 
 \ 
 
@@ -1317,7 +1357,9 @@ if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
 
 \ 
 
-Then, we test the enrichment of the CpGs for gene relative positions with the `getAllFisherTest` (Fisher test) or the `getAllHypergeometricTest` (Hypergeometric test) functions. These functions write the results in the outputfile inside the previously indicated folder outputdir.
+Then, we test the enrichment of the CpGs for gene relative positions with the `getAllFisherTest` (Fisher test) or the `getAllHypergeometricTest` (Hypergeometric test) functions.
+These functions write the results in the outputfile inside the previously indicated folder outputdir.
+
 
 \ 
 
@@ -1374,7 +1416,7 @@ else if ( tolower(testdata) =='hypergeometric') {
 
 \ 
 
-We can also get a plot with enrichment results with the `plot_TestResults_Collapsed` function.
+Besides getting the results in a table, we also can get a plot with the odds ratios (ORs) of enrichment with the `plot_TestResults_Collapsed` function.
 
 \ 
 
@@ -1398,7 +1440,8 @@ include_graphics("imgs/enrich/plot_genepos.png")
 
 \ 
 
-Similar as above, and with the function `get_descriptives_RelativetoIsland` we can get an enrichment for CpG island relative positions (CpG island, N-shore, N-shelf, S-shore, S-shelf). The function gives a plot together with the corresponding statistical results.
+Similar as above, and with the function get_descriptives_RelativetoIsland we can get an enrichment for CpG island relative positions (CpG island, N-shore, N-shelf, S-shore, S-shelf). The function gives a plot together with the corresponding statistical results in a table.
+
 
 \ 
 
@@ -1451,7 +1494,8 @@ include_graphics("imgs/enrich/plot_relatisland.png")
 
 \ 
 
-As we show in **Figure \@ref(fig:enrichworkflowcommon)**, there are some molecular enrichment specific for each tissue. For blood, the code tests the enrichment for ROADMAP blood 15 chromatin states reference. To this end, each CpG in the array is annotated to one or several chromatin states by taking a state as present in that locus if it is described in at least 1 of the 27 blood-related cell types present in ROADMAP.
+As we show in **Figure \@ref(fig:enrichworkflowcommon)**,there are some functional enrichment analyses specific for each tissue. For blood, the code tests the enrichment for ROADMAP blood 15 chromatin states reference. To this end, each CpG in the array is annotated to one or several chromatin states by taking a state as present in that locus if it is described in at least 1 of the 27 blood-related cell types present in ROADMAP.
+
 
 \ 
 
@@ -1461,7 +1505,8 @@ include_graphics("imgs/enrich/blood.png")
 
 \ 
 
-Here, we also can select the Fisher or Hypergeometric test, and the enrichment is done for all CpGs and separately for hyper- and hypo-methylated CpGs (if coefficients of the association are provided).
+Here, we also can select the Fisher or Hypergeometric test, and the enrichment is done for all CpGs and separately for hyper- and hypo-methylated CpGs (if Betas of the association
+are provided).
 
 \ 
 
@@ -1528,7 +1573,8 @@ if("FDR" %in% colnames(data) & "Bonferroni" %in% colnames(data))
 
 \ 
 
-In the case of working with placenta, several enrichments are performed. All they can be conducted applying a Fisher test or a Hypergeometric test, and also if coefficients of the association is provided, then they are done for all CpGs as well as for hypo- and hyper-methylated CpGs.
+In the case of working with placenta, several enrichments are performed. All they can be conducted applying a Fisher test or a Hypergeometric test, and also if Betas of the association is provided, then they are done for all CpGs as well as for hypo- and hyper-methylated CpGs.
+
 
 \ 
 
@@ -1538,7 +1584,7 @@ include_graphics("imgs/enrich/placenta.png")
 
 \ 
 
-**A) ROADMAP fetal placenta chromatin state references **
+**A) ROADMAP fetal placenta chromatin states **
 
 Enrichment for fetal placenta chromatin states is based on the data released from ROADMAP:
 
@@ -1624,7 +1670,7 @@ include_graphics("imgs/enrich/chr15pla.png")
 
 **B) Placenta partially methylated domains (PMDs) **
 
-Placenta partially methylated domains (PMDs) are large regions that cover approximately 37% of the human genome, which are partially methylated and contain placenta-specific repressed genes. Enrichment for placenta PMDs is based on the list provided in [@schroeder2013human]
+Placenta partially methylated domains (PMDs) are large regions that cover approximately 37\% of the human genome, which are partially methylated and contain placenta-specific repressed genes. Enrichment for placenta PMDs is based on the list provided in [@schroeder2013human]
 
 \ 
 
@@ -1688,7 +1734,7 @@ include_graphics("imgs/enrich/pmd_pla.png")
 
 **C) Placenta imprinted regions **
 
-Placenta germline differentially methylated regions (gDMRs) are regions of the genome which show differential methylation according to the parental origin of the genome. They are associated with expression of imprinted genes, genes which are expressed in a parent-of-origin-specific manner. Enrichment for placenta imprinted regions is based on the list provided in [@hamada2016allele]
+Placenta germline differentially methylated regions (gDMRs) are regions of the genome which show differential methylation according to the parental origin of the genome. They are associated with expression of imprinted genes, genes which are expressed in a parent-of-originspecific manner. Enrichment for placenta imprinted regions is based on the list provided in  [@hamada2016allele]
 
 \ 
 
