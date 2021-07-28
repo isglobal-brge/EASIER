@@ -34,7 +34,8 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
 
       write(sprintf('\t\t\t\t======================\n\t\t\t\t  Descriptive EWAS meta-analysis\n\t\t\t\t======================\n'), file = qc.fname)
       write(sprintf('-----------------------------\n Model : %s\n-----------------------------\n',metaname), file = qc.fname, append = TRUE)
-      write(sprintf('cohorts : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
+      # write(sprintf('cohorts : %d ',length(unique(data$n_studies))), file = qc.fname, append = TRUE)
+      write(sprintf('cohorts : %d ',length(unname(modelfiles))), file = qc.fname, append = TRUE)
       write(sprintf('Cohorts analysed :'), file = qc.fname, append = TRUE)
       write(sprintf('\t\t %s', unname(modelfiles)) , file = qc.fname, append = TRUE)
       write(sprintf('N Samples : %d ', sum(Ns) ), file = qc.fname, append = TRUE)

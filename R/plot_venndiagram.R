@@ -24,7 +24,11 @@ plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '
       stop("No data to plot")
 
    listnames <- venndata
-   myCol <- RColorBrewer::brewer.pal(length(listnames), "Set3")
+   if(length(listnames)<3){
+      myCol <- RColorBrewer::brewer.pal(3, "Set3")
+   } else {
+      myCol <- RColorBrewer::brewer.pal(length(listnames), "Set3")
+   }
 
    cohortsdata <- multmerge(qcpath, venndata, pattern)
 
@@ -45,7 +49,7 @@ plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '
          output=TRUE,
 
          # Circles
-         lwd = 2,  fill = myCol,
+         lwd = 2,  fill = myCol[1:length(listnames)],
 
          # # numbers
          cex = .6,
@@ -73,7 +77,7 @@ plot_venndiagram <- function(venndata, qcpath = '.', plotpath = '.', pattern = '
          output=TRUE,
 
          # Circles
-         lwd = 2,  fill = myCol,
+         lwd = 2,  fill = myCol[1:length(listnames)],
 
          # numbers
          cex = .6,
