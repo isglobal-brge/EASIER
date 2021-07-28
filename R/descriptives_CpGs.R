@@ -36,7 +36,7 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL,
       write(sprintf('# %s \n', strrep("-",29)), file = filename, append = TRUE)
 
       write(sprintf('# Number of CpGs: %d \n', nCpG), file = filename, append = TRUE)
-      is(!is.null(nsamples)){
+      if(!is.null(nsamples)){
          write(sprintf('# Number of samples: %d \n', nsamples), file = filename, append = TRUE)
       }
       write(sprintf('# Descriptive : \n'), file = filename, append = TRUE)
