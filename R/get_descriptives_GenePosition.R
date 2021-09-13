@@ -58,7 +58,10 @@ get_descriptives_GenePosition <- function(position, criteria, namecriteria, outp
          scale_x_discrete(guide = guide_axis(angle = 90))
 
       plot.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_PlotGene.pdf")
-      ggplot2::ggsave(plot.fname, ptc, device = pdf)
+      pdf(plot.fname)
+         print(ptc)
+      dev.off()
+      # ggplot2::ggsave(plot.fname, ptc, device = pdf)
    } else {
       write(sprintf('\nChi-Square Test : \n'), file = desc.fname, append = TRUE)
       write(sprintf('\tNo test to perform '), file = desc.fname, append = TRUE)

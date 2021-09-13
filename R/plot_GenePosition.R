@@ -14,7 +14,9 @@ plot_GenePosition <- function(x, outputdir = '.', outputfile = NULL, main='', xl
 {
 
    x$RelIsland <- factor(x[,1], levels = (as.character(x[,1])))
-   x[c("OR", "OR.inf","OR.sup","p-val")] <- lapply(x[c("OR", "OR.inf","OR.sup","p-val")], function(xf) as.numeric(levels(xf))[xf])
+   # x[c("OR", "OR.inf","OR.sup","p-val")] <- lapply(x[c("OR", "OR.inf","OR.sup","p-val")], function(xf) as.numeric(levels(xf))[xf])
+   x[c("OR", "OR.inf","OR.sup","p-val")] <- lapply(x[c("OR", "OR.inf","OR.sup","p-val")], function(xf) as.numeric(as.character(xf)))
+
 
    nms <- names(x)
    x.plot <- nms[1]

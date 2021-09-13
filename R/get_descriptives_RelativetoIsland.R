@@ -47,6 +47,10 @@ get_descriptives_RelativetoIsland <- function(position, criteria, namecriteria, 
       geom_bar(aes(fill = criteria))
 
    plot.fname <- paste0(outputdir,"/",filename,"_",namecriteria,"_PlotIslands.pdf")
-   ggplot2::ggsave(plot.fname, ptc, device = pdf)
+
+   pdf(plot.fname)
+      print(ptc)
+   dev.off()
+   #..# ggplot2::ggsave(plot.fname, ptc, device = pdf)
 
 }
