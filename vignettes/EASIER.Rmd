@@ -19,11 +19,11 @@ author:
   email: dolors.pelegri@isglobal.org
 package: EASIER
 output:
+   BiocStyle::pdf_document:
+      toc: true
    BiocStyle::html_document: 
       toc: true
       toc_float: true
-   BiocStyle::pdf_document:
-      toc: true
 bibliography: bibliography.bib
 abstract: |
   The EASIER package performs epigenetic wide-association study (EWAS) downstream analysis: 1) Quality control of EWAS results; 2) Meta-analysis of EWAS results and 3) Functional enrichment 
@@ -246,8 +246,8 @@ Module 1 - **Quality Control of EWAS results**, allows the exclusion of CpG prob
 
   * **"MASK_extBase"**: Probes with a SNP altering the CpG dinucleotide sequence context and hence the ability of target cytosines to be methylated (regardless of the MAF); 
   * **"MASK_typeINextBaseSwitch"**: Probes with a SNP in the extension base that causes a colour channel switch from the official annotation (regardless of the MAF); 
-  * **"MASK_snp5_GMAF1p"**: probes with SNPs at the last 5bp of the 3' end of the probe, with an average minor allele frequency (MAF) >1%, by ethnic group; 
-  * **"MASK_snp5_common"**: probes with SNPs at the last 5bp of the 3' end of the probe, with any average minor allele frequency (MAF) (can be <1%), by ethnic group;
+  * **"MASK_snp5_GMAF1p"**:  whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1\%.  
+  * **"MASK_snp5_common"**: whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the common SNPs from dbSNP (global MAF can be under 1\%). 
 
 #### Perform CpG exclusions -> probes giving inconsistent results between arrays
 
@@ -265,6 +265,7 @@ exclude <-  c( 'MASK_sub30_copy',
                'MASK_mapping', 
                'MASK_typeINextBaseSwitch', 
                'control_probes', 
+               'MASK_snp5_common',
                'Unrel_450_EPIC_blood', 
                'Sex')
 ```
@@ -1789,7 +1790,14 @@ plot_TestResults_Collapsed(list(bn = DMR_bn,
 include_graphics("imgs/enrich/iregions.png") 
 ```
 
+```{r restorewd, eval=TRUE}
+setwd("/Users/mailos/Library/Mobile Documents/com~apple~CloudDocs/PROJECTES/Treballant/EASIER/vignettes")
+```
+
 \ 
+
+
+
 
 References {#references .unnumbered}
 ==========
