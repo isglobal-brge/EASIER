@@ -25,7 +25,7 @@
 #'   \item{MASK_rmsk15}{ }
 #'   \item{Sex}{ Keep probes targeting cpgs from sex chromosomes "chrX" and "chrY". ( CpG_chrm %in% "chrX" & CpG_chrm %in% "chrY" )}
 #' }
-#' @param ethnic default value 'EUR'. Ethnicity, possible values : EUR, SAS, AMR, GWD, YRI, TSI, IBS, CHS, PUR, JPT, GIH, CH_B, STU, ITU, LWK, KHV, FIN, ESN, CEU, PJL, AC_B, CLM, CDX, GBR, BE_B, PEL, MSL, MXL, ASW or GLOBAL.
+#' @param ethnic . Ethnicity, possible values : '' (for none ethnic filter), EUR, SAS, AMR, GWD, YRI, TSI, IBS, CHS, PUR, JPT, GIH, CH_B, STU, ITU, LWK, KHV, FIN, ESN, CEU, PJL, AC_B, CLM, CDX, GBR, BE_B, PEL, MSL, MXL, ASW or GLOBAL.
 #' @param artype default value '450K'. Array type Illumina 450K or Illumina EPIC arrays, possible values are '450K' or 'EPIC' respectively.
 #' @param filename Optional, filename to write excluded cpgs and related information, if NULL no data are writed in a file
 #' @param fileresume Optional, filename to write descriptives for removed cpgs, if NULL no data are writed in a file
@@ -33,7 +33,7 @@
 #' @return dataframe without the CpGs that meet the conditions
 #'
 #' @export
-exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', filename = NULL, fileresume = NULL)
+exclude_CpGs <- function(cohort, cpgid, exclude, ethnic, artype='450K', filename = NULL, fileresume = NULL)
 {
    # Test if filter data exists and gets it
    if( toupper(artype) == '450K' ) {
@@ -57,11 +57,13 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic = 'EUR', artype='450K', 
    if(ethnic!='' & !is.na(ethnic)) {
       # Get first ethnic column position in filters
       fieldstodelete <- grep(paste0("MASK_snp5_.*[^",ethnic,"]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+
    } else {
-      fieldstodelete <- grep(paste0("MASK_snp5_.*[^EUR]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+      #.Remove from code.# fieldstodelete <- grep(paste0("MASK_snp5_.*[^EUR]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+      fieldstodelete <- ""
    }
 
-   #..# fieldstodelete <- grep(paste0("MASK_snp5_.*[^",ethnic,"]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
+
    fieldstomerge <- which(!seq(1:dim(filters)[2]) %in% fieldstodelete)
 
    # Merge cohort with CpGs filters
@@ -122,7 +124,7 @@ getCritera <- function(exclude, ethnic)
    possible_crit <- c( 'MASK_sub25_copy', 'MASK_sub30_copy', 'MASK_sub35_copy', 'MASK_sub40_copy',
                        'MASK_mapping', 'MASK_extBase', 'MASK_typeINextBaseSwitch', 'MASK_snp5_common', 'MASK_snp5_GMAF1p',
                        'MASK_general', 'cpg_probes', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'MASK_rmsk15',
-                       'Sex', 'Unrel_450_EPIC_pla_restrict', 'Unrel_450_EPIC_pla')
+                       'Sex', 'Unrel_450_EPIC_pla_restrict', 'Unrel_450_EPIC_pla', 'MASK_snp5_ethnic')
 
    if( !is.na(exclude[1]) & exclude[1] != '')
    {
@@ -159,6 +161,12 @@ getCritera <- function(exclude, ethnic)
          criter <- sub("| cohort$cpg_probes == TRUE ", "", criter, fixed = TRUE)
          criter <- sub("| cohort$noncpg_probes == TRUE ", "", criter, fixed = TRUE)
          criter <- sub("| cohort$control_probes == TRUE ", "", criter, fixed = TRUE)
+         criter <- sub("| cohort$MASK_snp5_ethnic == TRUE ", "", criter, fixed = TRUE)
+         criter <- sub("cohort$cpg_probes == TRUE |", "", criter, fixed = TRUE)
+         criter <- sub("cohort$noncpg_probes == TRUE |", "", criter, fixed = TRUE)
+         criter <- sub("cohort$control_probes == TRUE |", "", criter, fixed = TRUE)
+         criter <- sub("cohort$MASK_snp5_ethnic == TRUE |", "", criter, fixed = TRUE)
+
 
          # Add new criteria
          criter <- paste0(criter, paste0(" cohort$probeType %in% '",newCpGcond,"' | ", collapse = ''))

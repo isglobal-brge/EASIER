@@ -55,17 +55,24 @@ prefixes <- c('PACE_GENR_C_EUR','PACE_GENR_C_GMAF1p',
               'PROJ1_Cohort2_A1','PROJ1_Cohort2_A2', 'PROJ1_Cohort2_B1', 'PROJ1_Cohort2_B2', 'PROJ1_Cohort2_C1', 'PROJ1_Cohort2_C2',
               'PROJ1_Cohort3_A1', 'P1_Cohort3_A2')
 
-# Array type, used : EPIC or 450K
-artype <- c('450K', '450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPIC', '450K', '450K', 'EPIC')
-
-# Parameters to exclude CpGs
-exclude <- c( 'MASK_sub30_copy', 'MASK_extBase', 'MASK_mapping', 'MASK_typeINextBaseSwitch', 'control_probes', 'Unrel_450_EPIC_blood', 'Sex')
 
 # Exclude - MASK snp5
 MASK_snp5_ethnic <- c('EUR','GMAF1p', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
 
-# Ethnic group
-ethnic <- c('EUR','GMAF1p', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
+# Array type, used : EPIC or 450K
+artype <- c('450K', '450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPIC', '450K', '450K', 'EPIC')
+
+# Parameters to exclude CpGs
+exclude <- c( 'control_probes',
+              'noncpg_probes',
+              'Sex',
+              'MASK_mapping',
+              'MASK_sub30_copy',
+              'MASK_extBase',
+              'MASK_typeINextBaseSwitch',
+              # 'MASK_snp5_ethnic',
+              'Unrel_450_EPIC_blood')
+
 
 
 N <- c(100, 100, 100, 100, 166, 166, 166, 166, 166, 166, 240, 240 )
@@ -151,7 +158,11 @@ for ( i in 1:length(files) )
    cohort <- filterLowRepresentedCpGsinCohort(cohort, colname_NforProbe, pcMissingSamples, N[i], fileresume = fResumeName )
 
    # Exclude CpGs not meet conditions
-   cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = MASK_snp5_ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
+    if("MASK_snp5_ethnic" %in% exclude ){
+       cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = MASK_snp5_ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
+    } else {
+       cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = "", filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
+    }
 
    # Descriptives - After CpGs deletion #
    descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], before = FALSE )
