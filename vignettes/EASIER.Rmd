@@ -237,6 +237,12 @@ We can define the ethnic origin of the study population for each of the EWAS res
 
 In specific **MASK_snp5_ethnic** variable we define exclusion  whether 5bp 3'-subsequence (including extension for typeII) overlap with any of the SNPs with global MAF >1\% for each ethnicity. 
 
+\  
+
+In ethnic variable we define the `ethnic` for each cohort.
+
+\ 
+
 | **Population Code** | **Population Description                                            ** | **Super Population Code** |
 | :-------------------: | :---------------------------------------------------------------------- | :-------: |
 | AFR                   | *African*                                                               | AFR       |
@@ -276,7 +282,7 @@ In specific **MASK_snp5_ethnic** variable we define exclusion  whether 5bp 3'-su
 
 ```{r QCVarethnic}
 # Exclude - MASK snp5
-MASK_snp5_ethnic <- c('EUR', 'EUR', 'SAS', 'SAS', 'EUR', 'EUR', 'GMAF1p')
+ethnic <- c('EUR', 'EUR', 'SAS', 'SAS', 'EUR', 'EUR', 'GMAF1p')
 
 ```
 
@@ -466,7 +472,7 @@ We only take in to account ethnic group if `MASK_snp5_ethnic` is defined in `exc
     if("MASK_snp5_ethnic" %in% exclude ){
        cohort <- exclude_CpGs(cohort, "probeID", 
                               exclude, 
-                              ethnic = MASK_snp5_ethnic[i], 
+                              ethnic = ethnic[i], 
                               filename = paste0(results_folder, '/',prefixes[i], 
                                                 '/',prefixes[i],'_excluded.txt'), 
                               fileresume = fResumeName, artype = artype[i] )

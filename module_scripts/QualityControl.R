@@ -57,7 +57,7 @@ prefixes <- c('PACE_GENR_C_EUR','PACE_GENR_C_GMAF1p',
 
 
 # Exclude - MASK snp5
-MASK_snp5_ethnic <- c('EUR','GMAF1p', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
+ethnic <- c('EUR','GMAF1p', 'EUR', 'SAS', 'EUR', 'EAS', 'EUR', 'SAS', 'EUR', 'EUR', 'EUR', 'EAS')
 
 # Array type, used : EPIC or 450K
 artype <- c('450K', '450K', 'EPIC', '450K', 'EPIC', '450K', '450K', '450K', 'EPIC', '450K', '450K', 'EPIC')
@@ -70,7 +70,7 @@ exclude <- c( 'control_probes',
               'MASK_sub30_copy',
               'MASK_extBase',
               'MASK_typeINextBaseSwitch',
-              # 'MASK_snp5_ethnic',
+              'MASK_snp5_ethnic',
               'Unrel_450_EPIC_blood')
 
 
@@ -159,7 +159,7 @@ for ( i in 1:length(files) )
 
    # Exclude CpGs not meet conditions
     if("MASK_snp5_ethnic" %in% exclude ){
-       cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = MASK_snp5_ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
+       cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
     } else {
        cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = "", filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
     }
