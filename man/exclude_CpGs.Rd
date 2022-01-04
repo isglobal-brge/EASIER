@@ -8,7 +8,7 @@ exclude_CpGs(
   cohort,
   cpgid,
   exclude,
-  ethnic = "EUR",
+  ethnic,
   artype = "450K",
   filename = NULL,
   fileresume = NULL
@@ -19,7 +19,7 @@ exclude_CpGs(
 
 \item{cpgid}{string with the column name that contains the CpGs identifiators.}
 
-\item{ethnic}{default value 'EUR'. Ethnicity, possible values : EUR, SAS, AMR, GWD, YRI, TSI, IBS, CHS, PUR, JPT, GIH, CH_B, STU, ITU, LWK, KHV, FIN, ESN, CEU, PJL, AC_B, CLM, CDX, GBR, BE_B, PEL, MSL, MXL, ASW or GLOBAL.}
+\item{ethnic}{. Ethnicity, possible values : '' (for none ethnic filter), EUR, SAS, AMR, GWD, YRI, TSI, IBS, CHS, PUR, JPT, GIH, CH_B, STU, ITU, LWK, KHV, FIN, ESN, CEU, PJL, AC_B, CLM, CDX, GBR, BE_B, PEL, MSL, MXL, ASW or GLOBAL.}
 
 \item{artype}{default value '450K'. Array type Illumina 450K or Illumina EPIC arrays, possible values are '450K' or 'EPIC' respectively.}
 

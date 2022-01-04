@@ -28,7 +28,7 @@ getChromStateOR <- function(significative, chromstate, varname)
       if(rownames(tmp_tbl)=='no'){
          tmp_tbl <- rbind(tmp_tbl,fields)
       } else {
-         tmp_tbl <- cbind(fields, tmp_tbl)
+         tmp_tbl <- rbind(fields, tmp_tbl)
       }
       rownames(tmp_tbl) <- c("no","yes")
    }
