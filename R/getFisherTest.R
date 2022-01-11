@@ -24,6 +24,7 @@ getFisherTest <- function(significative, criteria, varname)
    }
 
    if(dim(rp)[2]<2) {
+      rp <- cbind(rp,c(0,0))
       if(!'yes' %in% colnames(rp)) {
          rp$yes <- rep(0,2)
       }else {

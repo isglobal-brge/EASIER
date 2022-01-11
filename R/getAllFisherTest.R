@@ -1,6 +1,6 @@
-#' Significative variable Regression for all relative positions to island
+#' Fisher test
 #'
-#' Get regression by relative positions to island position taking in to account a significative variable parameter like FDR values. This function gets all chromatin state regressions and optionally store results in a file
+#' Get all Fisher tests taking in to account a significative variable parameter like FDR values. This function gets all chromatin state regressions and optionally store results in a file
 #'
 #' @param significative numerical. Variable to take in to account as significative variable, could be FDR, p-value,...
 #' @param position dataframe with all relative positions to island values to perform regression
