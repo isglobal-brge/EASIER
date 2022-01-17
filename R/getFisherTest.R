@@ -26,7 +26,7 @@ getFisherTest <- function(significative, criteria, varname)
       }
    }
 
-   if( sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes' ))<2 )
+   if( rownames(rp) %in% c('Hypo-yes','Hyper-yes' ) && sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes' ))<2 )
    {
       rnames <- rownames(rp)
       rp <- rbind(rp,c(0,0))

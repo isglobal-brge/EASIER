@@ -98,7 +98,7 @@ if( ! tolower(testdata) %in% c('fisher','hypergeometric') )
 
 
 # Convert relative paths to absolute paths for FilesToEnrich
-FilesToEnrich <- unlist(sapply(FilesToEnrich, function(file) { if(substr(file,1,1)!='.' & substr(file,1,1)!='/') file <- paste0('./',file) else file }))
+FilesToEnrich <- unlist(sapply(FilesToEnrich, function(file) { if(substr(file,1,1)!='.' & substr(file,1,1)!='/' & substr(file, 2, 2) != ':') file <- paste0('./',file) else file }))
 FilesToEnrich <- sapply(FilesToEnrich, tools::file_path_as_absolute)
 
 if(results_enrich!='.'){
@@ -127,7 +127,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".", stringsAsFactors = FALSE)
 
       # Is a CpG list only ? then read without headers and annotate data
-      if(dim(data)[1] <= 1 | dim(data)[2] <= 1) {
+      if(dim(data)[1] <= 1 | dim(data)[2] <= 1 | !colnames(data) %in%  c("FDR", "BN","p.value")) {
          data <- read.table(FilesToEnrich[i], dec = ".") # Avoid header
          data <- as.vector(t(data))
          data <- get_annotattions(data, artype[i], FilesToEnrich[i], outputfolder )
