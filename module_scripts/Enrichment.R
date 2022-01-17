@@ -213,6 +213,9 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
             # CpGs FDR and Hyper and Hypo respectively
             FDR_Hyper <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hyper', "yes", "no")
             FDR_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "yes", "no")
+            FDR_Hyper_Hypo <- ifelse(data$bFDR == 'yes' & data$meth_state=='Hypo', "Hypo-yes",
+                                      ifelse(data$bFDR == 'no' & data$meth_state=='Hypo', "Hypo-no",
+                                             ifelse(data$bFDR == 'yes' & data$meth_state=='Hyper', "Hyper-yes", "Hyper-no" ) ) )
          }
 
          if("Bonferroni" %in% colnames(data) & BN==TRUE)
@@ -220,6 +223,9 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
             # CpGs Bonferroni and Hyper and Hypo respectively
             BN_Hyper <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "yes", "no")
             BN_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "yes", "no")
+            BN_Hyper_Hypo <- ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hypo', "Hypo-yes",
+                                    ifelse(data$Bonferroni == 'no' & data$meth_state=='Hypo', "Hypo-no",
+                                           ifelse(data$Bonferroni == 'yes' & data$meth_state=='Hyper', "Hyper-yes", "Hyper-no" ) ) )
          }
 
 
@@ -232,6 +238,9 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
             # CpGs FDR and Hyper and Hypo respectively
             pval_Hyper <- ifelse(data$bpval == 'yes' & data$meth_state=='Hyper', "yes", "no")
             pval_Hypo <- ifelse(data$bpval == 'yes' & data$meth_state=='Hypo', "yes", "no")
+            pval_Hyper_Hypo <- ifelse(data$bpval == 'yes' & data$meth_state=='Hypo', "Hypo-yes",
+                                      ifelse(data$bpval == 'no' & data$meth_state=='Hypo', "Hypo-no",
+                                             ifelse(data$bpval == 'yes' & data$meth_state=='Hyper', "Hyper-yes", "Hyper-no" ) ) )
          }
 
 
@@ -252,6 +261,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                GenePosition <- getAllFisherTest(data$bFDR, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
                GenePosition_hyper <- getAllFisherTest(FDR_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
                GenePosition_hypo <- getAllFisherTest(FDR_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_HyperHypo <- getAllFisherTest(FDR_Hyper_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_FDRHyperHypo", outputfile = FilesToEnrich[i], plots = TRUE )
             }
             else if ( tolower(testdata) =='hypergeometric') {
                ## --  HyperGeometric Test - Island relative position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
@@ -274,6 +284,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                relative_island <- getAllFisherTest(data$bFDR, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDR", outputfile = FilesToEnrich[i], plots = TRUE )
                relative_island_hyper <- getAllFisherTest(FDR_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHyper", outputfile = FilesToEnrich[i], plots = TRUE )
                relative_island_hypo <- getAllFisherTest(FDR_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hyperhypo <- getAllFisherTest(FDR_Hyper_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_FDRHyperHypo", outputfile = FilesToEnrich[i], plots = TRUE )
             }
             else if ( tolower(testdata) =='hypergeometric') {
                ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
@@ -302,6 +313,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                GenePosition <- getAllFisherTest(data$Bonferroni, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BN", outputfile = FilesToEnrich[i], plots = TRUE )
                GenePosition_hyper <- getAllFisherTest(BN_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BNHyper", outputfile = FilesToEnrich[i], plots = TRUE )
                GenePosition_hypo <- getAllFisherTest(BN_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BNHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hyperhypo <- getAllFisherTest(BN_Hyper_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_BNHyperHypo", outputfile = FilesToEnrich[i], plots = TRUE )
             }
             else if ( tolower(testdata) =='hypergeometric') {
                ## --  HyperGeometric Test - Island relative position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
@@ -324,6 +336,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                relative_island <- getAllFisherTest(data$Bonferroni, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BN", outputfile = FilesToEnrich[i], plots = TRUE )
                relative_island_hyper <- getAllFisherTest(BN_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BNHyper", outputfile = FilesToEnrich[i], plots = TRUE )
                relative_island_hypo <- getAllFisherTest(BN_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BNHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hyperhypo <- getAllFisherTest(BN_Hyper_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_BNHyperHypo", outputfile = FilesToEnrich[i], plots = TRUE )
             }
             else if ( tolower(testdata) =='hypergeometric') {
                ## --  HyperGeometric Test - Gene position - FDR, FDR_hyper and FDR_hypo (for Depletion and Enrichment)
@@ -351,6 +364,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                GenePosition <- getAllFisherTest(data$bpval, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pval", outputfile = FilesToEnrich[i], plots = TRUE )
                GenePosition_hyper <- getAllFisherTest(pval_Hyper, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
                GenePosition_hypo <- getAllFisherTest(pval_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               GenePosition_hyperhypo <- getAllFisherTest(pval_Hyper_Hypo, data$UCSC_RefGene_Group, outputdir = "GenePosition/Fisher_pvalHyperHypo", outputfile = FilesToEnrich[i], plots = TRUE )
             }
             else if ( tolower(testdata) =='hypergeometric') {
                ## --  HyperGeometric Test - Island relative position - pval, pval_hyper and pval_hypo (for Depletion and Enrichment)
@@ -373,6 +387,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
                relative_island <- getAllFisherTest(data$bpval, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pval", outputfile = FilesToEnrich[i], plots = TRUE )
                relative_island_hyper <- getAllFisherTest(pval_Hyper, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pvalHyper", outputfile = FilesToEnrich[i], plots = TRUE )
                relative_island_hypo <- getAllFisherTest(pval_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pvalHypo", outputfile = FilesToEnrich[i], plots = TRUE )
+               relative_island_hyperhypo <- getAllFisherTest(pval_Hyper_Hypo, data$Relation_to_Island, outputdir = "RelativeToIsland/Fisher_pvalHyperHypo", outputfile = FilesToEnrich[i], plots = TRUE )
             }
             else if ( tolower(testdata) =='hypergeometric') {
                ## --  HyperGeometric Test - Gene position - pval, pval_hyper and pval_hypo (for Depletion and Enrichment)

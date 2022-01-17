@@ -18,6 +18,9 @@ getAllFisherTest <- function(significative, position, outputdir = ".", outputfil
 
    lregs <-  lapply(positions, function(x) getFisherTest(significative, ifelse(position == x, "yes", "no"), x) )
 
+
+
+
    ans <- data.frame(matrix(unlist(lregs), nrow=length(positions), byrow=T))
    colnames(ans) <- names(lregs[[1]])
 
