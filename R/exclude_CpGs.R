@@ -132,7 +132,7 @@ getCritera <- function(exclude, ethnic)
                        'MASK_general', 'cpg_probes', 'noncpg_probes', 'control_probes', 'Unrel_450_EPIC_blood', 'MASK_rmsk15',
                        'Sex', 'Unrel_450_EPIC_pla_restrict', 'Unrel_450_EPIC_pla', 'MASK_snp5_ethnic')
 
-   if( !is.na(exclude[1]) & exclude[1] != '')
+   if( !is.null(exclude[1]) && !is.na(exclude[1]) && exclude[1] != '')
    {
       # Test if all parameters are allowed
       if(length(which(! exclude %in% possible_crit))>=1)
