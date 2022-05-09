@@ -54,7 +54,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic, artype='450K', filename
    firstEthnicPosition <-  min(grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE))-1
 
    # Select ethnic columns not related with our data from filters (ONLY IF ethnic != '' or NA)
-   if(ethnic!='' & !is.na(ethnic)) {
+   if(ethnic!='' && !is.na(ethnic)) {
       # Get first ethnic column position in filters
       fieldstodelete <- grep(paste0("MASK_snp5_.*[^",ethnic,"]"),  colnames(filters)[grep(paste0("MASK_snp5_.*[^GMAF1p&^common]"), colnames(filters), perl = TRUE)], perl = TRUE) + firstEthnicPosition
 
@@ -69,8 +69,14 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic, artype='450K', filename
    # Merge cohort with CpGs filters
    cohort <- merge(cohort, filters[,fieldstomerge], by.x= cpgid, by.y = "probeID" )
 
+
    # CpGs id to remove
-   excludeid <- cohort[eval(parse(text=getCritera(exclude, ethnic))), cpgid]
+   if( is.null(exclude)) {
+      excludeid <- NULL
+   } else {
+      excludeid <- cohort[eval(parse(text=getCritera(exclude, ethnic))), cpgid]
+   }
+
 
    # Report descriptive exclussions to a descriptive file
    if(!is.null(fileresume)) {
