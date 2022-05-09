@@ -161,9 +161,9 @@ for ( i in 1:length(files) )
     if("MASK_snp5_ethnic" %in% exclude ){
        cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = ethnic[i], filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
     } else {
-       if( !is.null(exclude) && exclude!='') {
+       #..# if( !is.null(exclude) && exclude!='') {
          cohort <- exclude_CpGs(cohort, "probeID", exclude, ethnic = "", filename = paste0(results_folder, '/',prefixes[i], '/',prefixes[i],'_excluded.txt'), fileresume = fResumeName, artype = artype[i] )
-       }
+         #..# }
     }
 
    # Descriptives - After CpGs deletion #
