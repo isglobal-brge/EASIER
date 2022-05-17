@@ -402,7 +402,8 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          data$signif <- 'yes'
          unsignif_df$signif <- 'no'
 
-         data <- rbind(data[,c(2:47, 50)], as.data.frame(unsignif_df) )
+         #..# data <- rbind(data[,c(2:47, 50)], as.data.frame(unsignif_df) )
+         data <- rbind(data[,which(colnames(data) %in% colnames(as.data.frame(unsignif_df)))], as.data.frame(unsignif_df) )
          data$rs_number <- data$Name
 
 
