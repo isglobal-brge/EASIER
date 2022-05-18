@@ -25,6 +25,11 @@
 missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALSE, fdr=NA, pval=NA, all = FALSE, outputdir = NULL, plots = FALSE )
 {
 
+   if( artype == '450K')
+      require(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+   else
+      require(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
+
    # Output filename
    outfilename <- tools::file_path_sans_ext(basename(filename))
    outdir <- paste(out,"GO_KEGG",sep="/")
@@ -168,7 +173,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
 
             if( !is.null(sigCpGs_pval) & length(sigCpGs_pval)>0 ) {
                # Annotate CpGs
-               annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs_pval,  all.cpg=as.vector(data[,"CpGs"]), array.type = artype)
+               #.FORA !!!.# annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs_pval,  all.cpg=as.vector(data[,"CpGs"]), array.type = artype)
+               annot.data <- gsameth( sig.cpg = sigCpGs_pval, collection = Hs.c2, array.type = artype)
                # GO enrichment - Only to work with a complete list of CpGs
                GO.data <- gometh(sig.cpg = sigCpGs_pval,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
                # KEGG enrichment - Only to work with a complete list of CpGs
