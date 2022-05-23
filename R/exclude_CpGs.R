@@ -67,7 +67,7 @@ exclude_CpGs <- function(cohort, cpgid, exclude, ethnic, artype='450K', filename
    fieldstomerge <- which(!seq(1:dim(filters)[2]) %in% fieldstodelete)
 
    # Merge cohort with CpGs filters
-   cohort <- merge(cohort, filters[,fieldstomerge], by.x= cpgid, by.y = "probeID" )
+   cohort <- merge(cohort, filters[,fieldstomerge], by.x= cpgid, by.y = "probeID", all.x = TRUE )
 
 
    # CpGs id to remove
