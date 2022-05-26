@@ -31,6 +31,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
       cohortfile <- files[which(prefixes==cohortn)]
       print(paste0("Llegim : ",cohortfile))
       cohortdata <- read.table(cohortfile, header = TRUE, stringsAsFactors=FALSE )
+      colnames(cohortdata) <- toupper(colnames(cohortdata))
       cohortdata <- cohortdata[order(cohortdata$P_VAL),]
    })
    names(cohorts) <- files_meta
