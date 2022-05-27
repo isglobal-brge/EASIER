@@ -31,6 +31,12 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
       cohortfile <- files[which(prefixes==cohortn)]
       print(paste0("Llegim : ",cohortfile))
       cohortdata <- read.table(cohortfile, header = TRUE, stringsAsFactors=FALSE )
+      if(ncol(cohortdata)==1) {
+         cohortdata <- read.table(cohortfile, header = TRUE, stringsAsFactors=FALSE, sep = ',' )
+      }
+      if(ncol(cohortdata)==1) {
+         stop(paste0("Error reading input file ", cohortfile))
+      }
       colnames(cohortdata) <- toupper(colnames(cohortdata))
       cohortdata <- cohortdata[order(cohortdata$P_VAL),]
    })
