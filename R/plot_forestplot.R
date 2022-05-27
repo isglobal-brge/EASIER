@@ -12,7 +12,7 @@
 #' @param nsignificatives number, lowest p-values to show in forestplot, by default, lowestp=30
 #'
 #' @return distribution plot
-#'
+#' @importFrom data.table like
 #' @export
 plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, files, outputgwama, nsignificatives = 30 )
 {
@@ -56,7 +56,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       tt <- data.frame(do.call(rbind, lapply(cpgs, function(cp) {
          tt <- sapply(cohorts, function(ch) {
-            x <- which(ch$probeID == cp)
+            x <- which(ch[, which( colnames(ch) %like% 'PROBEID' )]  == cp)
             if( length( x ) == 0) { NA }
             else { x }
          })
@@ -87,7 +87,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
       mt <- lapply(names(bb), function(cpg) {
          message(cpg)
          dataf <- bb[[cpg]]
-         mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), comb.random=TRUE, comb.fixed = TRUE)
+         mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), random=TRUE, fixed = TRUE)
 
          # print(paste0("Output file : ",paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf")))
 

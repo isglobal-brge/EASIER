@@ -2,7 +2,7 @@
 % Please edit documentation in R/getAllFisherTest.R
 \name{getAllFisherTest}
 \alias{getAllFisherTest}
-\title{Significative variable Regression for all relative positions to island}
+\title{Fisher test}
 \usage{
 getAllFisherTest(
   significative,
@@ -27,5 +27,5 @@ getAllFisherTest(
 
 }
 \description{
-Get regression by relative positions to island position taking in to account a significative variable parameter like FDR values. This function gets all chromatin state regressions and optionally store results in a file
+Get all Fisher tests taking in to account a significative variable parameter like FDR values. This function gets all chromatin state regressions and optionally store results in a file
 }
