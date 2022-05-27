@@ -29,7 +29,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
    cohorts <- lapply(files_meta, function(cohortn) {
       #..# cohortfile <- paste0(gwana_dir,"/", cohortn,"_gwama.txt")
       cohortfile <- files[which(prefixes==cohortn)]
-      print(paste0("Llegim : ",cohortfile))
+      print(paste0("Reading : ",cohortfile))
       cohortdata <- read.table(cohortfile, header = TRUE, stringsAsFactors=FALSE )
       if(ncol(cohortdata)==1) {
          cohortdata <- read.table(cohortfile, header = TRUE, stringsAsFactors=FALSE, sep = ',' )
@@ -75,10 +75,11 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       outputfolder <- ifelse( substr(outputgwama, 1, 2) == './', substr(outputgwama,3,nchar(outputgwama)), outputgwama)
 
-      if(islowCpg == 'lowcpgs')
+      if(islowCpg == 'lowcpgs') {
          path <- paste0(file.path(getwd()),"/", outputfolder,"/ForestPlots")
-      else
+      } else {
          path <- paste(file.path(getwd()), outputfolder, "ForestPlots", sep="/")
+      }
 
       # Before get plots test if dir exists and create it
       if(!dir.exists(path))
