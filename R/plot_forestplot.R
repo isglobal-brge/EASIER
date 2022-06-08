@@ -56,7 +56,8 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       tt <- data.frame(do.call(rbind, lapply(cpgs, function(cp) {
          tt <- sapply(cohorts, function(ch) {
-            x <- which(ch[, which( colnames(ch) %like% 'PROBEID' )]  == cp)
+            # x <- which(ch[, which( colnames(ch) %like% 'PROBEID' )]  == cp)
+            x <- which(ch$probeID == cp)
             if( length( x ) == 0) { NA }
             else { x }
          })
