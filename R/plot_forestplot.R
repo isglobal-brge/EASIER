@@ -89,7 +89,12 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
       mt <- lapply(names(bb), function(cpg) {
          message(cpg)
          dataf <- bb[[cpg]]
-         mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), random=TRUE, fixed = TRUE)
+         if(packageVersion("meta") > "5.0.0") {
+            mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), random=TRUE, fixed = TRUE)
+         } else {
+            mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), comb.random=TRUE, comb.fixed = TRUE)
+         }
+
 
          # print(paste0("Output file : ",paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf")))
 
