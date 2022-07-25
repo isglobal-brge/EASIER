@@ -67,7 +67,7 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
       bb <- lapply(rownames(tt), function(cpg) {
          data.frame(t(sapply(names(cohorts), function(ch) {
-            cohorts[[ch]][tt[cpg, ch][[1]], 2:3]
+            cohorts[[ch]][tt[cpg, ch][[1]], c("BETA","SE")]
          })))
       })
 
