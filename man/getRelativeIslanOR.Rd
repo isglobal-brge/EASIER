@@ -13,9 +13,6 @@ getRelativeIslanOR(significative, position, varname)
 
 \item{varname}{string. position Relative to Island name. For example : "Island", "OpenSea", "S_Shore", "N_Shore", "S_Shelf", "N_Shelf"}
 }
-\value{
-
-}
 \description{
 Get OR by Position Relative to Island taking in to account a significative variable parameter like FDR values
 }

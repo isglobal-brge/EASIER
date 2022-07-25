@@ -23,9 +23,6 @@ getAllRelativeIslandOR(
 
 \item{plots}{boolean. If plot is TRUE, plot results}
 }
-\value{
-
-}
 \description{
 Get regression by relative positions to island position taking in to account a significative variable parameter like FDR values. This function gets all chromatin state regressions and optionally store results in a file
 }

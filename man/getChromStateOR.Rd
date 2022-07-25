@@ -13,9 +13,6 @@ getChromStateOR(significative, chromstate, varname)
 
 \item{varname}{string. Cromatin state name. For example : "TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk" or "Quies"}
 }
-\value{
-
-}
 \description{
 Get regression by cromatin state taking in to account a significative variable parameter like FDR values
 }

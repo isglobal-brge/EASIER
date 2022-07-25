@@ -12,7 +12,9 @@ plot_ForestPlot(
   metaname,
   files,
   outputgwama,
-  nsignificatives = 30
+  nsignificatives = 30,
+  criteria = "p.value",
+  selectedCpGs = NULL
 )
 }
 \arguments{
@@ -31,6 +33,11 @@ plot_ForestPlot(
 \item{outputgwama}{string with gwama output path}
 
 \item{nsignificatives}{number, lowest p-values to show in forestplot, by default, lowestp=30}
+
+\item{criteria}{character string with criteria to be used to select the first significative CpGs,
+by default the criteria is p.value (without any adjustment). Possible values are "p.value", "FDR" or "Bonferroni", in that case function plots all significative CpGs.}
+
+\item{selectedCpGs}{character vector with the names of the CpGs to be plotted}
 }
 \value{
 distribution plot

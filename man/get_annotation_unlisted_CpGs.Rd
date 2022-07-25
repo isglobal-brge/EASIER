@@ -11,9 +11,6 @@ get_annotation_unlisted_CpGs(singifCpGs, artype)
 
 \item{artype}{string with artype to obtain the unsignificative CpGs}
 }
-\value{
-
-}
 \description{
 Get annotation (Illumina) from unlisted CpGs attending to Illumuna array type (450K or EPIC)
 }

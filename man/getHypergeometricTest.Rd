@@ -13,9 +13,6 @@ getHypergeometricTest(significative, criteria, varname)
 
 \item{complete}{vector with all possible cases that can meet conditions}
 }
-\value{
-
-}
 \description{
 Get HyperGeometric Test for positions relative to Island
 }

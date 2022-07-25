@@ -13,9 +13,6 @@ getFisherTest(significative, criteria, varname)
 
 \item{varname}{string. criteria Relative to Island name. For example : "Island", "OpenSea", "S_Shore", "N_Shore", "S_Shelf", "N_Shelf" or other criteria like gene position}
 }
-\value{
-
-}
 \description{
 Get Fisher test by criteria taking in to account a significative variable parameter like FDR values
 }

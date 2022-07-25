@@ -23,9 +23,6 @@ getAllChromStateRegressions(
 
 \item{chromstates}{dataframe with all Cromatin state values to perform regression}
 }
-\value{
-
-}
 \description{
 Get regression by cromatin state taking in to account a significative variable parameter like FDR values. This function gets all chromatin state regressions and optionally store results in a file
 }
