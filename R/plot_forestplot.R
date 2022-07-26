@@ -21,9 +21,6 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 {
    # We need the data from meta-analysis model and individual data from cohorts in the model
 
-   if(criteria )
-
-
    if(is.null(selectedCpGs)) {
       available.criteria <- c( "p.value", "FDR", "Bonferroni")
       method <- match(criteria, available.criteria)
@@ -150,8 +147,6 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
       } else {
          warning(paste0("No significative CpGs found for ", criteria," criteria"))
       }
-
-
 
    }
 
