@@ -15,7 +15,8 @@ plot_precisionp <- function(x, filename, main= NULL, ...)
    if (is.null(main))
       main = "Precision Plot -  1/median(SE) vs sqrt(n)"
 
-   p <- ggplot2::ggplot( data = x, mapping = ggplot2::aes( x = round(as.numeric(sqrt_N),2), y = round(as.numeric(invSE),2) ) ) +
+   p <- ggplot2::ggplot( data = x, mapping = ggplot2::aes( x = round(as.numeric(sqrt_N),2),
+                                                           y = round(as.numeric(invSE),2) ) ) +
       ggplot2::theme_bw() +
       ggplot2::geom_point( size = 3, ggplot2::aes( colour = cohort ) ) +
       #geom_line( aes( group = cohort , colour = cohort ) ) +
