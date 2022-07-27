@@ -230,7 +230,7 @@ plot_betas_boxplot(betas.data, paste(results_folder, 'BETAS_BoxPlot.png', sep="/
 if ( length(files) > 1)
 {
    # Precision_Plot(N)
-   plot_precisionp(precplot.data, paste(results_folder,  "precision_SE_N.png",sep='/'), main = "Precision Plot - 1/median(SE) vs sqrt(N)")
+   plot_precisionp(precplot.data, paste(results_folder,  "precision_SE_N.png",sep='/'), main = "Precision Plot - 1/median(SE) vs sqrt(n)")
 
    # Precision_Plot(n)
    if(length(n) == length(N))
