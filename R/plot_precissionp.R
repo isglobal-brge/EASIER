@@ -13,7 +13,7 @@ plot_precissionp <- function(x, filename, main= NULL, ...)
 {
 
    if (is.null(main))
-      main = "Precision Plot -  1/median(SE) vs sqrt(N)"
+      main = "Precision Plot -  1/median(SE) vs sqrt(n)"
 
    p <- ggplot2::ggplot( data = x, mapping = ggplot2::aes( x = sqrt_N, y = invSE ) ) +
       ggplot2::theme_bw() +
@@ -23,6 +23,7 @@ plot_precissionp <- function(x, filename, main= NULL, ...)
       ggplot2::theme( legend.position = "bottom",
                       legend.text = ggplot2::element_text(size=6),
                       legend.title = ggplot2::element_blank()) +
+      ggplot2::labs(x = "sqrt(n)")
       ggplot2::scale_shape_manual( values = 0:7 )
 
    if(!is.null(filename))
