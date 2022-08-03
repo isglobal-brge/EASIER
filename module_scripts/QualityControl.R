@@ -213,12 +213,12 @@ for ( i in 1:length(files) )
 }
 
 # Data for Precision Plot
-precplot.data <- as.data.frame(cbind( SE = medianSE, invSE = (1/medianSE), N = value_N, sqrt_N = sqrt(N), cohort = cohort_label ))
+precplot.data <- cbind.data.frame( SE = medianSE, invSE = (1/medianSE), N = value_N, sqrt_N = sqrt(N), cohort = cohort_label )
 cols.numeric <- c("SE","invSE", "N", "sqrt_N")
 precplot.data[cols.numeric] <- sapply(precplot.data[cols.numeric],as.numeric)
 
 if(length(n) == length(N)){
-   precplot.data.n <- as.data.frame(cbind( SE = medianSE, invSE = (1/medianSE), N = value_n, sqrt_N = sqrt(n), cohort = cohort_label ))
+   precplot.data.n <- cbind.data.frame( SE = medianSE, invSE = (1/medianSE), N = value_n, sqrt_N = sqrt(n), cohort = cohort_label )
    precplot.data.n[cols.numeric] <- sapply(precplot.data.n[cols.numeric],as.numeric)
 }
 

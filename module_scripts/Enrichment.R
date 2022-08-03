@@ -724,7 +724,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          overPMD <- findOverlapValues(data.GRange, PMD.GRange )
 
          #Create a data.frame with CpGs and PMDs information
-         mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overPMD$qhits]), DataFrame(PMD = PMD.GRange$name[overPMD$shits])))
+         mdata <- cbind.data.frame(DataFrame(CpG = data.GRange$name[overPMD$qhits]), DataFrame(PMD = PMD.GRange$name[overPMD$shits]))
 
          # Merge with results from meta-analysis (A2)
          crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
@@ -805,7 +805,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          overDMR <- findOverlapValues(data.GRange, DMR.GRange )
 
          #Create a data.frame with CpGs and DMRs information
-         mdata <- as.data.frame(cbind(DataFrame(CpG = data.GRange$name[overDMR$qhits]), DataFrame(DMR = DMR.GRange$name[overDMR$shits])))
+         mdata <- cbind.data.frame(DataFrame(CpG = data.GRange$name[overDMR$qhits]), DataFrame(DMR = DMR.GRange$name[overDMR$shits]))
 
          # Merge with results from meta-analysis (A2)
          crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
