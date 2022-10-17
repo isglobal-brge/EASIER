@@ -20,7 +20,9 @@ devtools::source_url("https://raw.githubusercontent.com/isglobal-brge/BrgeEnrich
 devtools::install_github("isglobal-brge/brgeEnrich@HEAD")
 
 #..# devtools::install_version('tools', version = '3.6.3', repos = 'https://cran.us.r-project.org' )
-devtools::install_version('BiocManager', version = '1.30.10')
+#..# devtools::install_version('BiocManager', version = '1.30.10')
+if (!require("BiocManager", quietly = TRUE)) 
+    install.packages("BiocManager") 
 
 # Bioconductor
 if (!require('missMethyl')){ BiocManager::install( "missMethyl", ask = FALSE ) }
