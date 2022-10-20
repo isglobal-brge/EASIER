@@ -76,7 +76,7 @@ results_folder <- 'QC_Results'
 results_gwama <- '.'
 
 
-# Venn diagrams ==> IMPORTANT : maximum 5 meta-analysis by venn diagram
+# Venn diagrams ==> IMPORTANT : maximum 5 meta-analysis in each venn diagram
 venndiag_threshold <- 0.05
 venn_diagrams <- list(
    c("MetaA1", "MetaA2", "MetaB" ),
