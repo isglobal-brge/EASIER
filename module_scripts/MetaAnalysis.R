@@ -151,7 +151,7 @@ for( metf in 1:length(metafiles))
       # Get hapmapfile attending to current metaanalysis artype
       hapmapfile <- hapmapfile_450K
       if(artype[metf]=='EPIC'){
-         hapmapfile <- hapmapfile_450K
+         hapmapfile <- hapmapfile_EPIC
       }
 
       #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
