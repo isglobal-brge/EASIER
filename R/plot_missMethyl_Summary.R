@@ -29,8 +29,13 @@ plot_missMethyl_Summary <- function(df, xl, yl, tit, filename = NULL, N = 10)
                             high = "dark green", na.value="transparent",
                             limits=c(0.05,0.0001))
 
-   if(!is.null(filename))
-      ggplot2::ggsave(filename, p)
+   if(!is.null(filename)){
+      png(filename, type = "cairo")
+         print(p)
+      dev.off()
+      #..# ggplot2::ggsave(filename, p)
+   }
+
 }
 
 

@@ -28,8 +28,13 @@ plot_precisionp <- function(x, filename, main= NULL, ...)
                      y = "inv SE") +
       ggplot2::scale_shape_manual( values = 0:7 )
 
-   if(!is.null(filename))
-      ggplot2::ggsave(filename,p)
+   if(!is.null(filename)) {
+      png(filename, type = "cairo")
+         print(p)
+      dev.off()
+      #..# ggplot2::ggsave(filename,p)
+   }
+
 
    return(p)
 

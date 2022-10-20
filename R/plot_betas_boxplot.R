@@ -48,7 +48,10 @@ plot_betas_boxplot <- function(x, filename= NULL, main= NULL, outliers = FALSE, 
                          axis.text.x = element_text( angle=90, hjust=1, vjust=0.5))
    }
 
-   ggplot2::ggsave(filename, pf)
+   png( filename, type = "cairo")
+      print(pf)
+   dev.off()
+   # ggplot2::ggsave(filename, pf)
 
    return(pf)
 
