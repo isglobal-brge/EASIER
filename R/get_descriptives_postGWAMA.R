@@ -109,25 +109,25 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
          lines(d, col = gg_colors(2)[1], lwd = 2)
       }
 
-      png(paste0(analyzedata[f], '_QC_distr_i2_plot.png'))
+      png(paste0(analyzedata[f], '_QC_distr_i2_plot.png'), type="cairo")
          plot.distr(na.omit(data$i2), main = paste('Heterogeneity (i2) histogram -', metaname,type[f]), xlab = 'i2')
       dev.off()
 
-      png(paste0(analyzedata[f], '_QC_distr_SE_plot.png'))
+      png(paste0(analyzedata[f], '_QC_distr_SE_plot.png'), type="cairo")
          plot.distr(data$se, main = paste('Standard Errors -', metaname,type[f]), xlab = 'SE')
       dev.off()
 
-      png(paste0(analyzedata[f], '_QC_distr_pvalue_plot.png'))
+      png(paste0(analyzedata[f], '_QC_distr_pvalue_plot.png'), type="cairo")
          plot.distr(data$`p.value`, main = paste('p-values -', metaname,type[f]), xlab = 'p-value')
       dev.off()
 
       # QQ plot.
 
-      png(paste0(analyzedata[f], '_QC_Chi_lambda.png'))
+      png(paste0(analyzedata[f], '_QC_Chi_lambda.png'), type="cairo")
          lambda <- qchisq(median(data$`p.value`), df = 1, lower.tail = FALSE) / qchisq(0.5, 1)
       dev.off()
 
-      png(paste0(analyzedata[f], '_QC_QQplot_plot.png'))
+      png(paste0(analyzedata[f], '_QC_QQplot_plot.png'), type="cairo")
          qqman::qq(data$`p.value`, main = sprintf('QQ plot of %s %s (lambda = %f)', metaname, type[f], lambda))
       dev.off()
 
@@ -138,7 +138,7 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       colors[data$beta >  bt & -log10(data$`p.value`) > 3] <- gg_colors(2, 0.5)[1] # Red
       colors[data$beta < -bt & -log10(data$`p.value`) > 3] <- gg_colors(2, 0.5)[2] # Blue
 
-      png(paste0(analyzedata[f], '_QC_Volcano.png'))
+      png(paste0(analyzedata[f], '_QC_Volcano.png'), type="cairo")
          plot(data$beta, -log10(data$`p.value`), col = colors,
               main = paste('Volcano plot of', metaname), xlab = 'Beta', ylab = '-log10 p-value')
          abline(h = pt, v = c(-bt, bt), lty = 'dotted')
