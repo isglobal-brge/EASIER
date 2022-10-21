@@ -66,12 +66,12 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
             data <- data[order(data[,criteria]),]
             # We only get the nsignificatives first CpGs with lowest p-value
             # cpgs <- as.character(data[which(data$p.value<0.05),'rs_number'][1:nsignificatives])
-            nsignificatives <- length(data[which(data[,criteria]<0.05),'rs_number'])
-            if( nsignificatives > nsignificatives ){
+            nsignificatives_t <- length(data[which(data[,criteria]<0.05),'rs_number'])
+            if( nsignificatives_t > nsignificatives ){
                cpgs <- as.character(data[which(data[,criteria]<0.05),'rs_number'][1:nsignificatives])
             } else {
-               if(nsignificatives > 0){
-                  cpgs <- as.character(data[which(data[,criteria]<0.05),'rs_number'][1:nsignificatives])
+               if(nsignificatives_t > 0){
+                  cpgs <- as.character(data[which(data[,criteria]<0.05),'rs_number'][1:nsignificatives_t])
                } else {
                   cpgs <- NULL
                }
