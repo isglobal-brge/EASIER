@@ -124,10 +124,10 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
             suppressWarnings(dir.create(path, recursive = TRUE))
 
          mt <- lapply(names(bb), function(cpg) {
-            tryCatch
-            (
+
+            out <- tryCatch (
                {
-                  message(cpg)
+                  message(cpg);
                   dataf <- bb[[cpg]]
                   if(packageVersion("meta") > "5.0.0") {
                      mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), random=TRUE, fixed = TRUE)
@@ -140,17 +140,17 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
 
                   # rasterpdf::raster_pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"), res = 600)
                   pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"))
-                     par(mar = c(0, 0, 0, 0))
-                     meta::forest(mtg, leftcols=c("studlab"), leftlabs=c("Cohort"), rightcols=c("effect", "ci","pval","w.fixed","w.random"), fontsize=7, digits=3, print.pval=TRUE, addrow.overall=T,
-                                  col.fixed="red", col.random="blue",print.tau2 = FALSE, smlab = "", col.diamond.fixed="red", col.diamond.random = "blue", overall= T, test.overall=T,
-                                  fs.test.overall=7, fs.hetstat=5, fs.axis=5, pooled.totals=TRUE)
+                  par(mar = c(0, 0, 0, 0))
+                  meta::forest(mtg, leftcols=c("studlab"), leftlabs=c("Cohort"), rightcols=c("effect", "ci","pval","w.fixed","w.random"), fontsize=7, digits=3, print.pval=TRUE, addrow.overall=T,
+                               col.fixed="red", col.random="blue",print.tau2 = FALSE, smlab = "", col.diamond.fixed="red", col.diamond.random = "blue", overall= T, test.overall=T,
+                               fs.test.overall=7, fs.hetstat=5, fs.axis=5, pooled.totals=TRUE)
                   dev.off()
-               },
-               error=function(cond) {
-                  message(paste0("Error processing a ForestsPlot for cpg: ", cpg))
-                  message(paste0("Error: ", cond))
+
                }
-             )
+               , warning = function(war) {message(paste0("Warning processing a ForestsPlot for cpg: ", cpg)); return(NA)}
+               , error = function(e) { message(paste0("Error processing a ForestsPlot for cpg: ", cpg)); message(paste0("Error: ", e))}
+            )
+
          })
 
       } else {
