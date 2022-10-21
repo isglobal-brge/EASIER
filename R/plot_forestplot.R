@@ -124,24 +124,33 @@ plot_ForestPlot <- function( datas, files_meta, islowCpg, gwana_dir, metaname, f
             suppressWarnings(dir.create(path, recursive = TRUE))
 
          mt <- lapply(names(bb), function(cpg) {
-            message(cpg)
-            dataf <- bb[[cpg]]
-            if(packageVersion("meta") > "5.0.0") {
-               mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), random=TRUE, fixed = TRUE)
-            } else {
-               mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), comb.random=TRUE, comb.fixed = TRUE)
-            }
+            tryCatch
+            (
+               {
+                  message(cpg)
+                  dataf <- bb[[cpg]]
+                  if(packageVersion("meta") > "5.0.0") {
+                     mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), random=TRUE, fixed = TRUE)
+                  } else {
+                     mtg <- meta::metagen(unlist(dataf[,"BETA"]), unlist(dataf[,"SE"]), sm="MD", studlab=rownames(dataf), comb.random=TRUE, comb.fixed = TRUE)
+                  }
 
 
-            # print(paste0("Output file : ",paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf")))
+                  # print(paste0("Output file : ",paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf")))
 
-            # rasterpdf::raster_pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"), res = 600)
-            pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"))
-            par(mar = c(0, 0, 0, 0))
-            meta::forest(mtg, leftcols=c("studlab"), leftlabs=c("Cohort"), rightcols=c("effect", "ci","pval","w.fixed","w.random"), fontsize=7, digits=3, print.pval=TRUE, addrow.overall=T,
-                         col.fixed="red", col.random="blue",print.tau2 = FALSE, smlab = "", col.diamond.fixed="red", col.diamond.random = "blue", overall= T, test.overall=T,
-                         fs.test.overall=7, fs.hetstat=5, fs.axis=5, pooled.totals=TRUE)
-            dev.off()
+                  # rasterpdf::raster_pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"), res = 600)
+                  pdf(paste0( path, "/FP_", cpg,"_",type[ts] ,".pdf"))
+                     par(mar = c(0, 0, 0, 0))
+                     meta::forest(mtg, leftcols=c("studlab"), leftlabs=c("Cohort"), rightcols=c("effect", "ci","pval","w.fixed","w.random"), fontsize=7, digits=3, print.pval=TRUE, addrow.overall=T,
+                                  col.fixed="red", col.random="blue",print.tau2 = FALSE, smlab = "", col.diamond.fixed="red", col.diamond.random = "blue", overall= T, test.overall=T,
+                                  fs.test.overall=7, fs.hetstat=5, fs.axis=5, pooled.totals=TRUE)
+                  dev.off()
+               },
+               error=function(cond) {
+                  message(paste0("Error processing a ForestsPlot for cpg: ", cpg))
+                  message(paste0("Error: ", cond))
+               }
+             )
          })
 
       } else {
