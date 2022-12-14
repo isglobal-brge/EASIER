@@ -157,11 +157,11 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
 
 
 # Annotate CpGs with Illumina 450K or EPIC data
-annotate_CpGs <- function(CpGs, arrray)
+annotate_CpGs <- function(CpGs, artype)
 {
 
    # Get library for 450K or Epic
-   if( arrray == '450K'){
+   if( toupper(artype) == '450K'){
       library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
       ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
    }else{

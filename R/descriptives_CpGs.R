@@ -18,7 +18,7 @@
 #'
 #'
 #' @export
-descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL, before = TRUE)
+descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL, artype = '450K', before = TRUE)
 {
    # Number of CpGs.
    nCpG <- nrow(cohort)
@@ -35,7 +35,17 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL,
       }
       write(sprintf('# %s \n', strrep("-",29)), file = filename, append = TRUE)
 
-      write(sprintf('# Number of CpGs: %d \n', nCpG), file = filename, append = TRUE)
+      if(before == TRUE){
+         # merge with array type (useful for EPIC arrays used as 450K arrays in analysis)
+         write(sprintf('# Number of CpGs (originally): %d \n', nCpG), file = filename, append = TRUE)
+         commonCpGs <- restrict_CpGs_to_artype(rownames(cohort), artype)
+         cohort <- cohort[which(rownames(cohort) %in% commonCpGs),]
+         nCpG <- nrow(cohort)
+         write(sprintf('# Number of CpGs (after match with array type): %d \n', nCpG), file = filename, append = TRUE)
+      } else {
+         write(sprintf('# Number of CpGs: %d \n', nCpG), file = filename, append = TRUE)
+      }
+
       if(!is.null(nsamples)){
          write(sprintf('# Number of samples: %d \n', nsamples), file = filename, append = TRUE)
       }
@@ -43,8 +53,9 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL,
       suppressWarnings( write.table(summary, file = filename, append = TRUE, quote = TRUE, sep = '\t', dec='.') )
    }
 
-   res <- list("nCpGs" = nCpG,
-               "descriptives" = summary )
+   if( before == TRUE) {
+      return(cohort)
+   }
 
 }
 

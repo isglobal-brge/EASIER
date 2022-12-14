@@ -14,7 +14,7 @@ get_annotattions <- function(CpGs, artype, filename, outdir)
 {
 
    # Get library for 450K or Epic
-   if( artype == '450K')
+   if( toupper(artype) == '450K')
       library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
    else
       library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
@@ -24,7 +24,7 @@ get_annotattions <- function(CpGs, artype, filename, outdir)
    outfilename <- paste(outdir, outfilename, sep="/")
 
    # Download data
-   if( artype == '450K')
+   if( toupper(artype) == '450K')
       ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
    else
       ann <- getAnnotation(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)

@@ -1,5 +1,7 @@
 ## ################################################## ##
 ##  Quality Control Script to use with EASIER package ##
+##                                                    ##
+##  script version; 0.1.2.27                          ##
 ## ################################################## ##
 
 
@@ -143,7 +145,7 @@ for ( i in 1:length(files) )
    cohort <- clean_NA_from_data(cohort)
 
    # Descriptives - Before CpGs deletion #
-   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], before = TRUE)
+   cohort <- descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], artype = artype[i], before = TRUE)
 
    # Remove duplicates
    # cohort <- remove_duplicate_CpGs(cohort, "probeID", paste0(results_folder,'/',prefixes[i], '/',prefixes[i],'_descriptives_duplic.txt'), paste0(results_folder,'/',prefixes[i],'_duplicates.txt') )
@@ -167,7 +169,7 @@ for ( i in 1:length(files) )
     }
 
    # Descriptives - After CpGs deletion #
-   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], before = FALSE )
+   descriptives_CpGs(cohort, c("BETA", "SE", "P_VAL"), fResumeName, N[i], artype = artype[i], before = FALSE )
 
    # Adjust data by Bonferroni and FDR
    cohort <- adjust_data(cohort, "P_VAL", bn=TRUE, fdr=TRUE, fResumeName, N[i]  )
