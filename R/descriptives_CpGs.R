@@ -38,8 +38,8 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL,
       if(before == TRUE){
          # merge with array type (useful for EPIC arrays used as 450K arrays in analysis)
          write(sprintf('# Number of CpGs (originally): %d \n', nCpG), file = filename, append = TRUE)
-         commonCpGs <- restrict_CpGs_to_artype(rownames(cohort), artype)
-         cohort <- cohort[which(rownames(cohort) %in% commonCpGs),]
+         commonCpGs <- restrict_CpGs_to_artype(cohort$probeID, artype)
+         cohort <- cohort[which(cohort$probeID %in% commonCpGs),]
          nCpG <- nrow(cohort)
          write(sprintf('# Number of CpGs (after match with array type): %d \n', nCpG), file = filename, append = TRUE)
       } else {
