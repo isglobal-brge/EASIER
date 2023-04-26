@@ -15,7 +15,7 @@ getFisherTest <- function(significative, criteria, varname)
 
 
 
-   if( rownames(rp) %in% c('yes', 'no') ){
+   if( all(rownames(rp) %in% c('yes', 'no')) ){
       if(dim(rp)[1]<2) {
          rp <- rbind(rp,c(0,0))
          if(!'yes' %in% rownames(rp)) {
@@ -26,7 +26,7 @@ getFisherTest <- function(significative, criteria, varname)
       }
    }
 
-   if( rownames(rp) %in% c('Hypo-yes','Hyper-yes' ) && sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes' ))<2 )
+   if( all(rownames(rp) %in% c('Hypo-yes','Hyper-yes' )) && sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes' ))<2 )
    {
       rnames <- rownames(rp)
       rp <- rbind(rp,c(0,0))
@@ -49,7 +49,7 @@ getFisherTest <- function(significative, criteria, varname)
 
    rp <- rp[,c("yes","no")]
 
-   if(rownames(rp) %in% c('yes', 'no')){
+   if(all(rownames(rp) %in% c('yes', 'no'))){
       rp1 <- rbind(nosig = rp[1, ], sig = colSums(rp[-1, ]))[c(2,1),]
       xt <- chisq.test(rp1)
       or <- (rp1[1, 1] * rp1[2, 2]) / (rp1[1, 2] * rp1[2, 1])
