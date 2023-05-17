@@ -127,7 +127,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       data <- read.table(FilesToEnrich[i], header = TRUE, sep = "", dec = ".", stringsAsFactors = FALSE)
 
       # Is a CpG list only ? then read without headers and annotate data
-      if(nrow(data) <= 1 || ncol(data) <= 1 || !c("FDR", "BN","p.value", "Bonferroni") %in% colnames(data) ) {
+      if(nrow(data) <= 1 || ncol(data) <= 1 ||  !any(c("FDR", "BN","p.value", "Bonferroni") %in% colnames(data)) ) {
          data <- read.table(FilesToEnrich[i], dec = ".") # Avoid header
          data <- as.vector(t(data))
          data <- get_annotattions(data, artype[i], FilesToEnrich[i], outputfolder )
