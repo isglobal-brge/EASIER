@@ -15,6 +15,10 @@ geteQTMEnrichment <- function(CpGs, outputdir = ".", outputfile = NULL, plots = 
 
    # Gets all common eQTM CpGs
    eQTM_filtered <- merge(CpGs,eQTM, by.x="rs_number", by.y="CpG")
+   if( nrow(eQTM_filtered) == 0 ) {
+      return(list("eQTM" = NA,
+                  "genes" = NA))
+   }
    colnames(eQTM_filtered) <- c("rs_number", "p.value", "p.value.eQTM", "sigPair", "TC_gene")
 
    # get unique genes and EntrezID for this genes

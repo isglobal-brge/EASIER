@@ -26,14 +26,20 @@ getFisherTest <- function(significative, criteria, varname)
       }
    }
 
-   if( all(rownames(rp) %in% c('Hypo-yes','Hyper-yes' )) && sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes' ))<2 )
-   {
+   if( any(rownames(rp) %in% c('Hypo-yes','Hyper-yes' )) && sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes' ))<4 ) {
       rnames <- rownames(rp)
       rp <- rbind(rp,c(0,0))
       if(!'Hyper-yes' %in% rownames(rp)) {
          rownames(rp) <- c(rnames, 'Hyper-yes')
-      }else {
+      }
+      if(!'Hypo-yes' %in% rownames(rp)) {
          rownames(rp) <- c(rnames, 'Hypo-yes')
+      }
+      if(!'Hyper-no' %in% rownames(rp)) {
+         rownames(rp) <- c(rnames, 'Hyper-no')
+      }
+      if(!'Hypo-no' %in% rownames(rp)) {
+         rownames(rp) <- c(rnames, 'Hypo-no')
       }
    }
 

@@ -223,11 +223,11 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          }
 
 
-         if("p.val" %in% colnames(data) & !is.na(pvalue) )
+         if(("p.val" %in% colnames(data) | "p.value" %in% colnames(data)) & !is.na(pvalue) )
          {
 
             # Add column bpval to data for that CpGs that accomplish with FDR
-            data$bpval <- getBinaryClassificationYesNo(data$p.value, "<", pval) # Classify fdr into "yes" and no taking into account FDR significance level
+            data$bpval <- getBinaryClassificationYesNo(data$p.value, "<", pvalue) # Classify fdr into "yes" and no taking into account FDR significance level
 
             # CpGs FDR and Hyper and Hypo respectively
             pval_Hyper <- ifelse(data$bpval == 'yes' & data$meth_state=='Hyper', "yes", "no")
@@ -337,7 +337,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          }
 
          # For pvalue
-         if("p.val" %in% colnames(data) & !is.na(pvalue) )
+         if( ("p.val" %in% colnames(data) | "p.value" %in% colnames(data)) & !is.na(pvalue) )
          {
 
             ## --  CpG Gene position
@@ -502,9 +502,11 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          {
             if( !is.na(FDR) ) {
                geteQTMEnrichment(crom_data[which(crom_data$bFDR=='yes'),c("rs_number", "p.value")], outputdir = "eQTM_Blood/FDR", outputfile = FilesToEnrich[i], plots = TRUE )
-            }if ( BN == TRUE) {
+            }
+            if ( BN == TRUE) {
                geteQTMEnrichment(crom_data[which(crom_data$Bonferroni =='yes'),c("rs_number", "p.value")], outputdir = "eQTM_Blood/BN", outputfile = FilesToEnrich[i], plots = TRUE )
-            }if( !is.na(pvalue) ) {
+            }
+            if( !is.na(pvalue) ) {
                geteQTMEnrichment(crom_data[which(crom_data$bpval =='yes'),c("rs_number", "p.value")], outputdir = "eQTM_Blood/pval", outputfile = FilesToEnrich[i], plots = TRUE )
             }
 
