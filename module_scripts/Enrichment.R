@@ -150,7 +150,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
       ## ------------------------
 
       # Enrichment with missMethyl - GO and KEGG --> Writes results to outputfolder
-      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype[i], BN, FDR, pvalue, allCpGs, plots = TRUE )
+      miss_enrich <- missMethyl_enrichment(data, outputfolder, FilesToEnrich[i], artype[i], BN, FDR, pvalue, allCpGs, plots = FALSE )
 
       # get unique genes from data
       geneUniv <- lapply( lapply(miss_enrich[grepl("signif", names(miss_enrich))], function(cpgs) { data[which(as.character(data$CpGs) %in% cpgs),]$UCSC_RefGene_Name}), getUniqueGenes)

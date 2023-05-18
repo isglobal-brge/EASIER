@@ -53,10 +53,10 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
       annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs,  array.type = artype)
 
       # GO enrichment - Only to work with a complete list of CpGs
-      GO.data <- gometh(sig.cpg=sigCpGs, collection="GO", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+      GO.data <- gometh(sig.cpg=sigCpGs, collection="GO", array.type = artype, plot.bias = plots, prior.prob = TRUE)
 
       # KEGG enrichment - Only to work with a complete list of CpGs
-      KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+      KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = plots, prior.prob = TRUE)
       write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth"))
 
       if(plots){
@@ -82,8 +82,8 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
          sigCpGs <- as.vector(data[, "CpGs"])
 
          annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs,  array.type = artype)
-         GO.data <- gometh(sig.cpg=sigCpGs, collection="GO", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
-         KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+         GO.data <- gometh(sig.cpg=sigCpGs, collection="GO", array.type = artype, plot.bias = plots, prior.prob = TRUE)
+         KEGG.data <- gometh(sig.cpg=sigCpGs, collection="KEGG", array.type = artype, plot.bias = plots, prior.prob = TRUE)
          write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth"))
          if(plots){
             plot_missMethyl_Summary(GO.data, "exposure/phenotype", "GO Term", "", paste0(outfilename,"_mysmeth_GO.png"));
@@ -109,9 +109,9 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs_bn,  all.cpg=as.vector(data[,"CpGs"]), array.type = artype)
 
                # GO enrichment - Only to work with a complete list of CpGs
-               GO.data <- gometh(sig.cpg=sigCpGs_bn,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype,  plot.bias = TRUE, prior.prob = TRUE)
+               GO.data <- gometh(sig.cpg=sigCpGs_bn,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype,  plot.bias = plots, prior.prob = TRUE)
                # KEGG enrichment - Only to work with a complete list of CpGs
-               KEGG.data <- gometh(sig.cpg=sigCpGs_bn, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+               KEGG.data <- gometh(sig.cpg=sigCpGs_bn, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = plots, prior.prob = TRUE)
 
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_BN"))
 
@@ -139,9 +139,9 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                # Annotate CpGs
                annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs_fdr,  all.cpg=as.vector(data[,"CpGs"]), array.type = artype)
                # GO enrichment - Only to work with a complete list of CpGs
-               GO.data <- gometh(sig.cpg = sigCpGs_fdr,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+               GO.data <- gometh(sig.cpg = sigCpGs_fdr,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype, plot.bias = plots, prior.prob = TRUE)
                # KEGG enrichment - Only to work with a complete list of CpGs
-               KEGG.data <- gometh(sig.cpg = sigCpGs_fdr, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+               KEGG.data <- gometh(sig.cpg = sigCpGs_fdr, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = plots, prior.prob = TRUE)
 
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_FDR"))
 
@@ -176,9 +176,9 @@ missMethyl_enrichment <- function( data, out, filename, artype = '450K', bn=FALS
                #.FORA !!!.# annot.data <- getMappedEntrezIDs(sig.cpg=sigCpGs_pval,  all.cpg=as.vector(data[,"CpGs"]), array.type = artype)
                annot.data <- gsameth( sig.cpg = sigCpGs_pval, collection = Hs.c2, array.type = artype)
                # GO enrichment - Only to work with a complete list of CpGs
-               GO.data <- gometh(sig.cpg = sigCpGs_pval,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+               GO.data <- gometh(sig.cpg = sigCpGs_pval,  all.cpg=as.vector(data[,"CpGs"]), collection="GO", array.type = artype, plot.bias = plots, prior.prob = TRUE)
                # KEGG enrichment - Only to work with a complete list of CpGs
-               KEGG.data <- gometh(sig.cpg = sigCpGs_pval, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = TRUE, prior.prob = TRUE)
+               KEGG.data <- gometh(sig.cpg = sigCpGs_pval, all.cpg=as.vector(data[,"CpGs"]), collection="KEGG", array.type = artype, plot.bias = plots, prior.prob = TRUE)
 
                write_enrichment_to_file(GO.data, KEGG.data, paste0(outfilename,"_mysmeth_PVAL"))
 
