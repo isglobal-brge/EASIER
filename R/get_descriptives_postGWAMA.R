@@ -7,6 +7,7 @@
 #' @param modelfiles string vector with models used to perform meta-analysis
 #' @param metaname string. Meta-analisis name. only used in titles
 #' @param artype string, Illumina array type, 450K or EPIC
+#' @importFrom plyr rbind.fill
 #'
 #' @return File with descriptive and plots from GWAMA results. Results are stored in the same file as GWAMA results
 #'
@@ -70,7 +71,6 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
       write(sprintf('\t# After Bonferroni correction :  %d\n', length(which(data$Bonferroni == 'yes'))), file = qc.fname, append = TRUE)
       write(sprintf('\t# After FDR correction : %d\n', length(which(data$FDR<0.05)) ), file = qc.fname, append = TRUE)
       write(sprintf('\t# Lambda : %f\n', qchisq(median(data$`p.value`), df = 1, lower.tail = FALSE) / qchisq(0.5, 1) ), file = qc.fname, append = TRUE)
-
 
       # Annotate CpGs
       data.annot <- annotate_CpGs(data[,"rs_number"], artype)
@@ -169,13 +169,19 @@ annotate_CpGs <- function(CpGs, artype)
       ann <- getAnnotation(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
    }
 
-   # Download data
+   if( toupper(artype) == 'MIX' ) {
+      library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+      ann450K <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+
+      colnames(ann450K)[ which(colnames(ann450K) %in% c("Phantom", "Enhancer"))] <- c("Phantom4_Enhancers", "X450k_Enhancer")
+      # ann450K <- ann450K[,-c(which(colnames(ann450K) == "DHS"))]
+      ann <- plyr::rbind.fill(as.data.frame(ann), as.data.frame(ann450K[!rownames(ann450K) %in% rownames(ann),]))
+   }
 
    ann$gene <- rownames(ann)
-
    # Merge cpgs with annotations
    CpGs.annot <-  merge( as.data.frame(CpGs), ann, by.x ="CpGs", by.y = "gene")
 
-   # Remove data that we are not interested in (duplicate data column) before return
-   ##..## return(CpGs.annot[ ,-(1)])
+   return(CpGs.annot)
+
 }
