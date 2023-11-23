@@ -51,3 +51,4 @@ module_scripts/Enrichment.R_old.R
 .DS_Store
 *.icloud
 .DS_Store
+*.Rproj

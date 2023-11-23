@@ -4,7 +4,7 @@
 #'
 #' @param singifCpGs vector with a list of CpGs names
 #' @param artype string with artype to obtain the unsignificative CpGs
-#'
+#' @importFrom stringr str_replace
 #' @return
 #'
 #' @export

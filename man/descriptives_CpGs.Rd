@@ -9,6 +9,7 @@ descriptives_CpGs(
   columns,
   filename = NULL,
   nsamples = NULL,
+  artype = "450K",
   before = TRUE
 )
 }

@@ -63,8 +63,8 @@ metafiles <- list(
    'MetaA2' = c('Cohort1_A2','PROJ1_Cohort2_A2', 'P1_Cohort3_A2' ),
    'MetaB' = c('PROJ1_Cohort2_B1','PROJ1_Cohort2_B2'))
 
-# Array type, used in each meta-analysis : EPIC or 450K
-artype <- c('450K', "EPIC", "450K")
+# Array type, used in each meta-analysis : EPIC, 450K or MIX (to be used when in meta-analyses we have 450K and EPIC arrays)
+artype <- c('450K', "EPIC", "MIX")
 
 # Define maximum percent missing for each CpG
 #     if pcenMissin = 0 only runs meta-analysis with all data
@@ -106,6 +106,8 @@ hapmapfile_450K <- paste(results_gwama,"GWAMA", "hapmap_450K.map" ,sep = "/")
 generate_hapmap_file("450K", hapmapfile_450K)
 hapmapfile_EPIC <- paste(results_gwama,"GWAMA", "hapmap_EPIC.map" ,sep = "/")
 generate_hapmap_file("EPIC", hapmapfile_EPIC)
+hapmapfile_MIX <- paste(results_gwama,"GWAMA", "hapmap_MIX.map" ,sep = "/")
+generate_hapmap_file("MIX", hapmapfile_MIX)
 
 
 
@@ -152,6 +154,8 @@ for( metf in 1:length(metafiles))
       hapmapfile <- hapmapfile_450K
       if(artype[metf]=='EPIC'){
          hapmapfile <- hapmapfile_EPIC
+      } else if(artype[metf]=='MIX'){
+         hapmapfile <- hapmapfile_MIX
       }
 
       #.Original.#outputfiles[[runs[j]]] <- execute_GWAMA_MetaAnalysis(prefixgwama, names(metafiles)[metf])
