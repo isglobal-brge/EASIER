@@ -173,8 +173,7 @@ annotate_CpGs <- function(CpGs, artype)
       library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
       ann450K <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 
-      colnames(ann450K)[ which(colnames(ann450K) %in% c("Enhancer"))] <- c("X450k_Enhancer")
-      # ann450K <- ann450K[,-c(which(colnames(ann450K) == "DHS"))]
+      colnames(ann450K)[ which(colnames(ann450K) %in% c("Phantom", "Enhancer"))] <- c("Phantom4_Enhancers", "X450k_Enhancer")
       ann <- plyr::rbind.fill(as.data.frame(ann), as.data.frame(ann450K[!rownames(ann450K) %in% rownames(ann),]))
    }
 
