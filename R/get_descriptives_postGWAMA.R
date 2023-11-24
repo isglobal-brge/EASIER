@@ -160,6 +160,7 @@ get_descriptives_postGWAMA <- function(resdir, analyzedata, modelfiles, metaname
 annotate_CpGs <- function(CpGs, artype)
 {
 
+
    # Get library for 450K or Epic
    if( toupper(artype) == '450K'){
       library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
@@ -175,6 +176,7 @@ annotate_CpGs <- function(CpGs, artype)
 
       colnames(ann450K)[ which(colnames(ann450K) %in% c("Phantom", "Enhancer"))] <- c("Phantom4_Enhancers", "X450k_Enhancer")
       ann <- plyr::rbind.fill(as.data.frame(ann), as.data.frame(ann450K[!rownames(ann450K) %in% rownames(ann),]))
+      rownames(ann) <- ann$Name
    }
 
    ann$gene <- rownames(ann)
