@@ -14,8 +14,6 @@ getFisherTest <- function(significative, criteria, varname)
 
    rp <- as.data.frame.matrix(table(significative, criteria))
 
-
-
    if( all(rownames(rp) %in% c('yes', 'no')) ){
       if(dim(rp)[1]<2) {
          rp <- rbind(rp,c(0,0))
@@ -27,7 +25,8 @@ getFisherTest <- function(significative, criteria, varname)
       }
    }
 
-   if( any(rownames(rp) %in% c('Hypo-yes','Hyper-yes' )) && sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes','Hypo-no','Hyper-no' ))<4 ) {
+   if( any(rownames(rp) %in% c('Hypo-yes','Hyper-yes' )) &&
+       sum(rownames(rp) %in% c('Hypo-yes','Hyper-yes','Hypo-no','Hyper-no' ))<4 ) {
       rnames <- rownames(rp)
       rp <- rbind(rp,c(0,0))
       if(!'Hyper-yes' %in% rownames(rp)) {
