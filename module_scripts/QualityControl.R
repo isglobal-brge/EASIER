@@ -225,13 +225,6 @@ if( file.exists(paste0(results_folder,"/tmp_postQC.txt")) & file.exists(paste0(r
    file.remove(paste0(results_folder,"/tmp_postQCAdj.txt"))
 }
 
-
-
-
-
-
-
-
 # Data for Precision Plot
 precplot.data <- cbind.data.frame( SE = medianSE, invSE = (1/medianSE), N = value_N, sqrt_N = sqrt(N), cohort = cohort_label )
 cols.numeric <- c("SE","invSE", "N", "sqrt_N")
