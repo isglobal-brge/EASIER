@@ -14,6 +14,7 @@
 getAllFisherTest <- function(significative, position, outputdir = ".", outputfile = NULL, plots = TRUE )
 {
 
+
    positions <- getUniqueValues(position)
 
    lregs <-  lapply(positions, function(x) getFisherTest(significative, ifelse(position == x, "yes", "no"), x) )

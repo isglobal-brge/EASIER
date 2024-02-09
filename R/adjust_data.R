@@ -14,6 +14,11 @@
 #' @export
 adjust_data <- function( cohort, cpval, bn = TRUE, fdr = TRUE, filename = NULL, N = 0)
 {
+
+   # Resume File (with all QC analyses)
+   summaryResFileName <- str_flatten(str_split_1(filename, "/")[1:(length(str_split_1(filename, "/") )-2)], "/")
+   summaryResFileName <- paste(summaryResFileName, "tmp_postQCAdj.txt", sep="/")
+
    cohort$padj.bonf <-  ifelse( cohort[,cpval]<0.05/dim(cohort)[1], 'yes','no')
    cohort$padj.fdr <- p.adjust(cohort[,cpval], method = "fdr")
    lambda <- qchisq(median(cohort[,cpval]), df = 1, lower.tail = FALSE) / qchisq(0.5, 1)
@@ -33,6 +38,17 @@ adjust_data <- function( cohort, cpval, bn = TRUE, fdr = TRUE, filename = NULL, 
       write(sprintf('# N : %s', N ), file = filename, append = TRUE)
       write(sprintf('# lambda : %s', lambda ), file = filename, append = TRUE)
    }
+
+   summAll <- as.data.frame(cbind(lambda, sum(cohort[,cpval] < 0.05) ,  sum(cohort$padj.fdr<0.05), sum(cohort$padj.bonf =='yes')))
+   names(summAll) <- c('lambda', 'N_Sig_Nominal', 'N_Sig_FDR', 'N_Sig_BN')
+
+   # Write full summary file
+   if(!file.exists(summaryResFileName)) {
+      write.table(summAll, summaryResFileName,col.names = TRUE, append = FALSE, row.names = FALSE, sep = "\t" )
+   }else {
+      write.table(summAll, summaryResFileName, col.names = FALSE, append = TRUE, row.names = FALSE, sep = "\t" )
+   }
+
 
    return(cohort)
 }

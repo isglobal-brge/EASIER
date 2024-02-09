@@ -20,6 +20,9 @@
 #' @export
 descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL, artype = '450K', before = TRUE)
 {
+   #
+   desc <- c('min.', '1Q', 'Median', 'Mean', '3Q.', 'max')
+
    # Number of CpGs.
    nCpG <- nrow(cohort)
 
@@ -43,7 +46,22 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL,
          nCpG <- nrow(cohort)
          write(sprintf('# Number of CpGs (after match with array type): %d \n', nCpG), file = filename, append = TRUE)
       } else {
+         # Resume File (with all QC analyses)
+         summaryResFileName <- str_flatten(str_split_1(filename, "/")[1:(length(str_split_1(filename, "/") )-2)], "/")
+         summaryResFileName <- paste(summaryResFileName, "tmp_postQC.txt", sep="/")
+
+         # Write descriptives
          write(sprintf('# Number of CpGs: %d \n', nCpG), file = filename, append = TRUE)
+
+         summAll <- as.data.frame(cbind( artype, nsamples, nCpG,  t(summary[,1]), t(summary[,2]), t(summary[,3]) ))
+         colnames(summAll) <- c("array", "NSamples", "N Cpgs after QC", paste0("Coef_",desc), paste0("SE_",desc), paste0("pval_",desc) )
+
+         # Write full summary file
+         if(!file.exists(summaryResFileName)) {
+            write.table(summAll, summaryResFileName,col.names = TRUE, append = FALSE, row.names = FALSE, sep="\t")
+         }else {
+            write.table(summAll, summaryResFileName, col.names = FALSE, append = TRUE, row.names = FALSE, sep="\t")
+         }
       }
 
       if(!is.null(nsamples)){

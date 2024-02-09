@@ -214,6 +214,16 @@ for ( i in 1:length(files) )
 
 }
 
+# Create QC Summary
+postQC <- read.table (file = paste0(results_folder,"/tmp_postQC.txt"), header = TRUE, sep = "\t")
+postQCAdj <- read.csv(file = paste0(results_folder,"/tmp_postQCAdj.txt"), header = TRUE, sep = "\t")
+
+write.table(  cbind(prefixes,ethnic, postQC, postQCAdj), file = paste0(results_folder,"/Summary_QCs.txt" ), row.names = FALSE, col.names = TRUE, sep = "\t")
+
+file.remove(paste0(results_folder,"/tmp_postQC.txt"))
+file.remove(paste0(results_folder,"/tmp_postQCAdj.txt"))
+
+
 # Data for Precision Plot
 precplot.data <- cbind.data.frame( SE = medianSE, invSE = (1/medianSE), N = value_N, sqrt_N = sqrt(N), cohort = cohort_label )
 cols.numeric <- c("SE","invSE", "N", "sqrt_N")

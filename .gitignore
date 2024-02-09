@@ -34,6 +34,9 @@
 *.utf8.md
 *.knit.md
 
+# Add tmp folder
+tmp/
+
 # R Environment Variables
 .Renviron
 man/.DS_Store
