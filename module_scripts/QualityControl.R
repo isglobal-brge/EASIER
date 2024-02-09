@@ -215,13 +215,21 @@ for ( i in 1:length(files) )
 }
 
 # Create QC Summary
-postQC <- read.table (file = paste0(results_folder,"/tmp_postQC.txt"), header = TRUE, sep = "\t")
-postQCAdj <- read.csv(file = paste0(results_folder,"/tmp_postQCAdj.txt"), header = TRUE, sep = "\t")
+if( file.exists(paste0(results_folder,"/tmp_postQC.txt")) & file.exists(paste0(results_folder,"/tmp_postQCAdj.txt") )) {
+   postQC <- read.table (file = paste0(results_folder,"/tmp_postQC.txt"), header = TRUE, sep = "\t")
+   postQCAdj <- read.csv(file = paste0(results_folder,"/tmp_postQCAdj.txt"), header = TRUE, sep = "\t")
 
-write.table(  cbind(prefixes,ethnic, postQC, postQCAdj), file = paste0(results_folder,"/Summary_QCs.txt" ), row.names = FALSE, col.names = TRUE, sep = "\t")
+   write.table( cbind(prefixes,ethnic, postQC, postQCAdj), file = paste0(results_folder,"/Summary_QCs.txt" ), row.names = FALSE, col.names = TRUE, sep = "\t")
 
-file.remove(paste0(results_folder,"/tmp_postQC.txt"))
-file.remove(paste0(results_folder,"/tmp_postQCAdj.txt"))
+   file.remove(paste0(results_folder,"/tmp_postQC.txt"))
+   file.remove(paste0(results_folder,"/tmp_postQCAdj.txt"))
+}
+
+
+
+
+
+
 
 
 # Data for Precision Plot
