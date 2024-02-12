@@ -39,8 +39,24 @@ descriptives_CpGs <- function(cohort, columns, filename = NULL, nsamples = NULL,
       write(sprintf('# %s \n', strrep("-",29)), file = filename, append = TRUE)
 
       if(before == TRUE){
+
+         # Resume File (with all QC analyses)
+         summaryResFileName <- str_flatten(str_split_1(filename, "/")[1:(length(str_split_1(filename, "/") )-2)], "/")
+         summaryResFileName <- paste(summaryResFileName, "tmp_pretQC.txt", sep="/")
+
+         summAll <- as.data.frame(nCpG)
+         colnames(summAll) <- c("Initial_CpGs")
+
+         # Write full summary file
+         if(!file.exists(summaryResFileName)) {
+            write.table(summAll, summaryResFileName,col.names = TRUE, append = FALSE, row.names = FALSE, sep="\t")
+         }else {
+            write.table(summAll, summaryResFileName, col.names = FALSE, append = TRUE, row.names = FALSE, sep="\t")
+         }
+
          # merge with array type (useful for EPIC arrays used as 450K arrays in analysis)
          write(sprintf('# Number of CpGs (originally): %d \n', nCpG), file = filename, append = TRUE)
+
          commonCpGs <- restrict_CpGs_to_artype(cohort$probeID, artype)
          cohort <- cohort[which(cohort$probeID %in% commonCpGs),]
          nCpG <- nrow(cohort)

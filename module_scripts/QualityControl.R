@@ -215,15 +215,17 @@ for ( i in 1:length(files) )
 }
 
 # Create QC Summary
-if( file.exists(paste0(results_folder,"/tmp_postQC.txt")) & file.exists(paste0(results_folder,"/tmp_postQCAdj.txt") )) {
+if( file.exists(paste0(results_folder,"/tmp_pretQC.txt")) & file.exists(paste0(results_folder,"/tmp_postQC.txt")) & file.exists(paste0(results_folder,"/tmp_postQCAdj.txt") )) {
+   preQC <- read.table (file = paste0(results_folder,"/tmp_pretQC.txt"), header = TRUE, sep = "\t")
    postQC <- read.table (file = paste0(results_folder,"/tmp_postQC.txt"), header = TRUE, sep = "\t")
    postQCAdj <- read.csv(file = paste0(results_folder,"/tmp_postQCAdj.txt"), header = TRUE, sep = "\t")
 
-   write.table( cbind(prefixes,ethnic, postQC, postQCAdj), file = paste0(results_folder,"/Summary_QCs.txt" ), row.names = FALSE, col.names = TRUE, sep = "\t")
+   write.table( cbind(prefixes,ethnic, postQC[,1:2], preQC, postQC[,3:length(postQC)], postQCAdj), file = paste0(results_folder,"/Summary_QCs.txt" ),
+                row.names = FALSE, col.names = TRUE, sep = "\t")
 
-   file.remove(paste0(results_folder,"/tmp_postQC.txt"))
-   file.remove(paste0(results_folder,"/tmp_postQCAdj.txt"))
+   do.call(file.remove, list(list.files(results_folder, full.names = TRUE, pattern = "tmp_*")))
 }
+
 
 # Data for Precision Plot
 precplot.data <- cbind.data.frame( SE = medianSE, invSE = (1/medianSE), N = value_N, sqrt_N = sqrt(N), cohort = cohort_label )
