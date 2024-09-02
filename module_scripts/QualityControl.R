@@ -121,6 +121,14 @@ cohort_label <- character(length(files))
 if(!dir.exists(file.path(getwd(), results_folder )))
    suppressWarnings(dir.create(file.path(getwd(), results_folder)))
 
+# Remove tmp files
+if( file.exists(paste0(results_folder,"/tmp_pretQC.txt")) )
+    file.remove(paste0(results_folder,"/tmp_pretQC.txt"))
+if( file.exists(paste0(results_folder,"/tmp_pretQC.txt")) )
+    file.remove(paste0(results_folder,"/tmp_postQC.txt")) 
+if( file.exists(paste0(results_folder,"/tmp_pretQC.txt")) )
+    file.remove(paste0(results_folder,"/tmp_postQCAdj.txt")) 
+
 ## Remove duplicates, Exclude CpGs and adjust data (BN and FDR)
 for ( i in 1:length(files) )
 {
