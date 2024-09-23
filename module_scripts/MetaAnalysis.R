@@ -88,7 +88,9 @@ venn_diagrams <- list(
 
 
 # GWAMA binary path  (GWAMA IsGlobal Server installation)
-gwama.dir <- paste0(Sys.getenv("HOME"), "/data/software/GWAMA/")
+# gwama.dir <- paste0(Sys.getenv("HOME"), "/data/software/GWAMA/")
+gwama.dir <- "/PROJECTES/PUBLICDATA/software/EASIER/GWAMA/"
+
 
 ## Create directory for GWAMA configuration files and GWAMA_Results
 if(!dir.exists(file.path(paste(results_gwama, "GWAMA", sep="/") )))
