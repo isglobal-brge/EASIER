@@ -94,12 +94,12 @@ gwama.dir <- "/PROJECTES/PUBLICDATA/software/EASIER/GWAMA/"
 
 ## Create directory for GWAMA configuration files and GWAMA_Results
 if(!dir.exists(file.path(paste(results_gwama, "GWAMA", sep="/") )))
-   suppressWarnings(dir.create(file.path( paste(results_gwama, "GWAMA", sep="/"))))
+   suppressWarnings(dir.create(file.path( paste(results_gwama, "GWAMA", sep="/")), recursive = TRUE))
 
 ## Create directory for GWAMA_Results
 outputfolder <- paste0(results_gwama, "/GWAMA_Results")
 if(!dir.exists(file.path( outputfolder )))
-   suppressWarnings(dir.create(file.path( outputfolder)))
+   suppressWarnings(dir.create(file.path( outputfolder), recursive = TRUE))
 
 
 # Create hapmap files for the different artypes that we cab use (450K and EPIC)
