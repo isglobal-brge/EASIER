@@ -569,7 +569,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
 
          # CpGs with IRC as NA
-         IRC_NaN <- ifelse(is.na(crom_data$IRC.y),'IsNA','NotNA' )
+         IRC_NaN <- ifelse(is.na(crom_data$IRC),'IsNA','NotNA' )
 
          if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) & (BN==TRUE | !is.na(FDR) ))
          {
