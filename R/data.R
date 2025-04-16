@@ -151,7 +151,7 @@
 #' @docType data
 #'
 #' @usage data(IR_Placenta)
-#' @format A data frame with 485 regions and 6 variables
+#' @format A data frame with  regions and 5 variables
 #' \describe{
 #'   \item{Chr_DMR}{Chromosome}
 #'   \item{Start_DMR}{Start position}
@@ -161,6 +161,56 @@
 #' }
 "IR_Placenta"
 
+#' Imprinting Regions Carrera Epic V1
+#'
+#' Imprinting regions for Epic Version 1
+#'
+#' @docType data
+#'
+#' @usage data(IRCarrera_Ev1)
+#' @format A data frame with 156 regions
+#' \describe{
+#'   \item{ICR_id}{ICR_id}
+#'   \item{CpG_chr}{Chromosome}
+#'   \item{CpG_start}{Start position}
+#'   \item{CpG_stop}{End position}
+#'   \item{ICR_chr}{Chromosome}
+#'   \item{ICR_start}{Start position}
+#'   \item{ICR_stop}{End position}
+#'   \item{CpG_Probe}{DMR classification, possible values are "Candidate mDMR", "Known placenta-specific mDMR", "Candidate pDMR", "Known mDMR" and "Known pDMR".}
+#'   \item{ID}{Original ICR ID}
+#'   \item{Genom_Coord}{Genomic Coordinates}
+#'   \item{Meth_Origin}{Parental Origin of Methylation}
+#'   \item{Near_Trasncript}{Nearest Transcript}
+#'   \item{Dist_Near_Trasncript}{Distance to Nearest Transcript}
+#' }
+"IRCarrera_Ev1"
+
+
+#' Imprinting Regions Carrera Epic V2
+#'
+#' Imprinting regions for Epic Version 2
+#'
+#' @docType data
+#'
+#' @usage data(IRCarrera_Ev2)
+#' @format A data frame with 548 regions
+#' \describe{
+#'   \item{ICR_id}{ICR_id}
+#'   \item{CpG_chr}{Chromosome}
+#'   \item{CpG_start}{Start position}
+#'   \item{CpG_stop}{End position}
+#'   \item{ICR_chr}{Chromosome}
+#'   \item{ICR_start}{Start position}
+#'   \item{ICR_stop}{End position}
+#'   \item{CpG_Probe}{DMR classification, possible values are "Candidate mDMR", "Known placenta-specific mDMR", "Candidate pDMR", "Known mDMR" and "Known pDMR".}
+#'   \item{ID}{Original ICR ID}
+#'   \item{Genom_Coord}{Genomic Coordinates}
+#'   \item{Meth_Origin}{Parental Origin of Methylation}
+#'   \item{Near_Trasncript}{Nearest Transcript}
+#'   \item{Dist_Near_Trasncript}{Distance to Nearest Transcript}
+#' }
+"IRCarrera_Ev2"
 
 #' eQTM filter
 #'
