@@ -5,7 +5,7 @@
 \alias{IR_Placenta}
 \title{Imprinting Regions Placenta}
 \format{
-A data frame with 485 regions and 6 variables
+A data frame with  regions and 5 variables
 \describe{
   \item{Chr_DMR}{Chromosome}
   \item{Start_DMR}{Start position}

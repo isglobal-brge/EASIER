@@ -7,7 +7,6 @@
 #' @param outputdir string. Output path to store file with results, by default results are written in current dir
 #' @param outputfile string. File name to store results if no name is provided results are not written.The suffix "RegressionFDR_States" is added to file name provided.
 #' @param plots boolean. If plot is TRUE, plot results
-#' @filename
 #'
 #' @return
 #'

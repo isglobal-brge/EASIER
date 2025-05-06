@@ -8,7 +8,7 @@
 #' @param outputfile string. File name to store results if no name is provided results are not written.The suffix "RegressionFDR_States" is added to file name provided.
 #' @param plots boolean. If plot is TRUE, plot results
 #'
-#' @return
+#' @return file with statistics
 #'
 #' @export
 getAllChromStateOR <- function(significative, chromstate, outputdir = ".", outputfile = NULL, plots = TRUE )

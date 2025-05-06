@@ -479,6 +479,9 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          # Columns with chromatin status information :
          ChrStatCols <- c("TssA","TssAFlnk","TxFlnk","TxWk","Tx","EnhG","Enh","ZNF.Rpts","Het","TssBiv","BivFlnk","EnhBiv","ReprPC","ReprPCWk","Quies")
 
+         get_descriptives_ChromatineStates(crom_data, ChrStatCols, crom_data$signif , "CpGlist", outputdir = "ChrSates_15_Blood/Fisher_CpGlist_Desc", outputfile = FilesToEnrich[i])
+
+
          if("FDR" %in% colnames(data) | "Bonferroni" %in% colnames(data) | "p.val" %in% colnames(data) & (BN==TRUE | !is.na(FDR) | !is.na(pvalue)))
          {
 
