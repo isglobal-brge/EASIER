@@ -65,7 +65,7 @@ results_enrich <- 'Enrichment'
 #     if enrichtype is different from 'BLOOD' and 'PLACENTA' we only get the missMethyl and MSigDB enrichment and the Unique genes list.
 enrichtype <- 'PLACENTA'
 
-IR_NCarrera <- TRUE
+IR_NCarreras <- TRUE
 
 # Cromatine States Placenta Enrichment FP_18
 # if enrichFP18 = TRUE the enrichment is performed wit FP_15 and FP_18
@@ -533,13 +533,13 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
 
       ## ------------------------------------------------
-      ## -- IMPRINTING REGIONS - NATALIA CARRERA PAPER --
+      ## -- IMPRINTING REGIONS - NATALIA CARRERAS-GALLO PAPER --
       ## ------------------------------------------------
 
-      if ( IR_NCarrera == TRUE )
+      if ( IR_NCarreras == TRUE )
       {
 
-         ## -- Imprinting Regions CARRERA .
+         ## -- Imprinting Regions CARRERAS-GALLO .
          ## ------------------------------------------------
 
          # Adds rs_number column if not in dataframe
@@ -557,7 +557,7 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          names(data.GRange) <- data.GRange$name
 
          # Create genomic ranges from IRC data
-         IRC.GRange <- getEnrichGenomicRanges(IRCarrera_Ev1$ICR_chr, IRCarrera_Ev1$ICR_start, IRCarrera_Ev1$ICR_stop)
+         IRC.GRange <- getEnrichGenomicRanges(IRCarreras_Ev1$ICR_chr, IRCarreras_Ev1$ICR_start, IRCarreras_Ev1$ICR_stop)
 
          # Find overlaps between CpGs and IRC (find subject hits, query hits )
          overIRC <- findOverlapValues(data.GRange, IRC.GRange )
@@ -578,56 +578,56 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
 
                if( !is.na(FDR) ) {
                   ## --  HyperGeometric Test - IRC - FDR,  FDR_hyper and FDR_hypo  (Full data ) (Depletion and Enrichment)
-                  IRC_fdr <- getAllFisherTest(crom_data$bFDR, IRC_NaN, outputdir = "IR_Carrera/Fisher_FDR", outputfile = FilesToEnrich[i])
-                  IRC_fdrhyper <- getAllFisherTest(FDR_Hyper, IRC_NaN, outputdir = "IR_Carrera/Fisher_FDRHyper", outputfile = FilesToEnrich[i])
-                  IRC_fdrhypo <- getAllFisherTest(FDR_Hypo, IRC_NaN, outputdir = "IR_Carrera/Fisher_FDRHypo", outputfile = FilesToEnrich[i])
+                  IRC_fdr <- getAllFisherTest(crom_data$bFDR, IRC_NaN, outputdir = "IR_Carreras/Fisher_FDR", outputfile = FilesToEnrich[i])
+                  IRC_fdrhyper <- getAllFisherTest(FDR_Hyper, IRC_NaN, outputdir = "IR_Carreras/Fisher_FDRHyper", outputfile = FilesToEnrich[i])
+                  IRC_fdrhypo <- getAllFisherTest(FDR_Hypo, IRC_NaN, outputdir = "IR_Carreras/Fisher_FDRHypo", outputfile = FilesToEnrich[i])
                }
                if ( BN == TRUE) {
                   ## --  HyperGeometric Test - IRC - BN,  BN_hyper and BN_hypo  (Full data ) (Depletion and Enrichment)
-                  IRC_bn <- getAllFisherTest(crom_data$Bonferroni, IRC_NaN, outputdir = "IR_Carrera/Fisher_BN", outputfile = FilesToEnrich[i])
-                  IRC_bnhyper <- getAllFisherTest(BN_Hyper, IRC_NaN, outputdir = "IR_Carrera/Fisher_BNHyper", outputfile = FilesToEnrich[i])
-                  IRC_bnhypo <- getAllFisherTest(BN_Hypo, IRC_NaN, outputdir = "IR_Carrera/Fisher_BNHypo", outputfile = FilesToEnrich[i])
+                  IRC_bn <- getAllFisherTest(crom_data$Bonferroni, IRC_NaN, outputdir = "IR_Carreras/Fisher_BN", outputfile = FilesToEnrich[i])
+                  IRC_bnhyper <- getAllFisherTest(BN_Hyper, IRC_NaN, outputdir = "IR_Carreras/Fisher_BNHyper", outputfile = FilesToEnrich[i])
+                  IRC_bnhypo <- getAllFisherTest(BN_Hypo, IRC_NaN, outputdir = "IR_Carreras/Fisher_BNHypo", outputfile = FilesToEnrich[i])
                }
 
             } else if ( tolower(testdata) =='hypergeometric') {
 
                if( !is.na(FDR) ) {
                   ## --  HyperGeometric Test - IRC - FDR,  FDR_hyper and FDR_hypo  (Full data ) (Depletion and Enrichment)
-                  IRC_fdr <- getAllHypergeometricTest(crom_data$bFDR, IRC_NaN, outputdir = "IR_Carrera/HyperG_FDR", outputfile = FilesToEnrich[i])
-                  IRC_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, IRC_NaN, outputdir = "IR_Carrera/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
-                  IRC_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, IRC_NaN, outputdir = "IR_Carrera/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
+                  IRC_fdr <- getAllHypergeometricTest(crom_data$bFDR, IRC_NaN, outputdir = "IR_Carreras/HyperG_FDR", outputfile = FilesToEnrich[i])
+                  IRC_fdrhyper <- getAllHypergeometricTest(FDR_Hyper, IRC_NaN, outputdir = "IR_Carreras/HyperG_FDRHyper", outputfile = FilesToEnrich[i])
+                  IRC_fdrhypo <- getAllHypergeometricTest(FDR_Hypo, IRC_NaN, outputdir = "IR_Carreras/HyperG_FDRHypo", outputfile = FilesToEnrich[i])
                   # Summary
-                  resdata <- summary_HyperGeometrics_Table( crom_data$bFDR, FDR_Hyper, FDR_Hypo, IRC_NaN, outputdir = "IR_Carrera/Summary_HyperG_FDR", outputfile = FilesToEnrich[i], plot = TRUE )
+                  resdata <- summary_HyperGeometrics_Table( crom_data$bFDR, FDR_Hyper, FDR_Hypo, IRC_NaN, outputdir = "IR_Carreras/Summary_HyperG_FDR", outputfile = FilesToEnrich[i], plot = TRUE )
                }
 
                if ( BN == TRUE) {
                   ## --  HyperGeometric Test - IRC - BN,  BN_hyper and BN_hypo  (Full data ) (Depletion and Enrichment)
-                  IRC_bn <- getAllHypergeometricTest(crom_data$Bonferroni, IRC_NaN, outputdir = "IR_Carrera/HyperG_BN", outputfile = FilesToEnrich[i])
-                  IRC_bnhyper <- getAllHypergeometricTest(BN_Hyper, IRC_NaN, outputdir = "IR_Carrera/HyperG_BNHyper", outputfile = FilesToEnrich[i])
-                  IRC_bnhypo <- getAllHypergeometricTest(BN_Hypo, IRC_NaN, outputdir = "IR_Carrera/HyperG_BNHypo", outputfile = FilesToEnrich[i])
+                  IRC_bn <- getAllHypergeometricTest(crom_data$Bonferroni, IRC_NaN, outputdir = "IR_Carreras/HyperG_BN", outputfile = FilesToEnrich[i])
+                  IRC_bnhyper <- getAllHypergeometricTest(BN_Hyper, IRC_NaN, outputdir = "IR_Carreras/HyperG_BNHyper", outputfile = FilesToEnrich[i])
+                  IRC_bnhypo <- getAllHypergeometricTest(BN_Hypo, IRC_NaN, outputdir = "IR_Carreras/HyperG_BNHypo", outputfile = FilesToEnrich[i])
                   # Summary
-                  resdata <- summary_HyperGeometrics_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, IRC_NaN, outputdir = "IR_Carrera/Summary_HyperG_BN", outputfile = FilesToEnrich[i], plot = TRUE )
+                  resdata <- summary_HyperGeometrics_Table( crom_data$Bonferroni, BN_Hyper, BN_Hypo, IRC_NaN, outputdir = "IR_Carreras/Summary_HyperG_BN", outputfile = FilesToEnrich[i], plot = TRUE )
                }
             }
 
             if ( !is.na(FDR) )  {
                ## --  Plot collapsed data HyperGeometric Test - States15_FP - FDR
                plot_TestResults_Collapsed(list(fdr = IRC_fdr, fdr_hypo = IRC_fdrhypo, fdr_hyper = IRC_fdrhyper),
-                                          outputdir = "IR_Carrera", outputfile = FilesToEnrich[i])
+                                          outputdir = "IR_Carreras", outputfile = FilesToEnrich[i])
             }
 
             if ( BN == TRUE) {
                ## --  Plot collapsed data HyperGeometric Test - States15_FP - BN
                plot_TestResults_Collapsed(list(bn = IRC_bn, bn_hypo = IRC_bnhypo, bn_hyper = IRC_bnhyper),
-                                          outputdir = "IR_Carrera", outputfile = FilesToEnrich[i])
+                                          outputdir = "IR_Carreras", outputfile = FilesToEnrich[i])
             }
 
          } else {
 
             if( tolower(testdata) =='fisher') {
-               IRC <- getAllFisherTest(crom_data$signif, IRC_NaN, outputdir = "IR_Carrera/Fisher_CpGlist", outputfile = FilesToEnrich[i])
+               IRC <- getAllFisherTest(crom_data$signif, IRC_NaN, outputdir = "IR_Carreras/Fisher_CpGlist", outputfile = FilesToEnrich[i])
             } else if ( tolower(testdata) =='hypergeometric') {
-               IRC <- getAllHypergeometricTest(crom_data$signif, IRC_NaN, outputdir = "IR_Carrera/HyperG_CpGlist", outputfile = FilesToEnrich[i])
+               IRC <- getAllHypergeometricTest(crom_data$signif, IRC_NaN, outputdir = "IR_Carreras/HyperG_CpGlist", outputfile = FilesToEnrich[i])
             }
          }
 

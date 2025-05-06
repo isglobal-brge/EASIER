@@ -161,13 +161,13 @@
 #' }
 "IR_Placenta"
 
-#' Imprinting Regions Carrera Epic V1
+#' Imprinting Regions Carreras-Gallo Epic V1
 #'
 #' Imprinting regions for Epic Version 1
 #'
 #' @docType data
 #'
-#' @usage data(IRCarrera_Ev1)
+#' @usage data(IRCarreras_Ev1)
 #' @format A data frame with 156 regions
 #' \describe{
 #'   \item{ICR_id}{ICR_id}
@@ -184,16 +184,16 @@
 #'   \item{Near_Trasncript}{Nearest Transcript}
 #'   \item{Dist_Near_Trasncript}{Distance to Nearest Transcript}
 #' }
-"IRCarrera_Ev1"
+"IRCarreras_Ev1"
 
 
-#' Imprinting Regions Carrera Epic V2
+#' Imprinting Regions Carreras-Gallo Epic V2
 #'
 #' Imprinting regions for Epic Version 2
 #'
 #' @docType data
 #'
-#' @usage data(IRCarrera_Ev2)
+#' @usage data(IRCarreras_Ev2)
 #' @format A data frame with 548 regions
 #' \describe{
 #'   \item{ICR_id}{ICR_id}
@@ -210,7 +210,7 @@
 #'   \item{Near_Trasncript}{Nearest Transcript}
 #'   \item{Dist_Near_Trasncript}{Distance to Nearest Transcript}
 #' }
-"IRCarrera_Ev2"
+"IRCarreras_Ev2"
 
 #' eQTM filter
 #'
