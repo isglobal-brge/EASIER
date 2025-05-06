@@ -566,10 +566,14 @@ if (length(FilesToEnrich)>=1 & FilesToEnrich[1]!='')
          overIRC <- findOverlapValues(data.GRange, IRC.GRange )
 
          #Create a data.frame with CpGs and IRCs information
-         mdata <- cbind.data.frame(DataFrame(CpG = data.GRange$name[overIRC$qhits]), DataFrame(IRC = IRC.GRange$name[overIRC$shits]))
+         mdata <- cbind.data.frame(DataFrame(CpG = data.GRange$name[overIRC$qhits]),
+                                   DataFrame(IRC = IRC.GRange$name[overIRC$shits]))
 
          # Merge with results from meta-analysis (A2)
          crom_data <- merge(crom_data, mdata, by.x="rs_number", by.y="CpG",all=T)
+
+         get_descriptives_ImprintingCarreras(crom_data$IRC, crom_data$signif , "CpGlist",
+                  outputdir = "IR_Carreras/Fisher_CpGlist_IRCarreras", outputfile = FilesToEnrich[i])
 
          # CpGs with IRC as NA
          IRC_NaN <- ifelse(is.na(crom_data$IRC),'IsNA','NotNA' )
